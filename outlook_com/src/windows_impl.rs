@@ -380,8 +380,8 @@ impl OutlookComManagerImpl {
         start_date: Option<&str>,
         end_date: Option<&str>,
     ) -> Result<Vec<crate::OutlookAppointment>, crate::OutlookError> {
-        let start_filter = start_date.unwrap_or("");
-        let end_filter = end_date.unwrap_or("");
+        let _start_filter = start_date.unwrap_or("");
+        let _end_filter = end_date.unwrap_or("");
 
         let script = format!(
             r#"

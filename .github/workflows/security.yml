@@ -1,11 +1,20 @@
-name: Security & Quality (Rust)
+name: Security & Quality
 
 on:
   push:
+    branches: [main, master, develop]
   pull_request:
+    branches: [main, master, develop]
+  schedule:
+    # Run security audit weekly on Sundays at midnight UTC
+    - cron: '0 0 * * 0'
 
 jobs:
+  # ============================================
+  # Rust Security & Quality
+  # ============================================
   rust-security-quality:
+    name: Rust Security & Quality
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,39 +32,101 @@ jobs:
       - name: Cargo cache
         uses: Swatinem/rust-cache@v2
 
-      - name: rustfmt (check)
+      - name: Check formatting
         run: cargo fmt --check
 
-      - name: clippy (deny warnings)
+      - name: Clippy (deny warnings)
         run: cargo clippy --workspace --all-targets -- -D warnings
 
-      - name: test
+      - name: Run tests
         run: cargo test --workspace
 
-      - name: check
+      - name: Check compilation
         run: cargo check --workspace
 
-      - name: Install cargo-audit (best-effort)
+      - name: Install cargo-audit
         run: cargo install cargo-audit --locked
         continue-on-error: true
 
-      - name: cargo audit (report-only)
-        run: cargo audit || true
+      - name: Security audit (cargo-audit)
+        run: cargo audit
+        continue-on-error: true
 
       - name: Install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
 
-      - name: Dangerous pattern scan (report-only)
+      - name: Dangerous pattern scan
         shell: bash
         run: |
           set -euo pipefail
-          echo "== dangerous pattern scan (report-only) =="
-          # NOTE: informational only; this repo legitimately contains some of these patterns.
-          # Excludes frontend/tauri dirs and target/.
-          rg -n --hidden --glob '!target/**' --glob '!frontend_desktop/**' --glob '!phoenix-desktop-tauri/**' --glob '!**/node_modules/**' --glob '*.rs' \
+          echo "== Dangerous Pattern Scan (Informational) =="
+          echo "NOTE: This repo legitimately uses some of these patterns for system access features."
+          echo ""
+          
+          # Excludes frontend/tauri dirs and target/
+          rg -n --hidden \
+            --glob '!target/**' \
+            --glob '!frontend_desktop/**' \
+            --glob '!phoenix-desktop-tauri/**' \
+            --glob '!**/node_modules/**' \
+            --glob '*.rs' \
             -e 'std::process::Command' \
-            -e '\\bCommand::new\\b' \
-            -e '\\bremove_dir_all\\b' \
-            -e '\\bunsafe\\s*\\{' \
+            -e '\bCommand::new\b' \
+            -e '\bremove_dir_all\b' \
+            -e '\bunsafe\s*\{' \
             -e 'MASTER_ORCHESTRATOR_UNRESTRICTED_EXECUTION' \
-            . || true
+            . || echo "No dangerous patterns found (or all are expected)"
+
+  # ============================================
+  # Frontend Security
+  # ============================================
+  frontend-security:
+    name: Frontend Security
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend_desktop
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend_desktop/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: NPM audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Check for outdated packages
+        run: npm outdated || true
+
+  # ============================================
+  # Dependency License Check
+  # ============================================
+  license-check:
+    name: License Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-license
+        run: cargo install cargo-license --locked
+        continue-on-error: true
+
+      - name: Check Rust licenses
+        run: cargo license || echo "License check skipped"
+        continue-on-error: true

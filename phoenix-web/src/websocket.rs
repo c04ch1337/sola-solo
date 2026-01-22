@@ -376,7 +376,7 @@ async fn handle_speak_streaming(
 
     // Mark user message received for proactive timing
     state.proactive_state.user_message_received().await;
-    
+
     // Store last user message for curiosity engine
     let _ = state.vaults.store_soul("last_user_message", &user_input);
 
@@ -550,7 +550,7 @@ async fn handle_message(
     access_map: &Arc<Mutex<HashMap<String, bool>>>,
 ) -> Result<WebSocketResponse, Box<dyn std::error::Error>> {
     let msg: WebSocketMessage = serde_json::from_str(text)?;
-    
+
     // Mark user message received for proactive timing
     state.proactive_state.user_message_received().await;
 

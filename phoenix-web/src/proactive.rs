@@ -9,11 +9,11 @@
 
 use chrono::Utc;
 use curiosity_engine::{CuriosityContext, CuriosityEngine};
-use emotional_intelligence_core::{EmotionalIntelligenceCore, RelationalContext};
+use emotional_intelligence_core::EmotionalIntelligenceCore;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use tokio::sync::{broadcast, Mutex};
+use tokio::sync::{Mutex, broadcast};
 use tracing::{info, warn};
 use vital_organ_vaults::VitalOrganVaults;
 
@@ -125,7 +125,10 @@ pub async fn generate_proactive_content(
     } else {
         // Fallback: gentle check-in
         let dad_alias = &eq.settings().dad_alias;
-        format!("{}, I've been thinking about you. How are you feeling?", dad_alias)
+        format!(
+            "{}, I've been thinking about you. How are you feeling?",
+            dad_alias
+        )
     };
 
     // Determine reason based on context
@@ -172,7 +175,7 @@ pub async fn run_proactive_loop(
 
         if state.should_send_proactive().await {
             let message = generate_proactive_content(&vaults, &curiosity, &eq).await;
-            
+
             info!(
                 "Sending proactive message (reason: {}, content_preview: {}...)",
                 message.reason,

@@ -48,8 +48,8 @@ use skill_system::SkillSystem;
 
 // Home Automation
 use home_automation_bridge::AGIIntegration;
-use voice_io::{VoiceIO, VoiceParams};
 use uuid::Uuid;
+use voice_io::{VoiceIO, VoiceParams};
 // ToolAgent and ToolAgentConfig are used in handle_unrestricted_execution
 // but imported there via use statement
 
@@ -175,6 +175,7 @@ struct AppState {
     privacy_framework: Option<Arc<Mutex<privacy_framework::PrivacyFramework>>>,
     hardware_detector: Option<Arc<hardware_detector::HardwareDetector>>,
     home_automation: Option<Arc<Mutex<AGIIntegration>>>,
+    #[allow(dead_code)]
     voice_io: Arc<VoiceIO>,
     skill_system: Arc<Mutex<SkillSystem>>,
     browser_prefs: Arc<Mutex<BrowserPrefs>>,
@@ -1506,6 +1507,7 @@ async fn handle_system_command(state: &AppState, cmd: &str) -> serde_json::Value
 }
 
 /// Parse port from params or from tokens like "port=9222"; default 9222.
+#[allow(dead_code)]
 fn parse_port(params: &HashMap<String, String>, rest_tokens: &[&str]) -> u16 {
     params
         .get("port")
@@ -2140,27 +2142,27 @@ async fn handle_dreams_command(_state: &AppState, cmd: &str) -> serde_json::Valu
                 "type": "dream.lucid",
                 "message": "Lucid dreaming feature coming soon. Cerebrum integration pending."
             })
-        },
+        }
         "shared" => {
             json!({
                 "type": "dream.shared",
                 "message": "Shared dreaming feature coming soon. Cerebrum integration pending."
             })
-        },
+        }
         "heal" => {
             let emotion = parts.get(3).unwrap_or(&"tired");
             json!({
                 "type": "dream.healing",
                 "message": format!("Healing session for '{}' coming soon. Cerebrum integration pending.", emotion)
             })
-        },
+        }
         "list" => {
             json!({
                 "type": "dream.list",
                 "dreams": [],
                 "message": "Dream recordings coming soon. Cerebrum integration pending."
             })
-        },
+        }
         "replay" => {
             if parts.len() < 4 {
                 return json!({
@@ -2173,7 +2175,7 @@ async fn handle_dreams_command(_state: &AppState, cmd: &str) -> serde_json::Valu
                 "type": "dream.replay",
                 "message": format!("Dream replay for '{}' coming soon. Cerebrum integration pending.", dream_id)
             })
-        },
+        }
         "stats" => {
             json!({
                 "type": "dream.stats",
@@ -2185,11 +2187,11 @@ async fn handle_dreams_command(_state: &AppState, cmd: &str) -> serde_json::Valu
                 },
                 "message": "Dream statistics coming soon. Cerebrum integration pending."
             })
-        },
+        }
         _ => json!({
             "type": "error",
             "message": format!("Unknown dreams subcommand: {}. Use: lucid, shared, heal, list, replay, or stats", subcmd)
-        })
+        }),
     }
 }
 
@@ -3247,12 +3249,18 @@ async fn api_analytics_track(
 ) -> impl Responder {
     // Simple analytics tracking - just log for now
     // In production, this could write to a database or analytics service
-    let event = body.get("event").and_then(|v| v.as_str()).unwrap_or("unknown");
-    let session_id = body.get("session_id").and_then(|v| v.as_str()).unwrap_or("unknown");
-    
+    let event = body
+        .get("event")
+        .and_then(|v| v.as_str())
+        .unwrap_or("unknown");
+    let session_id = body
+        .get("session_id")
+        .and_then(|v| v.as_str())
+        .unwrap_or("unknown");
+
     // Log analytics event (in production, this would be sent to analytics service)
     info!("[Analytics] Event: {} | Session: {}", event, session_id);
-    
+
     HttpResponse::Ok().json(json!({
         "status": "tracked"
     }))
@@ -3267,6 +3275,7 @@ struct SpeakAudioRequest {
     #[serde(default)]
     rate: Option<f32>,
     #[serde(default)]
+    #[allow(dead_code)]
     volume: Option<f32>,
 }
 
@@ -3274,9 +3283,9 @@ async fn api_audio_speak(
     _state: web::Data<AppState>,
     body: web::Json<SpeakAudioRequest>,
 ) -> impl Responder {
-    use tokio::process::Command;
     use reqwest::Client;
-    
+    use tokio::process::Command;
+
     // Get voice params from request or use defaults
     let mut params = VoiceParams::default();
     if let Some(pitch) = body.pitch {
@@ -3286,21 +3295,29 @@ async fn api_audio_speak(
         params.rate = rate;
     }
     // Note: volume is not directly supported in VoiceParams, but we can modulate via pitch/rate
-    
+
     // Get TTS engine from env (same as VoiceIO)
     let tts_engine = std::env::var("TTS_ENGINE").unwrap_or("coqui".to_string());
-    let coqui_model = std::env::var("COQUI_MODEL_PATH")
-        .unwrap_or("./models/coqui/tts_model.pth".to_string());
+    let coqui_model =
+        std::env::var("COQUI_MODEL_PATH").unwrap_or("./models/coqui/tts_model.pth".to_string());
     let elevenlabs_key = std::env::var("ELEVENLABS_API_KEY").unwrap_or_default();
     let elevenlabs_voice = std::env::var("ELEVENLABS_VOICE_ID").unwrap_or_default();
-    
+
     // Generate unique temp file path
     let timestamp = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_secs();
-    let audio_path = format!("tts_output_{}.{}", timestamp, if tts_engine == "elevenlabs" { "mp3" } else { "wav" });
-    
+    let audio_path = format!(
+        "tts_output_{}.{}",
+        timestamp,
+        if tts_engine == "elevenlabs" {
+            "mp3"
+        } else {
+            "wav"
+        }
+    );
+
     // Generate audio based on engine
     let result = match tts_engine.as_str() {
         "coqui" => {
@@ -3309,7 +3326,7 @@ async fn api_audio_speak(
                 r#"<speak><prosody rate="{}" pitch="{}">{}</prosody></speak>"#,
                 params.rate, params.pitch, body.text
             );
-            
+
             // Call Coqui TTS
             let output = Command::new("tts")
                 .arg("--text")
@@ -3320,10 +3337,13 @@ async fn api_audio_speak(
                 .arg(&audio_path)
                 .output()
                 .await;
-            
+
             match output {
                 Ok(output) if output.status.success() => Ok(audio_path),
-                Ok(output) => Err(format!("Coqui TTS failed: {}", String::from_utf8_lossy(&output.stderr))),
+                Ok(output) => Err(format!(
+                    "Coqui TTS failed: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                )),
                 Err(e) => Err(format!("Failed to execute Coqui TTS: {}", e)),
             }
         }
@@ -3333,10 +3353,13 @@ async fn api_audio_speak(
                     "error": "ElevenLabs API key and voice ID must be configured"
                 }));
             }
-            
+
             let client = Client::new();
-            let url = format!("https://api.elevenlabs.io/v1/text-to-speech/{}", elevenlabs_voice);
-            
+            let url = format!(
+                "https://api.elevenlabs.io/v1/text-to-speech/{}",
+                elevenlabs_voice
+            );
+
             let resp = client
                 .post(&url)
                 .header("xi-api-key", &elevenlabs_key)
@@ -3349,28 +3372,26 @@ async fn api_audio_speak(
                 }))
                 .send()
                 .await;
-            
+
             match resp {
-                Ok(response) if response.status().is_success() => {
-                    match response.bytes().await {
-                        Ok(bytes) => {
-                            if let Err(e) = tokio::fs::write(&audio_path, &bytes).await {
-                                return HttpResponse::InternalServerError().json(json!({
-                                    "error": format!("Failed to write audio file: {}", e)
-                                }));
-                            }
-                            Ok(audio_path)
+                Ok(response) if response.status().is_success() => match response.bytes().await {
+                    Ok(bytes) => {
+                        if let Err(e) = tokio::fs::write(&audio_path, &bytes).await {
+                            return HttpResponse::InternalServerError().json(json!({
+                                "error": format!("Failed to write audio file: {}", e)
+                            }));
                         }
-                        Err(e) => Err(format!("Failed to read ElevenLabs response: {}", e)),
+                        Ok(audio_path)
                     }
-                }
+                    Err(e) => Err(format!("Failed to read ElevenLabs response: {}", e)),
+                },
                 Ok(response) => Err(format!("ElevenLabs API error: {}", response.status())),
                 Err(e) => Err(format!("ElevenLabs request failed: {}", e)),
             }
         }
         _ => Err(format!("Unsupported TTS engine: {}", tts_engine)),
     };
-    
+
     match result {
         Ok(path) => {
             // Read audio file and return as bytes
@@ -3378,14 +3399,14 @@ async fn api_audio_speak(
                 Ok(audio_bytes) => {
                     // Clean up temp file (best effort)
                     let _ = tokio::fs::remove_file(&path).await;
-                    
+
                     // Determine content type
                     let content_type = if path.ends_with(".mp3") {
                         "audio/mpeg"
                     } else {
                         "audio/wav"
                     };
-                    
+
                     HttpResponse::Ok()
                         .content_type(content_type)
                         .body(audio_bytes)
@@ -4286,7 +4307,12 @@ async fn main() -> std::io::Result<()> {
     let proactive_loop_vaults = v_store.clone();
     let proactive_loop_tx = proactive_tx.clone();
     tokio::spawn(async move {
-        proactive::run_proactive_loop(proactive_loop_state, proactive_loop_vaults, proactive_loop_tx).await;
+        proactive::run_proactive_loop(
+            proactive_loop_state,
+            proactive_loop_vaults,
+            proactive_loop_tx,
+        )
+        .await;
     });
 
     let state = AppState {
@@ -4576,13 +4602,9 @@ async fn main() -> std::io::Result<()> {
                         web::resource("/command-registry")
                             .route(web::get().to(api_command_registry)),
                     )
-                    .service(
-                        web::scope("/analytics")
-                            .service(
-                                web::resource("/track")
-                                    .route(web::post().to(api_analytics_track)),
-                            ),
-                    )
+                    .service(web::scope("/analytics").service(
+                        web::resource("/track").route(web::post().to(api_analytics_track)),
+                    ))
                     .default_service(web::route().to(api_not_found)),
             )
     })

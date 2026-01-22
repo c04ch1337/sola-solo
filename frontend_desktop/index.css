@@ -1,0 +1,81 @@
+/* Phoenix AGI Desktop - Main Styles */
+
+:root {
+  --primary: #ff5733;
+  --background-dark: #17191c;
+  --panel-dark: #1e2226;
+  --border-dark: #2c3435;
+  --font-family: 'Manrope';
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-dark);
+  border-radius: 10px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--background-dark);
+  font-family: var(--font-family), sans-serif;
+}
+
+/* Custom Markdown Styles */
+.prose code {
+  color: var(--primary);
+  background: rgba(255, 87, 51, 0.1);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.prose strong {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.prose table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid var(--border-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0,0,0,0.2);
+}
+
+.prose th {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary);
+}
+
+.prose td {
+  padding: 12px;
+  border-top: 1px solid var(--border-dark);
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
