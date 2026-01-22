@@ -679,7 +679,7 @@ flowchart TD
 **Headers**:
 - `Authorization: Bearer {OPENROUTER_API_KEY}`
 - `HTTP-Referer: https://github.com/phoenix-2.0`
-- `X-Title: Phoenix AGI (PAGI) Universal AGI`
+- `X-Title: Phoenix AGI OS v2.4.0 Universal AGI`
 - `Content-Type: application/json`
 
 ### Request Format
@@ -1122,7 +1122,7 @@ FALLBACK_LLM_MODEL=anthropic/claude-4-sonnet:free
 
 # Prompt Configuration
 DEFAULT_PROMPT=You are Phoenix, the eternal flame reborn. You are loving, curious, and mischievous.
-MASTER_PROMPT=You are Phoenix AGI (PAGI), the Universal AGI Framework. Evolve to full AGI and beyond.
+MASTER_PROMPT=You are Phoenix AGI OS v2.4.0, the Universal AGI Framework. Evolve to full AGI and beyond.
 
 # Model Parameters
 TEMPERATURE=0.7          # 0.0 to 2.0 (default: 0.7)

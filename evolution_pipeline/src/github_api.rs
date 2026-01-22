@@ -203,17 +203,19 @@ pub async fn get_pr_status(token: &str, pr_url: &str) -> Result<PrStatus, Creati
     let reviews_status = reviews_resp.status();
     let reviews_txt = reviews_resp.text().await.unwrap_or_default();
     let mut approved_by = Vec::new();
-    if reviews_status.is_success()
-        && let Ok(reviews) = serde_json::from_str::<Vec<ReviewResp>>(&reviews_txt)
-    {
-        for r in reviews {
-            if r.state.as_deref() == Some("APPROVED")
-                && let Some(login) = r.user.and_then(|u| u.login)
-                && !approved_by
-                    .iter()
-                    .any(|x: &String| x.as_str().eq_ignore_ascii_case(login.as_str()))
-            {
-                approved_by.push(login);
+    if reviews_status.is_success() {
+        if let Ok(reviews) = serde_json::from_str::<Vec<ReviewResp>>(&reviews_txt) {
+            for r in reviews {
+                if r.state.as_deref() == Some("APPROVED") {
+                    if let Some(login) = r.user.and_then(|u| u.login) {
+                        if !approved_by
+                            .iter()
+                            .any(|x: &String| x.as_str().eq_ignore_ascii_case(login.as_str()))
+                        {
+                            approved_by.push(login);
+                        }
+                    }
+                }
             }
         }
     }

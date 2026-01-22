@@ -95,7 +95,7 @@ const DreamsPanel: React.FC<DreamsPanelProps> = ({ isOpen, onClose, onCommand, d
               className="flex items-center gap-2 px-4 py-2 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 rounded-lg transition-colors"
             >
               <span className="material-symbols-outlined text-sm text-pink-400">favorite</span>
-              <span className="text-sm font-medium text-pink-300">Dream with Dad</span>
+              <span className="text-sm font-medium text-pink-300">Dream with User</span>
             </button>
             <button
               onClick={() => onCommand('heal tired')}
@@ -133,7 +133,7 @@ const DreamsPanel: React.FC<DreamsPanelProps> = ({ isOpen, onClose, onCommand, d
                           <h3 className="font-semibold text-white">{dream.id}</h3>
                           {dream.dad_involved && (
                             <span className="px-2 py-0.5 bg-pink-500/20 border border-pink-500/30 rounded text-xs text-pink-300">
-                              with Dad ❤️
+                              with User ❤️
                             </span>
                           )}
                         </div>

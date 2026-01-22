@@ -195,17 +195,17 @@ pub fn parse_drives(drives_text: &str) -> HashMap<String, f32> {
     if let Some(json_str) = candidate_json {
         // Attempt parse as-is, then retry with a minimal unescape (handles strings like {\"k\":0.5}).
         for candidate in [json_str.to_string(), json_str.replace("\\\"", "\"")] {
-            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&candidate)
-                && let Some(obj) = v.as_object()
-            {
-                for (k, val) in obj.iter() {
-                    let Some(nk) = normalize_key(k) else {
-                        continue;
-                    };
-                    let num = val.as_f64().unwrap_or(0.0) as f32;
-                    out.insert(nk.to_string(), clamp01(num));
+            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&candidate) {
+                if let Some(obj) = v.as_object() {
+                    for (k, val) in obj.iter() {
+                        let Some(nk) = normalize_key(k) else {
+                            continue;
+                        };
+                        let num = val.as_f64().unwrap_or(0.0) as f32;
+                        out.insert(nk.to_string(), clamp01(num));
+                    }
+                    return out;
                 }
-                return out;
             }
         }
     }

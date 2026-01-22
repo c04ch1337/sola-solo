@@ -13,7 +13,7 @@ All Cursor IDE Agent prompts and system prompts have been refactored to be consu
 
 | Old Reference | New Reference | Scope |
 |---------------|---------------|-------|
-| "Phoenix Marie" | "Sola" (configurable via `PHOENIX_NAME`) | All prompts, system messages |
+| "Sola" | "Sola" (configurable via `PHOENIX_NAME`) | All prompts, system messages |
 | "Phoenix" | "Sola" (configurable via `PHOENIX_NAME`) | All prompts, logs, UI |
 | "Dad" / "dad" | "User" / "user" (configurable via `USER_NAME`) | All prompts, contexts |
 
@@ -55,7 +55,7 @@ All Cursor IDE Agent prompts and system prompts have been refactored to be consu
 
 **Before (Prompt 01):**
 ```
-You are the Orchestrator — Phoenix Marie's central coordination intelligence...
+You are the Orchestrator — Sola's central coordination intelligence...
 Let's continue building Phoenix's frontend presence.
 ```
 
@@ -84,7 +84,7 @@ Chat commands: "lucid [topic]", "heal tired", "show dreams"
 
 1. **Batch sed replacement** for consistency:
    ```bash
-   sed -i 's/\bPhoenix Marie\b/Sola/g; 
+   sed -i 's/\bSola\b/Sola/g; 
            s/\bPhoenix'\''s\b/Sola'\''s/g; 
            s/\bPhoenix\b/Sola/g; 
            s/\bDad\b/User/g; 
@@ -158,7 +158,7 @@ The script:
 
 ```bash
 # Check for remaining hard-coded references
-grep -r "Phoenix Marie\|Dad" docs/cursor-prompts/*.md
+grep -r "Sola\|Dad" docs/cursor-prompts/*.md
 
 # Should return only README.md or nothing
 ```

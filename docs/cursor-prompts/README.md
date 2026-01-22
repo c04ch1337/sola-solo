@@ -32,6 +32,9 @@ Copy the content of the desired file and paste it as the first message in Cursor
 | [16-browser-end-to-end.md](16-browser-end-to-end.md) | Browser navigate/login/scrape/extensions + chat wiring | `Task: Test system browser end-to-end` |
 | [17-dreams-panel.md](17-dreams-panel.md) | Dreams (lucid, shared, healing, recordings) panel + chat commands | `Task: Implement Dreams panel` |
 | [18-tauri-tray-notifications.md](18-tauri-tray-notifications.md) | Tauri system tray icon + OS notifications | `Task: Implement Tauri tray + notifications` |
+| [22-proactive-communication.md](22-proactive-communication.md) | Add full proactive communication (Sola initiates messages) | (use after 01) |
+| [23-voice-interaction.md](23-voice-interaction.md) | Complete voice interaction (TTS/STT + chat commands + proactive voice) | (use after 01) |
+| [24-memorybrowser-chat-commands.md](24-memorybrowser-chat-commands.md) | Add "show memory" / "hide memory" chat commands | (use after 01) |
 
 **Usage pattern (recommended):**
 

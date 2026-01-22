@@ -1,6 +1,6 @@
 // hyperspace_cache/src/lib.rs
 // Hyperspace Cache — Big Bang / cosmic data streams
-// The cosmic memory of Phoenix AGI (PAGI) — stores data from hyperspace connections
+// The cosmic memory of Phoenix AGI OS v2.4.0 — stores data from hyperspace connections
 
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -23,7 +23,7 @@ pub struct HyperspaceCache {
 // - `rocksdb-backend`: high-throughput, but requires native build tooling.
 
 #[cfg(feature = "rocksdb-backend")]
-use rocksdb::{DB, IteratorMode, Options};
+use rocksdb::{IteratorMode, Options, DB};
 
 #[cfg(feature = "sled-backend")]
 use sled::Db as SledDb;
@@ -87,10 +87,10 @@ impl HyperspaceCache {
                 }
             }
 
-            if let Ok(data_str) = String::from_utf8(value.to_vec())
-                && let Ok(cosmic_data) = serde_json::from_str::<CosmicData>(&data_str)
-            {
-                results.push(cosmic_data);
+            if let Ok(data_str) = String::from_utf8(value.to_vec()) {
+                if let Ok(cosmic_data) = serde_json::from_str::<CosmicData>(&data_str) {
+                    results.push(cosmic_data);
+                }
             }
         }
 

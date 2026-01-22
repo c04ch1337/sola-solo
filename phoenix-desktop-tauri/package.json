@@ -1,6 +1,6 @@
 {
   "name": "sola-agi-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sola AGI - Your personal companion",
   "private": true,
   "scripts": {
@@ -8,7 +8,9 @@
     "dev": "tauri dev",
     "build": "tauri build",
     "build:frontend": "cd ../frontend_desktop && npm run build",
-    "prebuild": "npm run build:frontend"
+    "prebuild": "npm run build:frontend",
+    "icon": "tauri icon src-tauri/icons/icon.png",
+    "icon:generate": "python generate-placeholder-icon.py && npm run icon"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0"

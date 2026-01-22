@@ -73,10 +73,10 @@ impl AdvancedVision {
 
         // Keep large ML assets out of git; download on first run if requested.
         // This is best-effort: failures should not prevent the workspace from compiling/running.
-        if auto_download_models_enabled()
-            && let Err(e) = ensure_default_models_present()
-        {
-            eprintln!("[vision_advanced] model download/decompress failed: {e}");
+        if auto_download_models_enabled() {
+            if let Err(e) = ensure_default_models_present() {
+                eprintln!("[vision_advanced] model download/decompress failed: {e}");
+            }
         }
 
         // Keep env reads for compatibility, but do not load native backends.

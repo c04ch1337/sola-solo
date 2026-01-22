@@ -1,7 +1,7 @@
 [package]
 name = "emotion_detection"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [features]
 # Default build is heuristic/stub based (no heavyweight ML runtime).

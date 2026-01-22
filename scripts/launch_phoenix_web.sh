@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Launching Phoenix AGI (PAGI) Web UI backend..."
+echo "Launching Sola AGI (Phoenix AGI OS v2.4.0) Web UI backend..."
 cargo run --bin phoenix-web
 

@@ -142,7 +142,9 @@ fn main() {
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(quit);
     
-    let system_tray = SystemTray::new().with_menu(tray_menu);
+    let system_tray = SystemTray::new()
+        .with_menu(tray_menu)
+        .with_tooltip("Sola AGI - v1.0.1");
 
     tauri::Builder::default()
         .manage(RecorderState {

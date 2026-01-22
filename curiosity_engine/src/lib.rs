@@ -3,7 +3,7 @@
 //
 // We bias toward relational curiosity because connection creates meaning.
 
-use rand::{Rng as _, seq::SliceRandom as _};
+use rand::{seq::SliceRandom as _, Rng as _};
 use serde::{Deserialize, Serialize};
 
 use synaptic_tuning_fibers::SynapticTuningFibers;

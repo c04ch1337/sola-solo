@@ -1,4 +1,4 @@
-//! Centralized configuration manager for Phoenix AGI (PAGI).
+//! Centralized configuration manager for Phoenix AGI OS v2.4.0.
 //!
 //! Loads configuration from:
 //! 1. GitHub Archetype repositories (master_system_prompt.txt, personality_db.json)
@@ -18,7 +18,7 @@ fn env_nonempty(key: &str) -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
-/// Main configuration structure for Phoenix AGI (PAGI).
+/// Main configuration structure for Phoenix AGI OS v2.4.0.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AGIConfig {
     /// Master system prompt loaded from archetype or .env

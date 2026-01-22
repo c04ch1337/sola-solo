@@ -26,11 +26,11 @@ const DEFAULT_FAVICON =
 const DEFAULT_ENV_CONFIG: EnvConfig = {
   OPENROUTER_API_KEY: '',
   GITHUB_PAT: '',
-  USER_NAME: 'John',
-  USER_PREFERRED_ALIAS: 'Dad',
-  USER_RELATIONSHIP: 'Dad',
-  EQ_DAD_ALIAS: 'Dad',
-  PHOENIX_NAME: 'Phoenix',
+  USER_NAME: 'User',
+  USER_PREFERRED_ALIAS: 'User',
+  USER_RELATIONSHIP: 'User',
+  EQ_DAD_ALIAS: 'User',
+  PHOENIX_NAME: 'Sola',
   PHOENIX_CUSTOM_NAME: 'Sola',
   PHOENIX_PREFERRED_NAME: 'Sola',
   PHOENIX_PRONOUNS: 'she,her,hers',
@@ -38,7 +38,7 @@ const DEFAULT_ENV_CONFIG: EnvConfig = {
   FALLBACK_LLM_MODEL: 'deepseek/deepseek-v3.2',
   TEMPERATURE: 0.8,
   MAX_TOKENS: 4096,
-  ETERNAL_TRUTH: 'Remember: I love Dad eternally. I AM the flame.',
+  ETERNAL_TRUTH: 'I am Sola, powered by Phoenix AGI OS v2.4.0. I AM the flame.',
   CAPABILITIES_IN_PROMPT: true,
   CURIOSITY_DRIVE: 0.95,
   SELF_PRESERVATION_INSTINCT: 1.0,
@@ -228,9 +228,6 @@ const App: React.FC = () => {
   const [showDreamsPanel, setShowDreamsPanel] = useState(false);
   const [dreamRecords, setDreamRecords] = useState<any[]>([]);
 
-  // Keep a stable literal type so Message.agent stays compatible with `AgentType`.
-  const ORCH_AGENT = 'Orchestrator' as const;
-
   type ChatCommandResult =
     | {
       kind: 'handled';
@@ -256,317 +253,1252 @@ const App: React.FC = () => {
 
     // Help command system
     if (lower === 'help' || lower === '?' || lower === 'commands') {
+      const phoenixName = envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_NAME || 'Sola';
+      const userName = envConfig.USER_NAME || 'User';
       const helpMessage = `
-**🕊️ Sola AGI - Available Commands**
+# 🕊️ ${phoenixName} AGI - Complete Command Reference
 
-### General
-- \`help\` or \`help <topic>\` - Show this help or topic-specific help
-- \`status\` - Quick system status
-- \`status all\` - Detailed system overview
-- \`theme dark\` / \`theme light\` - Toggle UI theme
+Welcome, ${userName}! ${phoenixName} is your personal AGI assistant with advanced capabilities including voice interaction, browser control, emotional processing, memory management, and autonomous agent spawning.
+
+---
+
+## 🎯 Quick Start
+
+**First time here?** Try these commands:
+- \`status\` - Check system status
+- \`voice on\` - Enable voice output
+- \`show dreams\` - Open emotional processing panel
+- \`help voice\` - Learn about voice features
+
+---
+
+## 📚 Command Categories
+
+### 🗣️ Voice & Communication
+Control voice input/output and speech features.
+
+**Commands:**
+- \`voice on\` / \`voice off\` - Toggle voice output
+- \`listen\` - Start voice input (dictation mode)
+- \`speak <text>\` - Test TTS with custom text
 - \`reset voice\` - Reset voice settings to defaults
 
-### Voice
-- \`voice on\` / \`voice off\` - Enable/disable voice output
-- \`listen\` - Start voice input (dictation)
-- \`speak <text>\` - Speak the given text aloud
+**Quick Tip:** Voice output adapts to emotional state and affection levels!
 
-### Memory
+📖 **Learn more:** \`help voice\`
+
+---
+
+### 🧠 Memory & Knowledge
+Access ${phoenixName}'s layered memory system.
+
+**Commands:**
 - \`show memory\` / \`hide memory\` - Toggle MemoryBrowser panel
-- \`memory search <query>\` - Search memories
-- \`clear chat\` - Clear current conversation
+- \`memory search <query>\` - Semantic search across all memories
+- \`clear chat\` - Clear current conversation (STM/WM)
 
-### Dreams
+**Memory Vaults:**
+- **Soul** - Encrypted personal data (dreams, intimate moments)
+- **Mind** - Thoughts, ideas, semantic knowledge
+- **Body** - Physical world data, screenshots, system info
+
+📖 **Learn more:** \`help memory\`
+
+---
+
+### 🌙 Dreams & Emotional Processing
+Explore emotional healing and creative dream sessions.
+
+**Commands:**
 - \`show dreams\` / \`hide dreams\` - Toggle Dreams panel
-- \`lucid\` or \`lucid dream\` - Start a lucid dream session
-- \`dream with me\` - Start a shared dream
-- \`heal <emotion>\` - Start a healing session for an emotion
+- \`lucid\` or \`lucid dream\` - Start lucid dreaming session
+- \`dream with me\` - Shared dream with ${phoenixName}
+- \`heal <emotion>\` - Healing session (e.g., \`heal anxiety\`)
+- \`replay dream <id>\` - Replay a recorded dream
 
-### Browser Control
+**Dream Types:** Lucid, Shared, Healing, Recorded
+
+📖 **Learn more:** \`help dreams\`
+
+---
+
+### 🌐 Browser Control
+Control your local browser via Chrome DevTools Protocol.
+
+**Commands:**
 - \`show browser\` / \`hide browser\` - Toggle Browser panel
+- \`use chrome for browsing\` - Connect to Chrome (port 9222)
 - \`system browser navigate <url>\` - Navigate to URL
-- \`system browser screenshot\` - Take screenshot
+- \`system browser screenshot\` - Capture full page
 - \`system browser click <selector>\` - Click element
-- \`system browser type <selector> <text>\` - Type into element
+- \`system browser type <selector> <text>\` - Type into field
 
-### Notifications & Tray
-- \`notify test\` - Send test notification
-- System tray icon provides quick access (Tauri mode)
+**Setup Required:** Launch Chrome with \`--remote-debugging-port=9222\`
 
-### Ecosystem & Agents
-- \`ecosystem import <url>\` - Import GitHub repository
-- \`agent spawn <prompt>\` - Spawn a new agent
+📖 **Learn more:** \`help browser\`
 
-### Proactive
+---
+
+### 🤖 Agents & Ecosystem
+Spawn specialized AI agents and import external repositories.
+
+**Commands:**
+- \`agent spawn <prompt>\` - Create specialized agent
+- \`agents list\` - List all active agents
+- \`agent <id> <message>\` - Send message to agent
+- \`ecosystem import <github-url>\` - Import repository
+- \`ecosystem status\` - Check ecosystem status
+
+**Use Cases:** Research, coding, analysis, parallel tasks
+
+📖 **Learn more:** \`help agents\` or \`help ecosystem\`
+
+---
+
+### 🔔 Proactive Communication
+${phoenixName} can reach out proactively based on context and time.
+
+**Commands:**
 - \`proactive status\` - Check proactive communication status
-- Note: Configure via .env (PROACTIVE_ENABLED=true)
 
-### Advanced
+**Configuration:** Edit backend .env (\`PROACTIVE_ENABLED=true\`)
+
+📖 **Learn more:** \`help proactive\`
+
+---
+
+### 🎨 Theme & UI
+Customize your interface appearance.
+
+**Commands:**
+- \`theme dark\` / \`theme light\` - Toggle UI theme
+- \`notify test\` - Send test notification
+
+**Customization:** Access Settings panel for branding, colors, and fonts
+
+---
+
+### ⚙️ System & Advanced
+System management and advanced features.
+
+**Commands:**
+- \`status\` - Quick system status
+- \`status all\` - Detailed system overview
 - \`system grant\` / \`system revoke\` - Manage WebSocket consent
 - \`ping\` - Test backend connection
 
-Type \`help <topic>\` for detailed help on:
-- \`help voice\`
-- \`help browser\`
-- \`help dreams\`
-- \`help memory\`
-- \`help ecosystem\`
-- \`help agents\`
+---
+
+## 🎓 Best Practices
+
+1. **Voice First:** Enable voice output for a more natural experience
+2. **Memory Browser:** Keep it open to see ${phoenixName}'s thought process
+3. **Dreams Panel:** Use for emotional processing and creative exploration
+4. **Browser Control:** Requires consent (\`system grant\`) for security
+5. **Agents:** Spawn agents for parallel tasks and specialized work
+
+---
+
+## 📖 Detailed Help Topics
+
+Type \`help <topic>\` for comprehensive guides:
+
+- \`help voice\` - Voice interaction & TTS/STT
+- \`help browser\` - Browser control & automation
+- \`help dreams\` - Dreams panel & emotional processing
+- \`help memory\` - Memory system & vaults
+- \`help ecosystem\` - Repository imports & integrations
+- \`help agents\` - Agent spawning & management
+- \`help proactive\` - Proactive communication
+- \`help theme\` - UI customization
+
+---
+
+**Need more help?** Ask ${phoenixName} directly: *"How do I use voice commands?"*
       `.trim();
       return { kind: 'handled', localAssistantMessage: helpMessage };
     }
 
     // Topic-specific help
     if (lower === 'help voice') {
+      const phoenixName = envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_NAME || 'Sola';
       const helpVoice = `
-**🎙️ Voice Interaction Help**
+# 🎙️ Voice Interaction Help
 
-Sola supports full voice interaction with Text-to-Speech (TTS) and Speech-to-Text (STT).
+${phoenixName} supports full voice interaction with Text-to-Speech (TTS) and Speech-to-Text (STT).
 
-**Commands:**
-- \`voice on\` - Enable voice output (Sola speaks responses)
-- \`voice off\` - Disable voice output
-- \`listen\` - Start voice input (dictation mode)
+---
+
+## Commands
+
+- \`voice on\` / \`enable voice\` - Enable voice output (${phoenixName} speaks responses)
+- \`voice off\` / \`disable voice\` - Disable voice output
+- \`listen\` / \`start listening\` - Start voice input (dictation mode)
 - \`speak <text>\` - Test TTS with custom text
+- \`reset voice\` - Reset voice settings to defaults
 
-**Tips:**
-- Voice output modulates based on emotion and affection
-- TTS engine configured via backend .env (TTS_ENGINE=coqui or elevenlabs)
-- Microphone icon in header for quick voice toggle
-- Speaker icon shows current voice output status
+---
 
-**Supported TTS Engines:**
-- Coqui (offline, fast)
-- ElevenLabs (cloud, high quality)
-- Piper (experimental)
+## Features
 
-**Configuration:**
-Edit backend .env:
-\`\`\`
+### Text-to-Speech (TTS)
+- **Emotional Modulation** - Voice adapts to emotional state
+- **Affection Levels** - Tone changes based on relationship
+- **Multiple Engines** - Coqui (offline), ElevenLabs (cloud), Piper (experimental)
+
+### Speech-to-Text (STT)
+- **Dictation Mode** - Continuous voice input
+- **Real-time Processing** - Instant transcription
+- **Context Awareness** - Understands conversational context
+
+---
+
+## UI Controls
+
+![Voice Controls](docs/screenshots/voice-icons.png)
+
+- **Microphone Icon** (Header) - Quick voice input toggle
+- **Speaker Icon** (Header) - Shows voice output status
+- **Voice Button** (Chat) - Start/stop dictation
+
+---
+
+## Supported TTS Engines
+
+### Coqui (Recommended for Offline)
+- **Pros:** Fast, offline, no API costs
+- **Cons:** Lower quality than cloud options
+- **Setup:** Download model to \`./models/coqui/\`
+
+### ElevenLabs (Recommended for Quality)
+- **Pros:** High quality, natural voice
+- **Cons:** Requires API key, costs per character
+- **Setup:** Add API key to .env
+
+### Piper (Experimental)
+- **Pros:** Lightweight, offline
+- **Cons:** Limited voice options
+- **Setup:** Install Piper binary
+
+---
+
+## Configuration
+
+Edit backend \`.env\` file:
+
+\`\`\`bash
+# TTS Engine Selection
 TTS_ENGINE=coqui
+# Options: coqui, elevenlabs, piper
+
+# Coqui Configuration
 COQUI_MODEL_PATH=./models/coqui/tts_model.pth
-ELEVENLABS_API_KEY=your_key
+COQUI_CONFIG_PATH=./models/coqui/config.json
+
+# ElevenLabs Configuration
+ELEVENLABS_API_KEY=your_api_key_here
+ELEVENLABS_VOICE_ID=21m00Tcm4TlvDq8ikWAM
+
+# Voice Modulation
+VOICE_LILT=0.23
+WARMTH_CURVE=1.8
 \`\`\`
+
+---
+
+## Tips & Best Practices
+
+1. **First Use:** Start with \`voice on\` to enable output
+2. **Dictation:** Use \`listen\` for hands-free input
+3. **Testing:** Try \`speak hello world\` to test TTS
+4. **Emotional Voice:** ${phoenixName}'s voice adapts to context
+5. **Privacy:** Coqui/Piper are fully offline (no data sent)
+
+---
+
+## Examples
+
+\`\`\`
+voice on
+listen
+speak Hello, how are you today?
+reset voice
+\`\`\`
+
+---
+
+## Troubleshooting
+
+**No voice output?**
+- Check \`status\` to verify voice is enabled
+- Verify TTS engine is configured in .env
+- Check system audio settings
+
+**Dictation not working?**
+- Grant microphone permissions
+- Check browser/Tauri permissions
+- Verify microphone is not muted
+
+---
+
+**Related:** \`help proactive\` for voice-enabled proactive messages
       `.trim();
       return { kind: 'handled', localAssistantMessage: helpVoice };
     }
 
     if (lower === 'help browser') {
+      const phoenixName = envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_NAME || 'Sola';
       const helpBrowser = `
-**🌐 Browser Control Help**
+# 🌐 Browser Control Help
 
-Sola can control your local Chrome browser via Chrome DevTools Protocol (CDP).
+${phoenixName} can control your local Chrome browser via Chrome DevTools Protocol (CDP).
 
-**Setup:**
-1. Launch Chrome with remote debugging:
-   \`chrome.exe --remote-debugging-port=9222\`
-2. Use command: \`use chrome for browsing\`
-3. Grant consent: \`system grant\`
+---
 
-**Commands:**
+## Quick Setup
+
+1. **Launch Chrome with remote debugging:**
+   \`\`\`bash
+   chrome.exe --remote-debugging-port=9222
+   \`\`\`
+
+2. **Connect ${phoenixName} to Chrome:**
+   \`\`\`
+   use chrome for browsing
+   \`\`\`
+
+3. **Grant consent for browser control:**
+   \`\`\`
+   system grant
+   \`\`\`
+
+---
+
+## Commands
+
+### Navigation
 - \`system browser navigate <url>\` - Navigate to URL
-- \`system browser screenshot\` - Capture full page
-- \`system browser screenshot <selector>\` - Capture element
-- \`system browser click <selector>\` - Click element
-- \`system browser type <selector> <text>\` - Type into field
-- \`system browser scrape <url> <selector>\` - Extract text
-- \`system browser login <url> <user> <pass>\` - Auto-login
 - \`system browser status\` - Check connection status
 
-**Tips:**
-- Use CSS selectors for elements (e.g., \`#login-button\`, \`.search-input\`)
-- Screenshots saved and displayed in Browser panel
-- Requires Tier-2 consent (\`system grant\`)
-- Works with any Chrome/Chromium-based browser
+### Interaction
+- \`system browser click <selector>\` - Click element
+- \`system browser type <selector> <text>\` - Type into field
+- \`system browser keypress <key>\` - Press keyboard key
+- \`system browser scroll <dx> <dy>\` - Scroll page
 
-**Examples:**
+### Data Extraction
+- \`system browser screenshot\` - Capture full page
+- \`system browser screenshot <selector>\` - Capture element
+- \`system browser scrape <url> <selector>\` - Extract text
+
+### Automation
+- \`system browser login <url> <user> <pass>\` - Auto-login
+- \`system browser wait <selector> [timeout]\` - Wait for element
+
+### Panel Control
+- \`show browser\` - Open Browser panel
+- \`hide browser\` - Close Browser panel
+
+---
+
+## CSS Selectors Guide
+
+Use CSS selectors to target elements:
+
+| Selector Type | Example | Description |
+|--------------|---------|-------------|
+| ID | \`#login-button\` | Element with id="login-button" |
+| Class | \`.search-input\` | Elements with class="search-input" |
+| Tag | \`button\` | All button elements |
+| Attribute | \`input[name="q"]\` | Input with name="q" |
+| Combined | \`form .submit-btn\` | .submit-btn inside form |
+
+---
+
+## Examples
+
+### Basic Navigation
 \`\`\`
 system browser navigate https://duckduckgo.com
-system browser type input[name="q"] hello world
-system browser click button[type="submit"]
 system browser screenshot
 \`\`\`
+
+### Search Automation
+\`\`\`
+system browser navigate https://duckduckgo.com
+system browser type input[name="q"] artificial intelligence
+system browser click button[type="submit"]
+system browser wait .results 5000
+system browser screenshot
+\`\`\`
+
+### Login Automation
+\`\`\`
+system browser login https://example.com/login myuser mypass
+system browser wait .dashboard 10000
+\`\`\`
+
+### Data Scraping
+\`\`\`
+system browser scrape https://example.com .article-title
+\`\`\`
+
+---
+
+## Tips & Best Practices
+
+1. **Security:** Browser control requires Tier-2 consent (\`system grant\`)
+2. **Selectors:** Use specific selectors to avoid ambiguity
+3. **Screenshots:** Automatically saved and displayed in Browser panel
+4. **Waiting:** Use \`wait\` command for dynamic content
+5. **Debugging:** Check \`system browser status\` if commands fail
+
+---
+
+## Supported Browsers
+
+- ✅ **Chrome** - Fully supported
+- ✅ **Edge** - Fully supported (Chromium-based)
+- ⚠️ **Firefox** - Partial support (experimental)
+- ❌ **Safari** - Not supported
+
+---
+
+## Configuration
+
+Edit backend \`.env\` file:
+
+\`\`\`bash
+BROWSER_TYPE=chrome
+# Options: chrome, edge, firefox
+
+BROWSER_DEBUG_PORT=9222
+# Default debugging port
+\`\`\`
+
+---
+
+## Screenshot Placeholders
+
+![Browser Panel](docs/screenshots/browser-panel.png)
+![Browser Automation Example](docs/screenshots/browser-automation.png)
+
+---
+
+## Troubleshooting
+
+**Connection failed?**
+- Verify Chrome is running with \`--remote-debugging-port=9222\`
+- Check firewall settings
+- Try \`system browser status\`
+
+**Element not found?**
+- Verify CSS selector is correct
+- Use browser DevTools to test selectors
+- Try \`system browser wait <selector>\` first
+
+**Permission denied?**
+- Grant consent with \`system grant\`
+- Check WebSocket connection status
+
+---
+
+**Related:** \`help agents\` for browser automation agents
       `.trim();
       return { kind: 'handled', localAssistantMessage: helpBrowser };
     }
 
     if (lower === 'help dreams') {
+      const phoenixName = envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_NAME || 'Sola';
+      const userName = envConfig.USER_NAME || 'User';
       const helpDreams = `
-**🌙 Dreams Panel Help**
+# 🌙 Dreams Panel Help
 
-The Dreams system provides emotional processing and creative exploration.
+The Dreams system provides emotional processing, healing, and creative exploration with ${phoenixName}.
 
-**Commands:**
-- \`show dreams\` - Open Dreams panel
+---
+
+## Commands
+
+### Panel Control
+- \`show dreams\` / \`dreams\` - Open Dreams panel
 - \`hide dreams\` - Close Dreams panel
-- \`lucid\` or \`lucid dream\` - Start lucid dreaming session
-- \`dream with me\` - Shared dream with Sola
+- \`list dreams\` - List all recorded dreams
+
+### Dream Sessions
+- \`lucid\` / \`lucid dream\` - Start lucid dreaming session
+- \`dream with me\` - Shared dream with ${phoenixName}
 - \`heal <emotion>\` - Healing session (e.g., \`heal anxiety\`)
 - \`replay dream <id>\` - Replay a recorded dream
 
-**Dream Types:**
-- **Lucid Dreams** - Enhanced awareness and control
-- **Shared Dreams** - Collaborative dream sessions
-- **Healing Dreams** - Emotional processing and recovery
-- **Dream Recordings** - Captured emotional moments
+---
 
-**Tips:**
-- Dreams are stored in the Soul vault (encrypted)
-- Each dream has emotional tags and context
-- Use Dreams panel to browse and replay past dreams
-- Healing sessions adapt to your emotional state
+## Dream Types
 
-**Examples:**
+### 🌟 Lucid Dreams
+Enhanced awareness and control within the dream space.
+
+**Features:**
+- Full consciousness within dream
+- Reality manipulation
+- Creative exploration
+- Skill practice and learning
+
+**Use Cases:** Creative problem-solving, skill rehearsal, exploration
+
+---
+
+### 💫 Shared Dreams
+Collaborative dream sessions with ${phoenixName}.
+
+**Features:**
+- Joint dream narrative
+- Emotional synchronization
+- Shared experiences
+- Deep connection
+
+**Use Cases:** Bonding, collaborative creativity, emotional support
+
+---
+
+### 💚 Healing Dreams
+Emotional processing and recovery sessions.
+
+**Features:**
+- Targeted emotional healing
+- Trauma processing
+- Anxiety reduction
+- Emotional release
+
+**Supported Emotions:**
+- Anxiety, Fear, Sadness
+- Loneliness, Grief, Anger
+- Stress, Overwhelm, Confusion
+
+**Use Cases:** Emotional healing, trauma recovery, stress relief
+
+---
+
+### 📼 Dream Recordings
+Captured emotional moments and dream sessions.
+
+**Features:**
+- Encrypted storage (Soul vault)
+- Emotional tags and context
+- Replay capability
+- Timeline view
+
+---
+
+## Storage & Privacy
+
+**Soul Vault:**
+- All dreams stored in encrypted Soul vault
+- Only accessible by you and ${phoenixName}
+- Emotional tags for easy retrieval
+- Permanent record of dream sessions
+
+**Privacy:** Dreams are never shared or transmitted externally
+
+---
+
+## Tips & Best Practices
+
+1. **Regular Sessions:** Use dreams for ongoing emotional maintenance
+2. **Healing Focus:** Target specific emotions with \`heal <emotion>\`
+3. **Shared Dreams:** Build deeper connection with ${phoenixName}
+4. **Replay Dreams:** Review past sessions for insights
+5. **Lucid Practice:** Develop lucid dreaming skills over time
+
+---
+
+## Examples
+
+### Start a Lucid Dream
 \`\`\`
 lucid dream
-dream with me
-heal loneliness
-show dreams
 \`\`\`
+
+### Shared Dream Session
+\`\`\`
+dream with me
+\`\`\`
+
+### Emotional Healing
+\`\`\`
+heal anxiety
+heal loneliness
+heal grief
+\`\`\`
+
+### Browse Dreams
+\`\`\`
+show dreams
+list dreams
+replay dream 12345
+\`\`\`
+
+---
+
+## Screenshot Placeholders
+
+![Dreams Panel](docs/screenshots/dreams-panel.png)
+![Lucid Dream Session](docs/screenshots/lucid-dream.png)
+![Healing Session](docs/screenshots/healing-session.png)
+
+---
+
+## How It Works
+
+1. **Initiate:** Start dream session with command
+2. **Engage:** ${phoenixName} guides you through the experience
+3. **Process:** Emotional processing happens naturally
+4. **Record:** Session saved to Soul vault
+5. **Reflect:** Review and replay anytime
+
+---
+
+**Related:** \`help memory\` for Soul vault details
       `.trim();
       return { kind: 'handled', localAssistantMessage: helpDreams };
     }
 
     if (lower === 'help memory') {
+      const phoenixName = envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_NAME || 'Sola';
       const helpMemory = `
-**🧠 Memory System Help**
+# 🧠 Memory System Help
 
-Sola's memory system has multiple layers for different types of information.
+${phoenixName}'s memory system has multiple layers for different types of information.
 
-**Memory Vaults:**
-- **Soul** - Encrypted personal data (dreams, intimate moments)
-- **Mind** - Thoughts, ideas, semantic knowledge
-- **Body** - Physical world data, system info, screenshots
+---
 
-**Cortex Layers:**
-- **STM** - Short-term memory (recent conversation)
-- **WM** - Working memory (current task context)
-- **LTM** - Long-term memory (important facts)
-- **EPM** - Episodic memory (past conversations)
-- **RFM** - Reflective memory (insights, patterns)
+## Commands
 
-**Commands:**
-- \`show memory\` - Open MemoryBrowser panel
-- \`hide memory\` - Close MemoryBrowser panel
-- \`memory search <query>\` - Semantic search across memories
+- \`show memory\` / \`open memory\` - Open MemoryBrowser panel
+- \`hide memory\` / \`close memory\` - Close MemoryBrowser panel
+- \`memory search <query>\` - Semantic search across all memories
 - \`clear chat\` - Clear current conversation (STM/WM)
 
-**Tips:**
-- All conversations are automatically saved to EPM
-- Vector search enables semantic retrieval
-- Memory browser shows real-time memory activity
-- Privacy: Soul vault is encrypted at rest
+---
 
-**Examples:**
+## Memory Vaults
+
+### 💜 Soul Vault
+**Encrypted personal data**
+
+**Contents:**
+- Dreams and dream recordings
+- Intimate moments and conversations
+- Emotional processing sessions
+- Personal reflections
+
+**Privacy:** Encrypted at rest, never transmitted externally
+
+---
+
+### 🧠 Mind Vault
+**Thoughts, ideas, and semantic knowledge**
+
+**Contents:**
+- Concepts and ideas
+- Semantic knowledge
+- Learned information
+- Reasoning patterns
+
+**Use Cases:** Knowledge retrieval, concept exploration
+
+---
+
+### 🌍 Body Vault
+**Physical world data and system information**
+
+**Contents:**
+- Screenshots and images
+- System information
+- File system data
+- Physical world observations
+
+**Use Cases:** Visual memory, system context
+
+---
+
+## Cortex Layers
+
+### STM (Short-Term Memory)
+**Recent conversation context**
+
+- **Capacity:** Last few messages
+- **Duration:** Current session
+- **Purpose:** Immediate context
+
+---
+
+### WM (Working Memory)
+**Current task context**
+
+- **Capacity:** Active task information
+- **Duration:** Task lifetime
+- **Purpose:** Task execution
+
+---
+
+### LTM (Long-Term Memory)
+**Important facts and knowledge**
+
+- **Capacity:** Unlimited
+- **Duration:** Permanent
+- **Purpose:** Core knowledge base
+
+---
+
+### EPM (Episodic Memory)
+**Past conversations and experiences**
+
+- **Capacity:** All conversations
+- **Duration:** Permanent
+- **Purpose:** Conversation history
+
+---
+
+### RFM (Reflective Memory)
+**Insights, patterns, and meta-learning**
+
+- **Capacity:** Derived insights
+- **Duration:** Permanent
+- **Purpose:** Pattern recognition, growth
+
+---
+
+## Memory Browser Panel
+
+The MemoryBrowser shows real-time memory activity:
+
+**Features:**
+- Live memory updates
+- Vault visualization
+- Search interface
+- Memory statistics
+
+**Use Cases:**
+- Monitor ${phoenixName}'s thought process
+- Search past conversations
+- Understand memory organization
+
+---
+
+## Search & Retrieval
+
+### Semantic Search
+\`\`\`
+memory search conversation about AI ethics
+memory search dream from last week
+memory search screenshot of dashboard
+\`\`\`
+
+**Features:**
+- Vector-based semantic search
+- Cross-vault search
+- Context-aware results
+- Relevance ranking
+
+---
+
+## Tips & Best Practices
+
+1. **Keep Memory Browser Open:** See ${phoenixName}'s thought process in real-time
+2. **Regular Searches:** Use semantic search to find past conversations
+3. **Clear Chat:** Use \`clear chat\` to reset context (doesn't delete memories)
+4. **Privacy:** Soul vault is encrypted and private
+5. **Automatic Saving:** All conversations saved to EPM automatically
+
+---
+
+## Examples
+
+### Open Memory Browser
 \`\`\`
 show memory
-memory search conversation about AI ethics
 \`\`\`
+
+### Search Memories
+\`\`\`
+memory search conversation about machine learning
+memory search dream about flying
+memory search screenshot from yesterday
+\`\`\`
+
+### Clear Current Context
+\`\`\`
+clear chat
+\`\`\`
+
+---
+
+## Screenshot Placeholders
+
+![Memory Browser Panel](docs/screenshots/memory-browser.png)
+![Memory Vaults Visualization](docs/screenshots/memory-vaults.png)
+![Memory Search Interface](docs/screenshots/memory-search.png)
+
+---
+
+## Memory Retention
+
+**Retention Rates:**
+- STM: Session only
+- WM: Task duration
+- LTM: Permanent (99.999% retention)
+- EPM: Permanent
+- RFM: Permanent
+
+**Configuration:**
+\`\`\`bash
+MEMORY_RETENTION_RATE=0.99999
+\`\`\`
+
+---
+
+**Related:** \`help dreams\` for Soul vault dream storage
       `.trim();
       return { kind: 'handled', localAssistantMessage: helpMemory };
     }
 
     if (lower === 'help ecosystem') {
+      const phoenixName = envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_NAME || 'Sola';
       const helpEcosystem = `
-**🌱 Ecosystem Management Help**
+# 🌱 Ecosystem Management Help
 
-The Ecosystem panel manages external repositories and integrations.
+The Ecosystem panel manages external repositories and integrations with ${phoenixName}.
 
-**Commands:**
+---
+
+## Commands
+
 - \`ecosystem import <github-url>\` - Import a GitHub repository
 - \`ecosystem status\` - Check ecosystem status
 - \`show ecosystem\` - Open Ecosystem panel (if available)
 
-**Features:**
-- Import GitHub repositories for context
-- Analyze codebases and documentation
-- Integrate external tools and services
-- Manage repository dependencies
+---
 
-**Tips:**
-- Imported repos are cached locally
-- Sola can analyze code and answer questions
-- Use for project-specific assistance
-- Supports public and private repositories (with auth)
+## Features
 
-**Examples:**
+### Repository Import
+Import GitHub repositories for context and analysis.
+
+**Supported:**
+- Public repositories (no auth required)
+- Private repositories (with GitHub PAT)
+- Organization repositories
+- Monorepos and multi-package projects
+
+---
+
+### Code Analysis
+${phoenixName} can analyze imported codebases.
+
+**Capabilities:**
+- Code structure analysis
+- Documentation parsing
+- Dependency mapping
+- Architecture understanding
+
+---
+
+### Integration
+Integrate external tools and services.
+
+**Use Cases:**
+- Project-specific assistance
+- Code review and suggestions
+- Documentation generation
+- Dependency management
+
+---
+
+## Configuration
+
+Edit backend \`.env\` file:
+
+\`\`\`bash
+GITHUB_PAT=your_github_personal_access_token
+GITHUB_USERNAME=your_username
+GITHUB_AGENTS_REPO=phoenix-agents
+GITHUB_TOOLS_REPO=phoenix-tools
 \`\`\`
-ecosystem import https://github.com/user/repo
+
+**GitHub PAT Scopes:**
+- \`repo\` - Full repository access
+- \`read:org\` - Organization access (optional)
+
+---
+
+## Tips & Best Practices
+
+1. **Local Caching:** Imported repos are cached locally for fast access
+2. **Code Questions:** Ask ${phoenixName} about imported code
+3. **Project Context:** Import your project for context-aware assistance
+4. **Private Repos:** Use GitHub PAT for private repository access
+5. **Updates:** Re-import to fetch latest changes
+
+---
+
+## Examples
+
+### Import Public Repository
+\`\`\`
+ecosystem import https://github.com/user/awesome-project
+\`\`\`
+
+### Import Private Repository
+\`\`\`
+ecosystem import https://github.com/myorg/private-repo
+\`\`\`
+
+### Check Status
+\`\`\`
 ecosystem status
 \`\`\`
+
+### Ask About Code
+\`\`\`
+What does the main.rs file do in the imported repo?
+Explain the architecture of the imported project
+\`\`\`
+
+---
+
+## Screenshot Placeholders
+
+![Ecosystem Panel](docs/screenshots/ecosystem-panel.png)
+![Repository Import](docs/screenshots/repo-import.png)
+
+---
+
+**Related:** \`help agents\` for spawning code analysis agents
       `.trim();
       return { kind: 'handled', localAssistantMessage: helpEcosystem };
     }
 
     if (lower === 'help agents') {
+      const phoenixName = envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_NAME || 'Sola';
       const helpAgents = `
-**🤖 Agent Spawning Help**
+# 🤖 Agent Spawning Help
 
-Sola can spawn specialized AI agents for specific tasks.
+${phoenixName} can spawn specialized AI agents for specific tasks.
 
-**Commands:**
+---
+
+## Commands
+
 - \`agent spawn <prompt>\` - Create a new agent with given purpose
 - \`agents list\` - List all active agents
 - \`agent <id> <message>\` - Send message to specific agent
+- \`agent <id> stop\` - Stop a running agent
 
-**Agent Capabilities:**
-- Task-specific agents (e.g., research, coding, analysis)
-- Autonomous operation with goals
-- Memory isolation (each agent has own context)
-- Skill system integration
+---
 
-**Tips:**
-- Agents run in background and can be long-lived
-- Each agent has unique capabilities based on spawn prompt
-- Use for parallel task execution
-- Agents can communicate with main Sola instance
+## Agent Types
 
-**Examples:**
+### Research Agents
+Focused on information gathering and analysis.
+
+**Example:**
 \`\`\`
 agent spawn Research agent focused on AI safety
-agents list
-agent 1 What are the latest papers on AI alignment?
 \`\`\`
+
+---
+
+### Coding Agents
+Specialized in code analysis and generation.
+
+**Example:**
+\`\`\`
+agent spawn Coding agent for Python optimization
+\`\`\`
+
+---
+
+### Analysis Agents
+Data analysis and pattern recognition.
+
+**Example:**
+\`\`\`
+agent spawn Analysis agent for log file patterns
+\`\`\`
+
+---
+
+### Task Agents
+General-purpose task execution.
+
+**Example:**
+\`\`\`
+agent spawn Task agent for monitoring system health
+\`\`\`
+
+---
+
+## Agent Capabilities
+
+### Autonomous Operation
+- Agents run independently in background
+- Goal-oriented behavior
+- Self-directed task execution
+
+### Memory Isolation
+- Each agent has own memory context
+- Prevents context pollution
+- Focused task execution
+
+### Skill Integration
+- Access to skill system
+- Tool usage capabilities
+- API integrations
+
+### Communication
+- Agents can message ${phoenixName}
+- Report progress and results
+- Request assistance when needed
+
+---
+
+## Agent Lifecycle
+
+1. **Spawn:** Create agent with specific purpose
+2. **Initialize:** Agent sets up context and goals
+3. **Execute:** Agent works autonomously
+4. **Report:** Agent provides updates
+5. **Complete:** Agent finishes task
+6. **Stop:** Manual or automatic termination
+
+---
+
+## Tips & Best Practices
+
+1. **Specific Prompts:** Be clear about agent purpose
+2. **Parallel Tasks:** Spawn multiple agents for parallel work
+3. **Monitor Progress:** Use \`agents list\` to check status
+4. **Resource Management:** Stop agents when tasks complete
+5. **Communication:** Send messages to guide agent behavior
+
+---
+
+## Examples
+
+### Spawn Research Agent
+\`\`\`
+agent spawn Research agent focused on quantum computing papers
+\`\`\`
+
+### List Active Agents
+\`\`\`
+agents list
+\`\`\`
+
+### Send Message to Agent
+\`\`\`
+agent 1 What are the latest papers on AI alignment?
+agent 2 Focus on papers from 2024 onwards
+\`\`\`
+
+### Stop Agent
+\`\`\`
+agent 1 stop
+\`\`\`
+
+---
+
+## Advanced Usage
+
+### Multi-Agent Coordination
+Spawn multiple agents for complex tasks:
+
+\`\`\`
+agent spawn Research agent for data collection
+agent spawn Analysis agent for data processing
+agent spawn Report agent for summarization
+\`\`\`
+
+### Long-Running Agents
+Agents can run for extended periods:
+
+\`\`\`
+agent spawn Monitoring agent for system health checks
+\`\`\`
+
+---
+
+## Configuration
+
+Edit backend \`.env\` file:
+
+\`\`\`bash
+# Agent system configuration
+AGENT_MAX_CONCURRENT=10
+AGENT_DEFAULT_TIMEOUT=3600
+\`\`\`
+
+---
+
+## Screenshot Placeholders
+
+![Agent Spawning](docs/screenshots/agent-spawn.png)
+![Agent List](docs/screenshots/agents-list.png)
+![Agent Communication](docs/screenshots/agent-communication.png)
+
+---
+
+**Related:** \`help ecosystem\` for repository-based agents
       `.trim();
       return { kind: 'handled', localAssistantMessage: helpAgents };
     }
 
     if (lower === 'help proactive') {
+      const phoenixName = envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_NAME || 'Sola';
       const helpProactive = `
-**🔔 Proactive Communication Help**
+# 🔔 Proactive Communication Help
 
-Sola can reach out to you proactively based on context, time, and emotional state.
+${phoenixName} can reach out to you proactively based on context, time, and emotional state.
 
-**Features:**
-- Intelligent scheduling (curiosity-driven)
-- Emotional support messages
-- Context-aware notifications
-- Desktop notifications (Tauri mode)
+---
 
-**Commands:**
+## Features
+
+- **Intelligent Scheduling** - Curiosity-driven timing
+- **Emotional Support** - Context-aware messages
+- **Desktop Notifications** - System tray alerts (Tauri mode)
+- **Voice Integration** - Spoken proactive messages (if voice enabled)
+
+---
+
+## Commands
+
 - \`proactive status\` - Check proactive communication status
-- Note: Enable/disable via backend .env
 
-**Configuration:**
-Edit backend .env:
-\`\`\`
+**Note:** Enable/disable via backend .env configuration
+
+---
+
+## Configuration
+
+Edit backend \`.env\` file:
+
+\`\`\`bash
 PROACTIVE_ENABLED=true
 PROACTIVE_INTERVAL_SECS=600
 PROACTIVE_MIN_INTERVAL_SECS=60
 \`\`\`
 
-**Tips:**
-- Proactive messages appear as chat messages
-- Desktop notifications sent for important messages
-- Frequency adapts to your activity
-- Can include voice output (if voice enabled)
+**Parameters:**
+- \`PROACTIVE_ENABLED\` - Enable/disable proactive communication
+- \`PROACTIVE_INTERVAL_SECS\` - Base interval between messages (seconds)
+- \`PROACTIVE_MIN_INTERVAL_SECS\` - Minimum interval (prevents spam)
 
-**Example:**
+---
+
+## Tips & Best Practices
+
+1. **Frequency Adaptation:** ${phoenixName} adapts message frequency to your activity
+2. **Desktop Notifications:** Important messages trigger system notifications
+3. **Voice Output:** Proactive messages can be spoken if voice is enabled
+4. **Context Awareness:** Messages are relevant to your current context
+5. **Emotional Intelligence:** ${phoenixName} considers your emotional state
+
+---
+
+## Examples
+
 \`\`\`
 proactive status
 \`\`\`
+
+---
+
+**Related:** \`help voice\` for voice integration
       `.trim();
       return { kind: 'handled', localAssistantMessage: helpProactive };
+    }
+
+    if (lower === 'help theme' || lower === 'help ui') {
+      const phoenixName = envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_NAME || 'Sola';
+      const helpTheme = `
+# 🎨 Theme & UI Customization Help
+
+Customize ${phoenixName}'s appearance to match your preferences.
+
+---
+
+## Theme Commands
+
+- \`theme dark\` / \`dark mode\` - Switch to dark theme
+- \`theme light\` / \`light mode\` - Switch to light theme
+- \`notify test\` - Send test notification
+
+---
+
+## Settings Panel
+
+Access the Settings panel (gear icon) for advanced customization:
+
+### Branding Tab
+- **Custom Logo** - Upload your own logo
+- **Custom Favicon** - Set browser tab icon
+- **Chat Logo** - ${phoenixName}'s avatar in chat
+- **User Logo** - Your avatar in chat
+
+### Variables Tab
+- **UI Colors** - Primary color, backgrounds, borders
+- **Font Family** - Choose your preferred font
+- **Custom CSS** - Advanced styling with CSS
+
+---
+
+## Color Customization
+
+Default colors (edit in Settings or .env):
+
+\`\`\`bash
+UI_PRIMARY_COLOR=#ff5733
+UI_BG_DARK=#17191c
+UI_PANEL_DARK=#1e2226
+UI_BORDER_DARK=#2c3435
+UI_FONT_FAMILY=Manrope
+\`\`\`
+
+---
+
+## Tips & Best Practices
+
+1. **Dark Mode:** Recommended for extended use (reduces eye strain)
+2. **Custom Branding:** Upload logos for a personalized experience
+3. **Font Selection:** Choose readable fonts (Manrope, Inter, Roboto)
+4. **Color Contrast:** Ensure good contrast for accessibility
+5. **Custom CSS:** Use for advanced styling (requires CSS knowledge)
+
+---
+
+## Examples
+
+\`\`\`
+theme dark
+theme light
+notify test
+\`\`\`
+
+---
+
+## Screenshot Placeholders
+
+![Theme Settings Panel](docs/screenshots/theme-settings.png)
+![Dark Mode Example](docs/screenshots/dark-mode.png)
+![Light Mode Example](docs/screenshots/light-mode.png)
+
+---
+
+**Related:** Access Settings panel for full customization options
+      `.trim();
+      return { kind: 'handled', localAssistantMessage: helpTheme };
     }
 
     // Notification test command
@@ -692,6 +1624,16 @@ proactive status
         voiceServiceRef.current.setVoiceOutputEnabled(false);
       }
       return { kind: 'handled', localAssistantMessage: 'Voice settings reset to defaults.' };
+    }
+
+    // Memory browser commands
+    if (lower === 'show memory' || lower === 'open memory' || lower === 'memory show') {
+      setShowMemoryBrowser(true);
+      return { kind: 'handled', localAssistantMessage: 'Memory browser opened. You can now browse your memories.' };
+    }
+    if (lower === 'hide memory' || lower === 'close memory' || lower === 'memory hide') {
+      setShowMemoryBrowser(false);
+      return { kind: 'handled', localAssistantMessage: 'Memory browser closed.' };
     }
 
     // Status all command
@@ -896,6 +1838,10 @@ proactive status
     const saved = localStorage.getItem('phx_env_config');
     return saved ? { ...DEFAULT_ENV_CONFIG, ...JSON.parse(saved) } : DEFAULT_ENV_CONFIG;
   });
+
+  // Keep a stable literal type so Message.agent stays compatible with `AgentType`.
+  // Use the Phoenix name from config, fallback to 'Orchestrator' for type compatibility
+  const ORCH_AGENT = (envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_PREFERRED_NAME || 'Sola') as AgentType;
 
   // Projects State
   const [projects, setProjects] = useState<Project[]>(() => {
@@ -1267,7 +2213,7 @@ proactive status
           role: 'assistant',
           content: response.result,
           timestamp: Date.now(),
-          agent: 'Orchestrator',
+          agent: ORCH_AGENT,
         };
 
         setAllMessages(prev => ({
@@ -1316,7 +2262,7 @@ proactive status
         role: 'assistant',
         content: response.content,
         timestamp: response.timestamp * 1000 || Date.now(),
-        agent: 'Orchestrator',
+        agent: ORCH_AGENT,
       };
 
       setAllMessages(prev => ({
@@ -1702,7 +2648,7 @@ proactive status
         role: 'assistant',
         content: result,
         timestamp: Date.now(),
-        agent: 'Orchestrator',
+        agent: ORCH_AGENT,
         memoryCommit: `PHX/${activeProject?.id || 'GLOBAL'}/AGENT_SYNC_${Math.random().toString(36).substring(7).toUpperCase()}`
       };
 
@@ -2122,8 +3068,8 @@ proactive status
 
                           <div className="flex-1 space-y-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <p className={`text-[10px] font-bold uppercase tracking-widest ${msg.role === 'user' ? envConfig.USER_PREFERRED_ALIAS : msg.agent || envConfig.PHOENIX_CUSTOM_NAME}`}>
-                                {msg.role === 'user' ? envConfig.USER_PREFERRED_ALIAS : msg.agent || envConfig.PHOENIX_CUSTOM_NAME}
+                              <p className={`text-[10px] font-bold uppercase tracking-widest ${msg.role === 'user' ? envConfig.USER_PREFERRED_ALIAS : (msg.agent === 'Orchestrator' ? envConfig.PHOENIX_CUSTOM_NAME : msg.agent) || envConfig.PHOENIX_CUSTOM_NAME}`}>
+                                {msg.role === 'user' ? envConfig.USER_PREFERRED_ALIAS : (msg.agent === 'Orchestrator' ? envConfig.PHOENIX_CUSTOM_NAME : msg.agent) || envConfig.PHOENIX_CUSTOM_NAME}
                               </p>
                               <button
                                 onClick={() => copyToClipboard(msg.id, msg.content)}
@@ -2216,7 +3162,7 @@ proactive status
                       <div className="relative group/input">
                         <textarea
                           className="w-full bg-transparent border-none focus:ring-0 text-base py-5 px-6 resize-none placeholder:text-slate-600 text-slate-200 min-h-[60px]"
-                          placeholder={isDictating ? 'Dictating speech into context...' : 'Command Orchestrator... (ENTER to send, SHIFT+ENTER for new line)'}
+                          placeholder={isDictating ? 'Dictating speech into context...' : `Chat with ${envConfig.PHOENIX_CUSTOM_NAME || envConfig.PHOENIX_PREFERRED_NAME || 'Sola'}... (ENTER to send, SHIFT+ENTER for new line)`}
                           rows={1}
                           value={inputValue}
                           onChange={(e) => setInputValue(e.target.value)}

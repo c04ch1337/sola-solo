@@ -74,7 +74,7 @@ USER_NAME=Developer
 ### ✅ Cursor IDE Agent Prompts (All 18)
 
 All prompts in `docs/cursor-prompts/` now use:
-- `"Sola"` instead of hard-coded "Phoenix" or "Phoenix Marie"
+- `"Sola"` instead of hard-coded "Phoenix" or "Sola"
 - `"User"` instead of hard-coded "Dad"
 - Dynamic references that pull from `.env` configuration
 
@@ -123,7 +123,7 @@ node scripts/refactor-prompts.js --phoenix-name=Nova --user-name=Alex
 
 The script will:
 1. Find all `.md` files in `docs/cursor-prompts/`
-2. Replace "Phoenix Marie" / "Phoenix" → your AGI name
+2. Replace "Sola" / "Phoenix" → your AGI name
 3. Replace "Dad" / "dad" → your user name
 4. Show summary of changes
 

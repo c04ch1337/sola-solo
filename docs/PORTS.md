@@ -1,6 +1,6 @@
-# Phoenix AGI (PAGI) Port Map
+# Phoenix AGI OS v2.4.0 Port Map
 
-This document provides a comprehensive map of all ports used across Phoenix AGI (PAGI) services.
+This document provides a comprehensive map of all ports used across Phoenix AGI OS v2.4.0 services.
 
 ## Port Configuration
 
@@ -72,7 +72,7 @@ All ports can be overridden via environment variables. Defaults are listed below
 
 ## gRPC Services
 
-**No gRPC services found** - Phoenix AGI (PAGI) uses:
+**No gRPC services found** - Phoenix AGI OS v2.4.0 uses:
 - HTTP REST APIs (Actix-web)
 - WebSocket connections (Actix-web)
 - No gRPC/tonic/prost implementations detected

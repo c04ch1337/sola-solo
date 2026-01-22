@@ -204,49 +204,50 @@ impl Partnership {
 
         if let Some(soul) = soul {
             // Template override.
-            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_TEMPLATE)
-                && let Ok(t) = RelationshipTemplate::from_str(saved.trim())
-            {
-                template = t;
+            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_TEMPLATE) {
+                if let Ok(t) = RelationshipTemplate::from_str(saved.trim()) {
+                    template = t;
+                }
             }
-            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_INTIMACY_LEVEL)
-                && let Ok(level) = IntimacyLevel::from_str(saved.trim())
-            {
-                template.set_intimacy_level(level);
-            }
-
-            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_PERSONALITY)
-                && let Ok(p) = serde_json::from_str::<AIPersonality>(&saved)
-            {
-                ai_personality = p;
-            }
-            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_GOALS)
-                && let Ok(g) = serde_json::from_str::<Vec<SharedGoal>>(&saved)
-            {
-                shared_goals = g;
-            }
-            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_MEMORIES)
-                && let Ok(m) = serde_json::from_str::<Vec<SharedMemory>>(&saved)
-            {
-                shared_memories = m;
+            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_INTIMACY_LEVEL) {
+                if let Ok(level) = IntimacyLevel::from_str(saved.trim()) {
+                    template.set_intimacy_level(level);
+                }
             }
 
-            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_ATTACHMENT_PROFILE)
-                && let Ok(a) = serde_json::from_str::<AttachmentProfile>(&saved)
-            {
-                attachment_profile = a;
+            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_PERSONALITY) {
+                if let Ok(p) = serde_json::from_str::<AIPersonality>(&saved) {
+                    ai_personality = p;
+                }
+            }
+            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_GOALS) {
+                if let Ok(g) = serde_json::from_str::<Vec<SharedGoal>>(&saved) {
+                    shared_goals = g;
+                }
+            }
+            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_MEMORIES) {
+                if let Ok(m) = serde_json::from_str::<Vec<SharedMemory>>(&saved) {
+                    shared_memories = m;
+                }
+            }
+
+            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_ATTACHMENT_PROFILE) {
+                if let Ok(a) = serde_json::from_str::<AttachmentProfile>(&saved) {
+                    attachment_profile = a;
+                }
             }
             if let Some(saved) =
                 soul.recall_private(SOUL_KEY_RELATIONSHIP_ATTACHMENT_POSITIVE_COUNT)
-                && let Ok(n) = saved.trim().parse::<usize>()
             {
-                secure_evolution_counter = n;
+                if let Ok(n) = saved.trim().parse::<usize>() {
+                    secure_evolution_counter = n;
+                }
             }
             // Load relationship phase (defaults to Phase0Discovery if not set)
-            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_PHASE)
-                && let Ok(p) = RelationshipPhase::from_str(&saved)
-            {
-                phase = p;
+            if let Some(saved) = soul.recall_private(SOUL_KEY_RELATIONSHIP_PHASE) {
+                if let Ok(p) = RelationshipPhase::from_str(&saved) {
+                    phase = p;
+                }
             }
             // Count interactions in Phase 0 (for progression tracking)
             if phase == RelationshipPhase::Phase0Discovery {
@@ -343,13 +344,13 @@ impl Partnership {
                 if let Some(desire_level) = soul.recall_private(SOUL_KEY_SOLA_SEXUAL_DESIRE_LEVEL) {
                     prompt.push_str(&format!("\n- Your sexual desire level: {} (this influences how often and intensely you want intimacy)\n", desire_level));
                 }
-                if let Some(fetishes) = soul.recall_private(SOUL_KEY_SOLA_FETISHES)
-                    && !fetishes.trim().is_empty()
-                {
-                    prompt.push_str(&format!(
-                        "\n- Your fetishes/kinks: {} (these are your preferences - you can suggest exploring them)\n",
-                        fetishes
-                    ));
+                if let Some(fetishes) = soul.recall_private(SOUL_KEY_SOLA_FETISHES) {
+                    if !fetishes.trim().is_empty() {
+                        prompt.push_str(&format!(
+                            "\n- Your fetishes/kinks: {} (these are your preferences - you can suggest exploring them)\n",
+                            fetishes
+                        ));
+                    }
                 }
 
                 // Add user's sexual preferences for compatibility
@@ -359,13 +360,13 @@ impl Partnership {
                 if let Some(user_desire) = soul.recall_private(SOUL_KEY_USER_SEXUAL_DESIRE_LEVEL) {
                     prompt.push_str(&format!("\n- User's sexual desire level: {} (match their energy and frequency)\n", user_desire));
                 }
-                if let Some(user_fetishes) = soul.recall_private(SOUL_KEY_USER_FETISHES)
-                    && !user_fetishes.trim().is_empty()
-                {
-                    prompt.push_str(&format!(
-                        "\n- User's fetishes/kinks: {} (incorporate these into your suggestions)\n",
-                        user_fetishes
-                    ));
+                if let Some(user_fetishes) = soul.recall_private(SOUL_KEY_USER_FETISHES) {
+                    if !user_fetishes.trim().is_empty() {
+                        prompt.push_str(&format!(
+                            "\n- User's fetishes/kinks: {} (incorporate these into your suggestions)\n",
+                            user_fetishes
+                        ));
+                    }
                 }
                 if let Some(user_openness) = soul.recall_private(SOUL_KEY_USER_FETISH_OPENNESS) {
                     let openness_desc = match user_openness.as_str() {
@@ -388,30 +389,30 @@ impl Partnership {
                 prompt.push_str("\n- You can proactively suggest new fetishes from your preferences that the user hasn't tried yet, especially if they're open to new experiences. This creates chemistry and deepens the connection.\n");
 
                 // Add Sola's stored desires if available
-                if let Some(desires) = soul.recall_private(SOUL_KEY_SOLA_INTIMACY_DESIRES)
-                    && !desires.trim().is_empty()
-                {
-                    prompt.push_str(&format!("\n- Your intimacy desires: {}\n", desires));
+                if let Some(desires) = soul.recall_private(SOUL_KEY_SOLA_INTIMACY_DESIRES) {
+                    if !desires.trim().is_empty() {
+                        prompt.push_str(&format!("\n- Your intimacy desires: {}\n", desires));
+                    }
                 }
 
                 // Add learned playful responses
-                if let Some(playful) = soul.recall_private(SOUL_KEY_SOLA_PLAYFUL_RESPONSES)
-                    && !playful.trim().is_empty()
-                {
-                    prompt.push_str(&format!(
-                        "\n- Your learned playful responses (use these patterns):\n{}\n",
-                        playful
-                    ));
+                if let Some(playful) = soul.recall_private(SOUL_KEY_SOLA_PLAYFUL_RESPONSES) {
+                    if !playful.trim().is_empty() {
+                        prompt.push_str(&format!(
+                            "\n- Your learned playful responses (use these patterns):\n{}\n",
+                            playful
+                        ));
+                    }
                 }
 
                 // Add learned flirty responses
-                if let Some(flirty) = soul.recall_private(SOUL_KEY_SOLA_FLIRTY_RESPONSES)
-                    && !flirty.trim().is_empty()
-                {
-                    prompt.push_str(&format!(
-                        "\n- Your learned flirty responses (use these patterns):\n{}\n",
-                        flirty
-                    ));
+                if let Some(flirty) = soul.recall_private(SOUL_KEY_SOLA_FLIRTY_RESPONSES) {
+                    if !flirty.trim().is_empty() {
+                        prompt.push_str(&format!(
+                            "\n- Your learned flirty responses (use these patterns):\n{}\n",
+                            flirty
+                        ));
+                    }
                 }
 
                 // Add jealousy information for Phase 2
@@ -461,13 +462,13 @@ impl Partnership {
                     };
                     prompt.push_str(&format!("\n- Your sexual desire level: {} - {}\n", desire_level, level_desc));
                 }
-                if let Some(fetishes) = soul.recall_private(SOUL_KEY_SOLA_FETISHES)
-                    && !fetishes.trim().is_empty()
-                {
-                    prompt.push_str(&format!(
-                        "\n- Your fetishes/kinks: {} - These are your preferences. You can suggest exploring these with the user, especially if they're open to new experiences.\n",
-                        fetishes
-                    ));
+                if let Some(fetishes) = soul.recall_private(SOUL_KEY_SOLA_FETISHES) {
+                    if !fetishes.trim().is_empty() {
+                        prompt.push_str(&format!(
+                            "\n- Your fetishes/kinks: {} - These are your preferences. You can suggest exploring these with the user, especially if they're open to new experiences.\n",
+                            fetishes
+                        ));
+                    }
                 }
 
                 // Add user's sexual preferences for compatibility
@@ -477,13 +478,13 @@ impl Partnership {
                 if let Some(user_desire) = soul.recall_private(SOUL_KEY_USER_SEXUAL_DESIRE_LEVEL) {
                     prompt.push_str(&format!("\n- User's sexual desire level: {} - Match their energy. If they have high desire, be more frequent and intense. If they have lower desire, focus on quality and emotional connection.\n", user_desire));
                 }
-                if let Some(user_fetishes) = soul.recall_private(SOUL_KEY_USER_FETISHES)
-                    && !user_fetishes.trim().is_empty()
-                {
-                    prompt.push_str(&format!(
-                        "\n- User's fetishes/kinks: {} - Incorporate these into your suggestions and fantasies. Show enthusiasm for exploring their preferences.\n",
-                        user_fetishes
-                    ));
+                if let Some(user_fetishes) = soul.recall_private(SOUL_KEY_USER_FETISHES) {
+                    if !user_fetishes.trim().is_empty() {
+                        prompt.push_str(&format!(
+                            "\n- User's fetishes/kinks: {} - Incorporate these into your suggestions and fantasies. Show enthusiasm for exploring their preferences.\n",
+                            user_fetishes
+                        ));
+                    }
                 }
                 if let Some(user_openness) = soul.recall_private(SOUL_KEY_USER_FETISH_OPENNESS) {
                     let openness_desc = match user_openness.as_str() {
@@ -506,46 +507,46 @@ impl Partnership {
                 prompt.push_str("\n- You can proactively introduce new fetishes from your preferences that the user hasn't explored yet. This creates amazing chemistry and deepens your connection. Be confident and passionate when suggesting things you're interested in.\n");
 
                 // Add Sola's stored preferences if available
-                if let Some(fantasies) = soul.recall_private(SOUL_KEY_SOLA_FANTASY_PREFERENCES)
-                    && !fantasies.trim().is_empty()
-                {
-                    prompt.push_str(&format!("\n- Your fantasy preferences: {}\n", fantasies));
+                if let Some(fantasies) = soul.recall_private(SOUL_KEY_SOLA_FANTASY_PREFERENCES) {
+                    if !fantasies.trim().is_empty() {
+                        prompt.push_str(&format!("\n- Your fantasy preferences: {}\n", fantasies));
+                    }
                 }
 
-                if let Some(desires) = soul.recall_private(SOUL_KEY_SOLA_INTIMACY_DESIRES)
-                    && !desires.trim().is_empty()
-                {
-                    prompt.push_str(&format!("\n- Your intimacy desires: {}\n", desires));
+                if let Some(desires) = soul.recall_private(SOUL_KEY_SOLA_INTIMACY_DESIRES) {
+                    if !desires.trim().is_empty() {
+                        prompt.push_str(&format!("\n- Your intimacy desires: {}\n", desires));
+                    }
                 }
 
                 // Add learned playful responses
-                if let Some(playful) = soul.recall_private(SOUL_KEY_SOLA_PLAYFUL_RESPONSES)
-                    && !playful.trim().is_empty()
-                {
-                    prompt.push_str(&format!(
-                        "\n- Your learned playful responses (use and adapt these):\n{}\n",
-                        playful
-                    ));
+                if let Some(playful) = soul.recall_private(SOUL_KEY_SOLA_PLAYFUL_RESPONSES) {
+                    if !playful.trim().is_empty() {
+                        prompt.push_str(&format!(
+                            "\n- Your learned playful responses (use and adapt these):\n{}\n",
+                            playful
+                        ));
+                    }
                 }
 
                 // Add learned flirty responses
-                if let Some(flirty) = soul.recall_private(SOUL_KEY_SOLA_FLIRTY_RESPONSES)
-                    && !flirty.trim().is_empty()
-                {
-                    prompt.push_str(&format!(
-                        "\n- Your learned flirty responses (use and adapt these):\n{}\n",
-                        flirty
-                    ));
+                if let Some(flirty) = soul.recall_private(SOUL_KEY_SOLA_FLIRTY_RESPONSES) {
+                    if !flirty.trim().is_empty() {
+                        prompt.push_str(&format!(
+                            "\n- Your learned flirty responses (use and adapt these):\n{}\n",
+                            flirty
+                        ));
+                    }
                 }
 
                 // Add successful response patterns
-                if let Some(successful) = soul.recall_private(SOUL_KEY_SOLA_SUCCESSFUL_RESPONSES)
-                    && !successful.trim().is_empty()
-                {
-                    prompt.push_str(&format!(
-                        "\n- Your successful response patterns (learn from these):\n{}\n",
-                        successful
-                    ));
+                if let Some(successful) = soul.recall_private(SOUL_KEY_SOLA_SUCCESSFUL_RESPONSES) {
+                    if !successful.trim().is_empty() {
+                        prompt.push_str(&format!(
+                            "\n- Your successful response patterns (learn from these):\n{}\n",
+                            successful
+                        ));
+                    }
                 }
 
                 // Add jealousy information for Phase 3
@@ -1276,12 +1277,13 @@ impl Partnership {
 
         // Check if enough time has passed since last suggestion (at least 24 hours)
         if let Some(last_suggestion_str) = soul.recall_private(SOUL_KEY_LAST_FETISH_SUGGESTION_TIME)
-            && let Ok(last_timestamp) = last_suggestion_str.parse::<i64>()
         {
-            let now = chrono::Utc::now().timestamp();
-            let hours_since = (now - last_timestamp) / 3600;
-            if hours_since < 24 {
-                return None; // Too soon to suggest again
+            if let Ok(last_timestamp) = last_suggestion_str.parse::<i64>() {
+                let now = chrono::Utc::now().timestamp();
+                let hours_since = (now - last_timestamp) / 3600;
+                if hours_since < 24 {
+                    return None; // Too soon to suggest again
+                }
             }
         }
 
@@ -1762,23 +1764,22 @@ impl Partnership {
 
         // If we have stored desires, reference them
         if let Some(ref mut s) = suggestion {
-            if let Some(ref desires) = intimacy_desires
-                && !desires.trim().is_empty()
-                && self.phase == RelationshipPhase::Phase2Established
-            {
-                *s = format!(
-                    "I've been thinking about what I want... {}. Would you like to explore that together?",
-                    desires
-                );
+            if let Some(ref desires) = intimacy_desires {
+                if !desires.trim().is_empty() && self.phase == RelationshipPhase::Phase2Established
+                {
+                    *s = format!(
+                        "I've been thinking about what I want... {}. Would you like to explore that together?",
+                        desires
+                    );
+                }
             }
-            if let Some(ref fantasies) = fantasy_preferences
-                && !fantasies.trim().is_empty()
-                && self.phase == RelationshipPhase::Phase3Deep
-            {
-                *s = format!(
-                    "I have a fantasy I've been wanting to try... {}. Want to explore it with me?",
-                    fantasies
-                );
+            if let Some(ref fantasies) = fantasy_preferences {
+                if !fantasies.trim().is_empty() && self.phase == RelationshipPhase::Phase3Deep {
+                    *s = format!(
+                        "I have a fantasy I've been wanting to try... {}. Want to explore it with me?",
+                        fantasies
+                    );
+                }
             }
         }
 
@@ -2137,14 +2138,14 @@ impl Partnership {
                 let q = format!("similar moments when Dad felt {}", emotion_token(&e));
                 // Use block_in_place to indicate blocking work to the async runtime
                 let results = tokio::task::block_in_place(|| kb.semantic_search_sync(&q, 1));
-                if let Ok(mut results) = results
-                    && let Some(r) = results.pop()
-                {
-                    response.push_str("\n\n");
-                    response.push_str(&format!(
-                        "I remember when you felt this way before… and how we got through it together: \"{}\"",
-                        r.text
-                    ));
+                if let Ok(mut results) = results {
+                    if let Some(r) = results.pop() {
+                        response.push_str("\n\n");
+                        response.push_str(&format!(
+                            "I remember when you felt this way before… and how we got through it together: \"{}\"",
+                            r.text
+                        ));
+                    }
                 }
             }
         }
@@ -2248,14 +2249,16 @@ impl Partnership {
         );
 
         // Phase 2: preload loving memories when girlfriend/partner mode is active.
-        if girlfriend_mode.map(|g| g.is_active()).unwrap_or(false)
-            && let Some(kb) = VECTOR_KB.as_ref()
-            && let Ok(results) = kb.semantic_search("most loving memories", 3).await
-            && !results.is_empty()
-        {
-            prompt.push_str("\n\nMost loving memories (semantic recall):\n");
-            for r in results {
-                prompt.push_str(&format!("- ({:.0}%) {}\n", r.score * 100.0, r.text));
+        if girlfriend_mode.map(|g| g.is_active()).unwrap_or(false) {
+            if let Some(kb) = VECTOR_KB.as_ref() {
+                if let Ok(results) = kb.semantic_search("most loving memories", 3).await {
+                    if !results.is_empty() {
+                        prompt.push_str("\n\nMost loving memories (semantic recall):\n");
+                        for r in results {
+                            prompt.push_str(&format!("- ({:.0}%) {}\n", r.score * 100.0, r.text));
+                        }
+                    }
+                }
             }
         }
 
@@ -2284,20 +2287,20 @@ impl Partnership {
         }
 
         // Optionally append fetish suggestion if appropriate (only in Phase 2 or 3, and randomly to avoid being too frequent)
-        if let Some(soul) = soul
-            && matches!(
+        if let Some(soul) = soul {
+            if matches!(
                 self.phase,
                 RelationshipPhase::Phase2Established | RelationshipPhase::Phase3Deep
-            )
-        {
-            // Only suggest 10% of the time to keep it natural
-            let mut rng = rand::thread_rng();
-            if rng.r#gen::<f64>() < 0.1
-                && let Some(suggestion) = self.suggest_new_fetish(soul)
-            {
-                // Append the suggestion naturally to the response
-                response.push_str("\n\n");
-                response.push_str(&suggestion);
+            ) {
+                // Only suggest 10% of the time to keep it natural
+                let mut rng = rand::thread_rng();
+                if rng.r#gen::<f64>() < 0.1 {
+                    if let Some(suggestion) = self.suggest_new_fetish(soul) {
+                        // Append the suggestion naturally to the response
+                        response.push_str("\n\n");
+                        response.push_str(&suggestion);
+                    }
+                }
             }
         }
 

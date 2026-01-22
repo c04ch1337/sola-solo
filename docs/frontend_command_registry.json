@@ -1,4 +1,6 @@
 {
+  "_comment": "SOLA — Strategic Orchestration & Lifecycle Automation",
+  "_description": "Command registry for platform-wide orchestration capabilities",
   "schema": "phoenix.frontend.command_registry.v1",
   "transport": {
     "current": "HTTP JSON",

@@ -14,6 +14,6 @@ pub use hive::{HiveMessage, OrchActor, OrchMessage, PhoenixActor, PhoenixArgs, P
 pub use learning_pipeline::{LearningOverrides, TelemetryEnvelope, UpdateEnvelope};
 pub use psychological_mapping::{PsychologicalMappingAgent, SentimentModel, SentimentSummary};
 pub use reasoning::{
-    ReasoningMode, ReasoningSignals, detect_dad_salience, detect_meta, detect_urgency,
+    detect_dad_salience, detect_meta, detect_urgency, ReasoningMode, ReasoningSignals,
 };
 pub use tool_agent::{NarrativeEvent, ToolAgent, ToolAgentConfig, ToolOutput};

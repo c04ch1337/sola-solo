@@ -1,7 +1,7 @@
 [package]
 name = "multi_modal_recording"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [features]
 # Default build is dependency-light and uses stub implementations.

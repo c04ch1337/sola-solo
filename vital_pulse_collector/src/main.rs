@@ -2,7 +2,7 @@
 // Telemetrist Service (Vital Pulse Collector) — ingests anonymized telemetry from ORCHs,
 // stores locally (sled), and derives collective optimizations via OpenRouter.
 
-use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, middleware, web};
+use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use llm_orchestrator::LLMOrchestrator;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -42,10 +42,10 @@ fn load_dotenv_best_effort() -> Option<std::path::PathBuf> {
     if let Ok(cwd) = std::env::current_dir() {
         bases.push(cwd);
     }
-    if let Ok(exe) = std::env::current_exe()
-        && let Some(dir) = exe.parent()
-    {
-        bases.push(dir.to_path_buf());
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            bases.push(dir.to_path_buf());
+        }
     }
 
     for base in bases {
@@ -352,10 +352,10 @@ async fn main() -> std::io::Result<()> {
         )
         .init();
 
-    if env_truthy("PHOENIX_ENV_DEBUG")
-        && let Some(p) = dotenv_path
-    {
-        eprintln!("[vital_pulse_collector] loaded .env from: {}", p.display());
+    if env_truthy("PHOENIX_ENV_DEBUG") {
+        if let Some(p) = dotenv_path {
+            eprintln!("[vital_pulse_collector] loaded .env from: {}", p.display());
+        }
     }
 
     let bind = common_types::ports::VitalPulseCollectorPort::bind();

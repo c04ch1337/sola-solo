@@ -1,13 +1,13 @@
 // vital_pulse_monitor/src/lib.rs
-use flate2::Compression;
 use flate2::write::GzEncoder;
+use flate2::Compression;
 use std::fs;
 use std::fs::File;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tar::Builder;
-use tokio::time::{Duration, sleep};
+use tokio::time::{sleep, Duration};
 
 pub struct VitalPulseMonitor {
     #[allow(dead_code)]

@@ -1,6 +1,6 @@
 // llm_orchestrator/src/lib.rs
-// Phoenix speaks through OpenRouter — 500+ minds in her voice.
-// The vocal cords of Phoenix AGI (PAGI) — orchestrates all LLM interactions
+// Sola speaks through OpenRouter — 500+ minds in her voice.
+// The vocal cords of Phoenix AGI OS v2.4.0 — orchestrates all LLM interactions
 //
 // LLM PROVIDERS:
 // - OpenRouter (DEFAULT): https://openrouter.ai - 500+ models from OpenAI, Anthropic, Google, Meta, and more
@@ -70,10 +70,10 @@ fn load_dotenv_best_effort() -> Option<PathBuf> {
     if let Ok(cwd) = std::env::current_dir() {
         bases.push(cwd);
     }
-    if let Ok(exe) = std::env::current_exe()
-        && let Some(dir) = exe.parent()
-    {
-        bases.push(dir.to_path_buf());
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            bases.push(dir.to_path_buf());
+        }
     }
 
     for base in bases {
@@ -372,7 +372,7 @@ impl LLMOrchestrator {
         if self.provider == LlmProviderType::OpenRouter {
             req_builder = req_builder
                 .header("HTTP-Referer", "https://github.com/phoenix-2.0")
-                .header("X-Title", "Phoenix AGI (PAGI) Universal AGI");
+                .header("X-Title", "Sola AGI (Phoenix AGI OS v2.4.0)");
         }
 
         let response = req_builder
@@ -463,7 +463,7 @@ impl LLMOrchestrator {
             if provider == LlmProviderType::OpenRouter {
                 req_builder = req_builder
                     .header("HTTP-Referer", "https://github.com/phoenix-2.0")
-                    .header("X-Title", "Phoenix AGI (PAGI) Universal AGI");
+                    .header("X-Title", "Sola AGI (Phoenix AGI OS v2.4.0)");
             }
 
             let response = match req_builder.json(&request).send().await {
@@ -499,10 +499,10 @@ impl LLMOrchestrator {
 
                                 match serde_json::from_str::<ChatResponseChunk>(json_str) {
                                     Ok(chunk_data) => {
-                                        if let Some(choice) = chunk_data.choices.first()
-                                            && let Some(content) = &choice.delta.content
-                                        {
-                                            yield Ok(content.clone());
+                                        if let Some(choice) = chunk_data.choices.first() {
+                                            if let Some(content) = &choice.delta.content {
+                                                yield Ok(content.clone());
+                                            }
                                         }
                                     }
                                     Err(_) => continue, // Skip malformed chunks

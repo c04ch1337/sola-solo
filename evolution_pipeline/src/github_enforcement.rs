@@ -357,14 +357,16 @@ impl GitHubEnforcer {
             let status = github_api::get_pr_status(&self.token, pr_url).await?;
 
             // CI gate
-            if mandate_ci && let Some(ci_state) = status.ci_state.as_deref() {
-                match ci_state {
-                    "success" => {}
-                    "failure" | "error" => {
-                        return Err(CreationError::CiFailed(ci_state.to_string()));
-                    }
-                    _ => {
-                        // pending
+            if mandate_ci {
+                if let Some(ci_state) = status.ci_state.as_deref() {
+                    match ci_state {
+                        "success" => {}
+                        "failure" | "error" => {
+                            return Err(CreationError::CiFailed(ci_state.to_string()));
+                        }
+                        _ => {
+                            // pending
+                        }
                     }
                 }
             }

@@ -1,4 +1,4 @@
-//! Unified port configuration for Phoenix AGI (PAGI) services.
+//! Unified port configuration for Phoenix AGI OS v2.4.0 services.
 //!
 //! Provides consistent port configuration across all services with:
 //! - Sensible defaults

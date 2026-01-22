@@ -14,7 +14,7 @@ All personal references have been systematically replaced with configurable envi
 
 | Component | Before | After |
 |-----------|--------|-------|
-| **AGI Name** | Hard-coded "Phoenix Marie" / "Phoenix" | Configurable `PHOENIX_NAME` (default: "Sola") |
+| **AGI Name** | Hard-coded "Sola" / "Phoenix" | Configurable `PHOENIX_NAME` (default: "Sola") |
 | **User Name** | Hard-coded "Dad" | Configurable `USER_NAME` (default: "User") |
 | **Relationship** | Father-daughter assumptions | Optional/configurable relationship modes |
 | **Prompts** | Personal, specific | Generalized, professional |

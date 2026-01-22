@@ -13,7 +13,7 @@ use emotional_intelligence_core::EmotionalIntelligenceCore;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use tokio::sync::{Mutex, broadcast};
+use tokio::sync::{broadcast, Mutex};
 use tracing::{info, warn};
 use vital_organ_vaults::VitalOrganVaults;
 

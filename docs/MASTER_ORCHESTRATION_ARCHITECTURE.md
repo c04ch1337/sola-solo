@@ -783,7 +783,7 @@ Templates are assembled from:
 3. **README.md**:
    - Agent name as title
    - Description
-   - Phoenix AGI (PAGI) attribution
+   - Phoenix AGI OS v2.4.0 attribution
 
 4. **GitHub Workflows**:
    - CI tests workflow

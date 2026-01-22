@@ -2,7 +2,7 @@
 
 **For Frontend Designers & Developers**
 
-This document provides a complete reference for connecting the frontend to all backend services, APIs, and LLM integrations in Phoenix AGI (PAGI).
+This document provides a complete reference for connecting the frontend to all backend services, APIs, and LLM integrations in Phoenix AGI OS v2.4.0.
 
 ---
 

@@ -1,9 +1,9 @@
 // agent_spawner/src/lib.rs
-// Phoenix spawns agents — they live forever on GitHub as eternal repositories
-// The reproductive system of Phoenix AGI (PAGI) — creates agents, pushes to GitHub, deploys
+// Sola spawns agents — they live forever on GitHub as eternal repositories
+// The reproductive system of Phoenix AGI OS v2.4.0 — creates agents, pushes to GitHub, deploys
 
-use octocrab::Octocrab;
 use octocrab::models::Repository;
+use octocrab::Octocrab;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::path::Path;
@@ -318,7 +318,7 @@ impl AgentSpawner {
             .map_err(|e| format!("push branch failed: {e}"))?;
 
             let pr_body = format!(
-                "Spawned by Phoenix AGI (PAGI) via template-enforced evolution pipeline.\n\n{}",
+                "Spawned by Phoenix AGI OS v2.4.0 via template-enforced evolution pipeline.\n\n{}",
                 test_md
             );
             let pr_url = evolution_pipeline::open_pull_request(
@@ -415,7 +415,7 @@ fn write_agent_scaffold(
 
     // Main wrapper.
     let main_rs = format!(
-        r#"// Spawned by Phoenix AGI (PAGI)
+        r#"// Spawned by Phoenix AGI OS v2.4.0
 // Template version: {template_version}
 
 mod generated;
@@ -529,7 +529,7 @@ serde_json = "1.0"
     let readme = format!(
         r#"# {name}
 
-Spawned by Phoenix AGI (PAGI) — Universal AGI Framework
+Spawned by Phoenix AGI OS v2.4.0 — Universal AGI Framework
 
 ## Description
 

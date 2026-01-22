@@ -197,9 +197,10 @@ impl GoogleManager {
             .scopes
             .iter()
             .any(|s| s == "email" || s.contains("userinfo.email") || s == "openid")
-            && let Ok(email) = self.fetch_email(&stored.access_token).await
         {
-            stored.email = Some(email);
+            if let Ok(email) = self.fetch_email(&stored.access_token).await {
+                stored.email = Some(email);
+            }
         }
 
         self.save_token(&stored).await?;

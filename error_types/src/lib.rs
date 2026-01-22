@@ -1,4 +1,4 @@
-//! Unified error types for Phoenix AGI (PAGI) core modules.
+//! Unified error types for Phoenix AGI OS v2.4.0 core modules.
 //!
 //! Provides strongly-typed errors for safety, consent, budget, skills, and configuration.
 
@@ -135,7 +135,7 @@ pub enum ConfigError {
     InvalidRepository(String),
 }
 
-/// Unified error type that encompasses all Phoenix AGI (PAGI) errors.
+/// Unified error type that encompasses all Phoenix AGI OS v2.4.0 errors.
 #[derive(Debug, Error)]
 pub enum PhoenixError {
     #[error("Consent error: {0}")]

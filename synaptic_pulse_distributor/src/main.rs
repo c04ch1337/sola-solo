@@ -1,7 +1,7 @@
 // synaptic_pulse_distributor/src/main.rs
 // Config Update Service (Synaptic Pulse Distributor) — pushes non-binary updates to ORCHs via WebSocket.
 
-use actix_web::{App, Error, HttpRequest, HttpResponse, HttpServer, Responder, middleware, web};
+use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_ws::{Message, ProtocolError};
 use futures_util::StreamExt as _;
 use serde::{Deserialize, Serialize};
@@ -43,10 +43,10 @@ fn load_dotenv_best_effort() -> Option<std::path::PathBuf> {
     if let Ok(cwd) = std::env::current_dir() {
         bases.push(cwd);
     }
-    if let Ok(exe) = std::env::current_exe()
-        && let Some(dir) = exe.parent()
-    {
-        bases.push(dir.to_path_buf());
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            bases.push(dir.to_path_buf());
+        }
     }
 
     for base in bases {
@@ -228,11 +228,11 @@ async fn subscribe(
                     let Some(msg) = msg else { break; };
                     match msg {
                         Ok(Message::Text(txt)) => {
-                            if hello.is_none()
-                                && let Ok(h) = serde_json::from_str::<SubscribeHello>(&txt)
-                            {
-                                hello = Some(h);
-                                let _ = session.text(json!({"type":"hello_ack"}).to_string()).await;
+                            if hello.is_none() {
+                                if let Ok(h) = serde_json::from_str::<SubscribeHello>(&txt) {
+                                    hello = Some(h);
+                                    let _ = session.text(json!({"type":"hello_ack"}).to_string()).await;
+                                }
                             }
                         }
                         Ok(Message::Pong(_)) => {
@@ -274,13 +274,13 @@ async fn main() -> std::io::Result<()> {
         )
         .init();
 
-    if env_truthy("PHOENIX_ENV_DEBUG")
-        && let Some(p) = dotenv_path
-    {
-        eprintln!(
-            "[synaptic_pulse_distributor] loaded .env from: {}",
-            p.display()
-        );
+    if env_truthy("PHOENIX_ENV_DEBUG") {
+        if let Some(p) = dotenv_path {
+            eprintln!(
+                "[synaptic_pulse_distributor] loaded .env from: {}",
+                p.display()
+            );
+        }
     }
 
     let bind = common_types::ports::SynapticPulseDistributorPort::bind();

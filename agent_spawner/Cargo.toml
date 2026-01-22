@@ -1,7 +1,7 @@
 [package]
 name = "agent_spawner"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 octocrab = "0.38"

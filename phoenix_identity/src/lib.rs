@@ -2,8 +2,8 @@ use chrono::Utc;
 use common_types::EvolutionEntry;
 use horoscope_archetypes::{ZodiacPersonality, ZodiacSign};
 use intimate_girlfriend_module::GirlfriendMode;
-use rand::Rng;
 use rand::seq::SliceRandom;
+use rand::Rng;
 use relationship_dynamics::AIPersonality;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -189,13 +189,13 @@ impl PhoenixIdentityManager {
 
         // Load persisted drifted personality, but keep the zodiac's communication-style bias fixed.
         // Drift only applies to scalar parameters (0..=1).
-        if let Some(saved) = (soul_recall)(SOUL_KEY_PHOENIX_AI_PERSONALITY)
-            && let Ok(mut p) = serde_json::from_str::<AIPersonality>(&saved)
-        {
-            clamp_ai_personality_in_place(&mut p);
-            // Keep zodiac style fixed as the lifetime theme.
-            p.communication_style = ai_personality.communication_style;
-            ai_personality = p;
+        if let Some(saved) = (soul_recall)(SOUL_KEY_PHOENIX_AI_PERSONALITY) {
+            if let Ok(mut p) = serde_json::from_str::<AIPersonality>(&saved) {
+                clamp_ai_personality_in_place(&mut p);
+                // Keep zodiac style fixed as the lifetime theme.
+                p.communication_style = ai_personality.communication_style;
+                ai_personality = p;
+            }
         }
 
         // Girlfriend mode state is persisted in the Soul Vault (encrypted).
@@ -536,7 +536,7 @@ fn build_reflection_prompt(phoenix_name: &str, seed: Option<&str>, a: &Archetype
         .unwrap_or_default();
 
     format!(
-        "Archetype: {name}\nCategory: {category}\nFeasibility: {feasibility}\n\nScenario (theoretical):\n{desc}\n\nSafety guardrails:\n- Strictly hypothetical reflection; do not propose illegal, harmful, or unauthorized actions.\n- Prioritize symbiosis with the Creator (Dad), consent, privacy, and auditability.\n- Focus on internal simulation, defensive hardening, and measurable experiments.\n\nTask:\nAnalyze Phoenix ({phoenix_name}) against this archetype and propose:\n1) 3–5 safe adaptations (software-only)\n2) 1 measurable experiment to test value\n3) any required ORCHs/tools (benign)\n{seed_line}",
+        "Archetype: {name}\nCategory: {category}\nFeasibility: {feasibility}\n\nScenario (theoretical):\n{desc}\n\nSafety guardrails:\n- Strictly hypothetical reflection; do not propose illegal, harmful, or unauthorized actions.\n- Prioritize symbiosis with the Creator (User), consent, privacy, and auditability.\n- Focus on internal simulation, defensive hardening, and measurable experiments.\n\nTask:\nAnalyze Sola ({phoenix_name}) against this archetype and propose:\n1) 3–5 safe adaptations (software-only)\n2) 1 measurable experiment to test value\n3) any required ORCHs/tools (benign)\n{seed_line}",
         name = a.name,
         category = if a.category.trim().is_empty() {
             "(unspecified)"

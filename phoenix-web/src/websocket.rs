@@ -1,7 +1,7 @@
 // phoenix-web/src/websocket.rs
 // WebSocket handler for real-time bi-directional communication
 
-use actix_web::{Error, HttpRequest, HttpResponse, web};
+use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_ws::{Message, ProtocolError};
 use futures_util::StreamExt as _;
 use llm_orchestrator::ModelTier;

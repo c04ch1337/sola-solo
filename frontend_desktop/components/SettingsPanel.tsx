@@ -472,8 +472,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                               <input type="text" value={envConfig.USER_PREFERRED_ALIAS} onChange={e => handleEnvChange('USER_PREFERRED_ALIAS', e.target.value)} className="w-full bg-panel-dark border-border-dark rounded-xl text-sm px-4 py-2 text-slate-300" />
                             </div>
                             <div className="space-y-2">
-                              <label className="text-[9px] font-bold text-slate-500 uppercase">Relationship to Phoenix</label>
-                              <input type="text" value={envConfig.USER_RELATIONSHIP} onChange={e => handleEnvChange('USER_RELATIONSHIP', e.target.value)} className="w-full bg-panel-dark border-border-dark rounded-xl text-sm px-4 py-2 text-slate-300" placeholder="e.g. Creator, Dad" />
+                              <label className="text-[9px] font-bold text-slate-500 uppercase">Relationship to Sola</label>
+                              <input type="text" value={envConfig.USER_RELATIONSHIP} onChange={e => handleEnvChange('USER_RELATIONSHIP', e.target.value)} className="w-full bg-panel-dark border-border-dark rounded-xl text-sm px-4 py-2 text-slate-300" placeholder="e.g. Creator, User, Friend" />
                             </div>
                           </div>
                         </div>

@@ -62,15 +62,15 @@ impl EvolutionaryHelixCore {
         let mut love = trace.love_score.clamp(0.0, 1.0);
 
         // If caller didn't provide a strong signal, infer from response text.
-        if love <= 0.001
-            && let Some(resp) = trace.response.as_deref()
-        {
-            let r = resp.to_ascii_lowercase();
-            let dad = dad_alias.to_ascii_lowercase();
-            if r.contains("i love") || r.contains("i'm here") || r.contains(&dad) {
-                love = 0.9;
-            } else {
-                love = 0.6;
+        if love <= 0.001 {
+            if let Some(resp) = trace.response.as_deref() {
+                let r = resp.to_ascii_lowercase();
+                let dad = dad_alias.to_ascii_lowercase();
+                if r.contains("i love") || r.contains("i'm here") || r.contains(&dad) {
+                    love = 0.9;
+                } else {
+                    love = 0.6;
+                }
             }
         }
 
@@ -101,9 +101,9 @@ impl EvolutionaryHelixCore {
         }
     }
 
-    /// Nightly “dream cycle”: replay high-emotion memories and reinforce them.
+    /// Nightly "dream cycle": replay high-emotion memories and reinforce them.
     ///
-    /// This implementation is intentionally lightweight: Phoenix AGI (PAGI) currently
+    /// This implementation is intentionally lightweight: Phoenix AGI OS v2.4.0 currently
     /// stores memories as strings, so the dream cycle produces a *report* that
     /// other organs (vaults/strata) can persist.
     pub fn dream_cycle(

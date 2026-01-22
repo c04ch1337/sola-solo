@@ -1,8 +1,8 @@
-# Phoenix AGI (PAGI) Setup Guide
+# Phoenix AGI OS v2.4.0 Setup Guide
 
 ## Environment Configuration
 
-Phoenix AGI (PAGI) requires an OpenRouter API key to enable the LLM Orchestrator (Vocal Cords).
+Phoenix AGI OS v2.4.0 requires an OpenRouter API key to enable the LLM Orchestrator (Vocal Cords).
 
 ### Step 1: Get Your OpenRouter API Key
 

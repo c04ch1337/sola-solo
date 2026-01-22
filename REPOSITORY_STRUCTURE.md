@@ -1,6 +1,9 @@
-# Phoenix AGI (PAGI) Repository Structure
+# Sola AGI Repository Structure
 
-This document provides a complete overview of the Phoenix AGI (PAGI) repository structure, showing all files and folders and how they are organized.
+**Platform**: Phoenix AGI OS v2.4.0  
+**User-Facing Application**: Sola AGI
+
+This document provides a complete overview of the Sola AGI repository structure, showing all files and folders and how they are organized.
 
 ## Root Directory Structure
 

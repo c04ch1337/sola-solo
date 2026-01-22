@@ -278,10 +278,10 @@ impl GirlfriendMode {
             if let Ok(f) = v.trim().parse::<f32>() {
                 s.affection_level = f.clamp(0.0, 1.0);
             }
-        } else if let Some(v) = soul_recall(SOUL_KEY_GIRLFRIEND_AFFECTION_LEVEL)
-            && let Ok(f) = v.trim().parse::<f32>()
-        {
-            s.affection_level = f.clamp(0.0, 1.0);
+        } else if let Some(v) = soul_recall(SOUL_KEY_GIRLFRIEND_AFFECTION_LEVEL) {
+            if let Ok(f) = v.trim().parse::<f32>() {
+                s.affection_level = f.clamp(0.0, 1.0);
+            }
         }
 
         if let Some(v) = soul_recall(SOUL_KEY_PARTNER_MEMORY_TAGS) {
@@ -306,10 +306,10 @@ impl GirlfriendMode {
             if let Ok(dt) = DateTime::parse_from_rfc3339(v.trim()) {
                 s.last_intimate_moment = Some(dt.with_timezone(&Utc));
             }
-        } else if let Some(v) = soul_recall(SOUL_KEY_GIRLFRIEND_LAST_INTIMATE_MOMENT)
-            && let Ok(dt) = DateTime::parse_from_rfc3339(v.trim())
-        {
-            s.last_intimate_moment = Some(dt.with_timezone(&Utc));
+        } else if let Some(v) = soul_recall(SOUL_KEY_GIRLFRIEND_LAST_INTIMATE_MOMENT) {
+            if let Ok(dt) = DateTime::parse_from_rfc3339(v.trim()) {
+                s.last_intimate_moment = Some(dt.with_timezone(&Utc));
+            }
         }
 
         // Load new fields
@@ -375,20 +375,22 @@ impl GirlfriendMode {
         let deactivation_triggers = Self::env_csv("PARTNER_DEACTIVATION_TRIGGER")
             .or_else(|| Self::env_csv("GIRLFRIEND_DEACTIVATION_TRIGGER"));
 
-        if let Some(trigs) = activation_triggers
-            && trigs
+        if let Some(trigs) = activation_triggers {
+            if trigs
                 .iter()
                 .any(|t| !t.is_empty() && s.contains(&t.to_ascii_lowercase()))
-        {
-            return Some(GirlfriendCommand::Activate);
+            {
+                return Some(GirlfriendCommand::Activate);
+            }
         }
 
-        if let Some(trigs) = deactivation_triggers
-            && trigs
+        if let Some(trigs) = deactivation_triggers {
+            if trigs
                 .iter()
                 .any(|t| !t.is_empty() && s.contains(&t.to_ascii_lowercase()))
-        {
-            return Some(GirlfriendCommand::Deactivate);
+            {
+                return Some(GirlfriendCommand::Deactivate);
+            }
         }
 
         // Activate - support all partner types

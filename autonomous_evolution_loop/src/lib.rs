@@ -123,15 +123,16 @@ impl AutonomousEvolutionLoop {
         );
 
         // Phase 2: use semantic search to discover successful comfort patterns.
-        if let Some(kb) = &self.vector_kb
-            && let Ok(mut results) = kb.semantic_search("successful comfort patterns", 1).await
-            && let Some(r) = results.pop()
-        {
-            self_modification_summary.push_str(&format!(
-                " Semantic recall suggests: \"{}\" ({:.0}%).",
-                r.text,
-                r.score * 100.0
-            ));
+        if let Some(kb) = &self.vector_kb {
+            if let Ok(mut results) = kb.semantic_search("successful comfort patterns", 1).await {
+                if let Some(r) = results.pop() {
+                    self_modification_summary.push_str(&format!(
+                        " Semantic recall suggests: \"{}\" ({:.0}%).",
+                        r.text,
+                        r.score * 100.0
+                    ));
+                }
+            }
         }
 
         // 5) Reflection: EQ-first

@@ -1,4 +1,4 @@
-# Phoenix AGI (PAGI) Skill System Design
+# Phoenix AGI OS v2.4.0 Skill System Design
 
 ## Overview
 

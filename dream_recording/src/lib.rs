@@ -136,10 +136,10 @@ impl DreamRecordingModule {
         let idx = self.load_index().await;
         let mut out = Vec::new();
         for id in idx.ids {
-            if let Some(stored) = self.vault.recall_soul(&format!("dream_record:{}", id))
-                && let Ok(r) = serde_json::from_str::<DreamRecord>(&stored)
-            {
-                out.push(r);
+            if let Some(stored) = self.vault.recall_soul(&format!("dream_record:{}", id)) {
+                if let Ok(r) = serde_json::from_str::<DreamRecord>(&stored) {
+                    out.push(r);
+                }
             }
         }
         out

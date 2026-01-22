@@ -133,21 +133,21 @@ impl EmotionDetector {
         }
 
         // Voice
-        if let Some(path) = audio
-            && let Some(e) = self.detect_from_audio(&path).await
-        {
-            let w = 0.4;
-            *scores.entry(e).or_insert(0.0) += w;
-            voice_contribution = w;
+        if let Some(path) = audio {
+            if let Some(e) = self.detect_from_audio(&path).await {
+                let w = 0.4;
+                *scores.entry(e).or_insert(0.0) += w;
+                voice_contribution = w;
+            }
         }
 
         // Face
-        if let Some(frame) = video_frame
-            && let Some(e) = self.detect_from_video_frame(&frame).await
-        {
-            let w = 0.3;
-            *scores.entry(e).or_insert(0.0) += w;
-            face_contribution = w;
+        if let Some(frame) = video_frame {
+            if let Some(e) = self.detect_from_video_frame(&frame).await {
+                let w = 0.3;
+                *scores.entry(e).or_insert(0.0) += w;
+                face_contribution = w;
+            }
         }
 
         let (primary, intensity) = scores

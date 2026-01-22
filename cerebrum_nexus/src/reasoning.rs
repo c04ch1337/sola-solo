@@ -104,7 +104,7 @@ pub fn detect_dad_salience(
     let s = user_input.to_ascii_lowercase();
     let dad = dad_alias.to_ascii_lowercase();
 
-    // Base salience: explicit Dad cues.
+    // Base salience: explicit user cues.
     let mut score: f32 = if s.contains("dad") || s.contains(&dad) {
         0.75
     } else {
@@ -127,7 +127,7 @@ pub fn detect_dad_salience(
         }
     }
 
-    // Dad love level is a global bias knob.
+    // User love level is a global bias knob.
     score = score.max(dad_love_level.clamp(0.0, 1.0));
     score.clamp(0.0, 1.0)
 }

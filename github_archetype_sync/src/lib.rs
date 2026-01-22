@@ -1,4 +1,4 @@
-//! GitHub Archetype Synchronization for Phoenix AGI (PAGI).
+//! GitHub Archetype Synchronization for Phoenix AGI OS v2.4.0.
 //!
 //! Provides federated learning push/pull capabilities for archetype configurations:
 //! - Download master_system_prompt.txt and personality_db.json from GitHub

@@ -1,8 +1,8 @@
-# Google AI Studio Prompt: Phoenix AGI (PAGI) Dashboard Pages Implementation
+# Google AI Studio Prompt: Phoenix AGI OS v2.4.0 Dashboard Pages Implementation
 
 ## Context
 
-I'm building Phoenix AGI (PAGI), an AGI companion framework with a React TypeScript frontend and Rust backend. The backend uses a command-based architecture where the frontend sends command strings and receives text responses. I need to implement 5 new dashboard pages with full functionality, including backend API endpoints.
+I'm building Phoenix AGI OS v2.4.0, an AGI companion framework with a React TypeScript frontend and Rust backend. The backend uses a command-based architecture where the frontend sends command strings and receives text responses. I need to implement 5 new dashboard pages with full functionality, including backend API endpoints.
 
 ## Project Structure
 

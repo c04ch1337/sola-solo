@@ -101,15 +101,15 @@ impl LearningPipelineState {
 
     pub fn apply_update(&mut self, update: &UpdateEnvelope, our_orch_id: &str) {
         // Target filtering (best-effort).
-        if let Some(target) = &update.target_orch
-            && target != our_orch_id
-        {
-            return;
+        if let Some(target) = &update.target_orch {
+            if target != our_orch_id {
+                return;
+            }
         }
-        if let Some(prefix) = &update.target_agent_prefix
-            && !self.agent_path.starts_with(prefix)
-        {
-            return;
+        if let Some(prefix) = &update.target_agent_prefix {
+            if !self.agent_path.starts_with(prefix) {
+                return;
+            }
         }
 
         let update_type = update.update_type.as_str();
@@ -148,18 +148,18 @@ impl LearningPipelineState {
                             return;
                         }
                         // Rehydrate known fields
-                        self.overrides.default_prompt =
-                            self.config_json["overrides"]["default_prompt"]
-                                .as_str()
-                                .map(|s| s.to_string());
-                        self.overrides.master_prompt =
-                            self.config_json["overrides"]["master_prompt"]
-                                .as_str()
-                                .map(|s| s.to_string());
-                        self.overrides.default_model =
-                            self.config_json["overrides"]["default_model"]
-                                .as_str()
-                                .map(|s| s.to_string());
+                        self.overrides.default_prompt = self.config_json["overrides"]
+                            ["default_prompt"]
+                            .as_str()
+                            .map(|s| s.to_string());
+                        self.overrides.master_prompt = self.config_json["overrides"]
+                            ["master_prompt"]
+                            .as_str()
+                            .map(|s| s.to_string());
+                        self.overrides.default_model = self.config_json["overrides"]
+                            ["default_model"]
+                            .as_str()
+                            .map(|s| s.to_string());
                     }
                     Err(e) => {
                         self.last_error = Some(format!("invalid json_patch: {e}"));

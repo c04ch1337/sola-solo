@@ -114,14 +114,33 @@ After building, you'll find installers in:
 
 ### Icons
 
-Icons should be placed in `src-tauri/icons/`:
-- `icon.ico` (Windows)
-- `icon.icns` (macOS)
+Icons should be placed in `src-tauri/icons/`. See [ICON_GENERATION.md](ICON_GENERATION.md) for detailed instructions.
+
+**Quick Start:**
+
+```bash
+# Option 1: Generate placeholder icon automatically
+npm run icon:generate
+
+# Option 2: Use your own 1024x1024 PNG
+cp /path/to/your/icon.png src-tauri/icons/icon.png
+npm run icon
+
+# Option 3: Manual generation
+python generate-placeholder-icon.py
+cargo tauri icon src-tauri/icons/icon.png
+```
+
+This generates all required formats:
+- `icon.ico` (Windows, multiple sizes)
+- `icon.icns` (macOS, multiple sizes)
 - `32x32.png`, `128x128.png`, `128x128@2x.png` (Linux)
 
-If icons are missing, Tauri will use default icons. To generate icons:
-1. Create a 1024x1024 PNG icon
-2. Use a tool like [Tauri Icon Generator](https://github.com/tauri-apps/tauri-icon) or [IconKitchen](https://icon.kitchen/)
+**Required files:**
+- Source: `src-tauri/icons/icon.png` (1024x1024 PNG)
+- Generated: All platform-specific formats
+
+If icons are missing, Tauri will use default placeholder icons.
 
 ### Environment Variables
 

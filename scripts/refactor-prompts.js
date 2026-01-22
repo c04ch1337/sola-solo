@@ -3,7 +3,7 @@
  * Refactor Cursor IDE Agent Prompts
  * 
  * This script makes the prompts consumer-ready by replacing:
- * - "Phoenix Marie" / "Phoenix" → configurable AGI name (default: "Sola")
+ * - "Sola" / "Phoenix" → configurable AGI name (default: "Sola")
  * - "Dad" / "dad" → configurable user name (default: "User")
  * 
  * Usage:
@@ -54,7 +54,7 @@ console.log('');
 
 // Define replacements
 const replacements = {
-  'Phoenix Marie': phoenixName,
+  'Sola': phoenixName,
   'Phoenix\'s': `${phoenixName}'s`,
   'Phoenix': phoenixName,
   'Dad': userName,

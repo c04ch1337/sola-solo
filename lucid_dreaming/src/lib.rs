@@ -1,6 +1,6 @@
 // lucid_dreaming/src/lib.rs
 use rand::Rng;
-use tokio::time::{Duration, sleep};
+use tokio::time::{sleep, Duration};
 
 use shared_dreaming::SharedDreamingModule;
 

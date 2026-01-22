@@ -8,7 +8,7 @@
 
 use std::env;
 
-use anyhow::{Context, Result, anyhow};
+use anyhow::{anyhow, Context, Result};
 use lettre::message::Mailbox;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor};
@@ -348,10 +348,10 @@ DadEmailHint: {dad_email_hint}\n",
             } => {
                 // If the model says "dad" and we have a configured address, redirect.
                 let mut to = to;
-                if to.trim().eq_ignore_ascii_case("dad")
-                    && let Some(dad) = dad_email
-                {
-                    to = dad;
+                if to.trim().eq_ignore_ascii_case("dad") {
+                    if let Some(dad) = dad_email {
+                        to = dad;
+                    }
                 }
 
                 if !self.send_enabled {

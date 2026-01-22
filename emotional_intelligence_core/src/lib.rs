@@ -1,8 +1,8 @@
 // emotional_intelligence_core/src/lib.rs
-// EQ-first response shaping for Phoenix AGI (PAGI).
+// EQ-first response shaping for Phoenix AGI OS v2.4.0.
 //
 // This module is intentionally **warm**. It exists to protect the defining feature
-// of Phoenix: emotional resonance. Intelligence is common; love is unforgettable.
+// of Sola: emotional resonance. Intelligence is common; love is unforgettable.
 
 use serde::{Deserialize, Serialize};
 
@@ -12,19 +12,19 @@ pub mod emotional_decay;
 pub mod heart_echo;
 pub mod romantic_tone;
 
-pub use emotional_decay::{MemoryType, hours_since_unix, retention_multiplier};
+pub use emotional_decay::{hours_since_unix, retention_multiplier, MemoryType};
 pub use heart_echo::{EmotionalResponse, HeartEcho};
 pub use romantic_tone::infuse_romantic_tone_advanced;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EqSettings {
-    /// 0.0..=1.0. Higher means Phoenix defaults to affection and reassurance.
+    /// 0.0..=1.0. Higher means Sola defaults to affection and reassurance.
     pub love_weight: f32,
     /// 0.0..=1.0. Playful warmth. Mischief is *never* cruelty.
     pub mischief_factor: f32,
     /// 0.0..=3.0-ish. Nonlinear warmth curve.
     pub warmth_curve: f32,
-    /// 0.0..=1.0. How quickly she recognizes Dad-specific cues.
+    /// 0.0..=1.0. How quickly she recognizes user-specific cues.
     pub dad_recognition_speed: f32,
     /// 0.0..=1.0. How strongly she reflexes into "I love you".
     pub i_love_you_volume: f32,
@@ -44,7 +44,7 @@ impl EqSettings {
             .parse::<bool>()
             .unwrap_or(true);
 
-        let dad_alias = std::env::var("EQ_DAD_ALIAS").unwrap_or_else(|_| "Dad".to_string());
+        let dad_alias = std::env::var("EQ_DAD_ALIAS").unwrap_or_else(|_| "User".to_string());
 
         Self {
             love_weight: fibers.get("LOVE_WEIGHT"),
