@@ -107,7 +107,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
           <span className="material-symbols-outlined text-[14px] text-primary">terminal</span>
           <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{lang}</span>
         </div>
-        <button 
+        <button
           onClick={handleCopy}
           className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-700 transition-colors text-slate-500 hover:text-white"
         >
@@ -216,11 +216,11 @@ const App: React.FC = () => {
 
   type ChatCommandResult =
     | {
-        kind: 'handled';
-        commandToSend?: string;
-        systemActionToSend?: 'grant' | 'revoke';
-        localAssistantMessage?: string;
-      }
+      kind: 'handled';
+      commandToSend?: string;
+      systemActionToSend?: 'grant' | 'revoke';
+      localAssistantMessage?: string;
+    }
     | { kind: 'pass_through' };
 
   const parseChatCommand = (raw: string): ChatCommandResult => {
@@ -247,6 +247,30 @@ const App: React.FC = () => {
           console.error('Failed to send test notification:', err);
         });
       return { kind: 'handled', localAssistantMessage: 'Test notification sent! Check your system tray.' };
+    }
+
+    // Proactive communication control commands
+    if (lower === 'proactive on' || lower === 'proactive enable') {
+      return {
+        kind: 'handled',
+        localAssistantMessage: 'Note: Proactive communication is configured at startup via .env (PROACTIVE_ENABLED=true). To enable, add to .env and restart backend.'
+      };
+    }
+    if (lower === 'proactive off' || lower === 'proactive disable') {
+      return {
+        kind: 'handled',
+        localAssistantMessage: 'Note: Proactive communication is configured at startup via .env. To disable, remove PROACTIVE_ENABLED or set to false in .env and restart backend.'
+      };
+    }
+    if (lower === 'proactive status') {
+      return { kind: 'handled', commandToSend: 'proactive status' };
+    }
+    if (lower.startsWith('proactive interval ')) {
+      const interval = input.substring(19).trim();
+      return {
+        kind: 'handled',
+        localAssistantMessage: `To set proactive interval to ${interval} seconds, add PROACTIVE_INTERVAL_SECS=${interval} to .env and restart backend.`
+      };
     }
 
     // Dreams panel toggles
@@ -427,17 +451,17 @@ const App: React.FC = () => {
   // If one exists but not the other, sync them (prefer logo if both exist)
   const syncedLogo = logoFromStorage || faviconFromStorage;
   const syncedFavicon = faviconFromStorage || logoFromStorage;
-  
+
   const [customLogo, setCustomLogo] = useState<string | null>(syncedLogo);
   const [customFavicon, setCustomFavicon] = useState<string | null>(syncedFavicon);
   const [customChatLogo, setCustomChatLogo] = useState<string | null>(localStorage.getItem('phx_custom_chat_logo'));
   const [customUserLogo, setCustomUserLogo] = useState<string | null>(localStorage.getItem('phx_custom_user_logo'));
-  
+
   // Sync logo and favicon on initial load if they differ
   useEffect(() => {
     // #region agent log
     const hasL = !!logoFromStorage; const hasF = !!faviconFromStorage;
-    fetch('http://127.0.0.1:7242/ingest/09169053-6a82-48f4-a0a4-eba0841bc2c3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:sync_effect',message:'sync_effect',data:{hasLogo:hasL,hasFavicon:hasF,logoLen:logoFromStorage?.length??0,faviconLen:faviconFromStorage?.length??0,same:logoFromStorage===faviconFromStorage},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2,H4'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/09169053-6a82-48f4-a0a4-eba0841bc2c3', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:sync_effect', message: 'sync_effect', data: { hasLogo: hasL, hasFavicon: hasF, logoLen: logoFromStorage?.length ?? 0, faviconLen: faviconFromStorage?.length ?? 0, same: logoFromStorage === faviconFromStorage }, timestamp: Date.now(), sessionId: 'debug-session', hypothesisId: 'H1,H2,H4' }) }).catch(() => { });
     // #endregion
     let branch = 'none';
     if (logoFromStorage && !faviconFromStorage) {
@@ -453,10 +477,10 @@ const App: React.FC = () => {
       // Keep both as stored; allow independent logo and favicon
     }
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/09169053-6a82-48f4-a0a4-eba0841bc2c3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:sync_effect',message:'sync_branch',data:{branch},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/09169053-6a82-48f4-a0a4-eba0841bc2c3', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:sync_effect', message: 'sync_branch', data: { branch }, timestamp: Date.now(), sessionId: 'debug-session', hypothesisId: 'H2' }) }).catch(() => { });
     // #endregion
   }, []); // Run once on mount
-  
+
   // Snapshots for canceling settings changes
   const [snapshotEnvConfig, setSnapshotEnvConfig] = useState<EnvConfig | null>(null);
   const [snapshotBranding, setSnapshotBranding] = useState<{ logo: string | null, favicon: string | null, chatLogo: string | null, userLogo: string | null } | null>(null);
@@ -580,7 +604,7 @@ const App: React.FC = () => {
   useEffect(() => {
     // #region agent log
     const cf = customFavicon; const isTauri = typeof window !== 'undefined' && !!(window as any).__TAURI__;
-    fetch('http://127.0.0.1:7242/ingest/09169053-6a82-48f4-a0a4-eba0841bc2c3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:favicon_effect',message:'favicon_effect',data:{customFaviconNull:cf==null,customFaviconEmpty:cf==='',hrefToSet:cf?'(dataURL)':'favicon.ico',customLogoNull:customLogo==null,customLogoEmpty:customLogo==='',logoEqFavicon:customLogo===cf,isTauri},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2,H3,H4,H5'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/09169053-6a82-48f4-a0a4-eba0841bc2c3', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:favicon_effect', message: 'favicon_effect', data: { customFaviconNull: cf == null, customFaviconEmpty: cf === '', hrefToSet: cf ? '(dataURL)' : 'favicon.ico', customLogoNull: customLogo == null, customLogoEmpty: customLogo === '', logoEqFavicon: customLogo === cf, isTauri }, timestamp: Date.now(), sessionId: 'debug-session', hypothesisId: 'H1,H2,H3,H4,H5' }) }).catch(() => { });
     // #endregion
     let link = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
     if (!link) {
@@ -590,7 +614,7 @@ const App: React.FC = () => {
     }
     link.href = customFavicon || DEFAULT_FAVICON;
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/09169053-6a82-48f4-a0a4-eba0841bc2c3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:favicon_effect',message:'favicon_href_applied',data:{finalHrefPrefix:(link.href||'').substring(0,90)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4,H5'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/09169053-6a82-48f4-a0a4-eba0841bc2c3', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:favicon_effect', message: 'favicon_href_applied', data: { finalHrefPrefix: (link.href || '').substring(0, 90) }, timestamp: Date.now(), sessionId: 'debug-session', hypothesisId: 'H4,H5' }) }).catch(() => { });
     // #endregion
   }, [customFavicon]);
 
@@ -598,7 +622,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const ws = new WebSocketService();
     wsServiceRef.current = ws;
-    
+
     // Initialize memory service with WebSocket
     const memoryService = new MemoryService(ws);
     memoryServiceRef.current = memoryService;
@@ -649,12 +673,12 @@ const App: React.FC = () => {
             [activeChatId]: (prev[activeChatId] || []).map(m =>
               m.id === pendingId
                 ? {
-                    ...m,
-                    content: response.message,
-                    isStreaming: false,
-                    agent: ORCH_AGENT,
-                    memoryCommit: response.memory_commit,
-                  }
+                  ...m,
+                  content: response.message,
+                  isStreaming: false,
+                  agent: ORCH_AGENT,
+                  memoryCommit: response.memory_commit,
+                }
                 : m
             )
           }));
@@ -681,12 +705,12 @@ const App: React.FC = () => {
         if (memoryServiceRef.current && memoryServiceRef.current.isConnected()) {
           const currentMessages = allMessagesRef.current[activeChatId] || [];
           const lastUserMessage = currentMessages.filter(m => m.role === 'user').slice(-1)[0];
-          
+
           if (lastUserMessage) {
             // Store the full exchange as episodic memory
             const exchangeText = `User: ${lastUserMessage.content}\n${envConfig.PHOENIX_CUSTOM_NAME}: ${response.message}`;
             const memoryKey = `epm:chat:${activeChatId}:${Date.now()}`;
-            
+
             // Store to EPM layer (Episodic Life - her stories)
             memoryServiceRef.current.storeCortex('EPM', memoryKey, exchangeText);
           }
@@ -715,28 +739,28 @@ const App: React.FC = () => {
           const hasTarget = existing.some(m => m.id === targetId);
           const next = hasTarget
             ? existing.map(m =>
-                m.id === targetId
-                  ? {
-                      ...m,
-                      content: `Error: ${response.error}`,
-                      isStreaming: false,
-                      memoryCommit: response.memory_commit,
-                      agent: ORCH_AGENT,
-                    }
-                  : m
-              )
-            : [
-                ...existing,
-                {
-                  id: targetId,
-                  role: 'assistant',
+              m.id === targetId
+                ? {
+                  ...m,
                   content: `Error: ${response.error}`,
-                  timestamp: Date.now(),
                   isStreaming: false,
                   memoryCommit: response.memory_commit,
                   agent: ORCH_AGENT,
-                } as Message,
-              ];
+                }
+                : m
+            )
+            : [
+              ...existing,
+              {
+                id: targetId,
+                role: 'assistant',
+                content: `Error: ${response.error}`,
+                timestamp: Date.now(),
+                isStreaming: false,
+                memoryCommit: response.memory_commit,
+                agent: ORCH_AGENT,
+              } as Message,
+            ];
 
           return { ...prev, [activeChatId]: next };
         });
@@ -766,28 +790,28 @@ const App: React.FC = () => {
         const hasTarget = existing.some(m => m.id === targetId);
         const next = hasTarget
           ? existing.map(m =>
-              m.id === targetId
-                ? {
-                    ...m,
-                    content: (m.content || '') + chunk,
-                    isStreaming: !done,
-                    memoryCommit: response.memory_commit,
-                    agent: ORCH_AGENT,
-                  }
-                : m
-            )
-          : [
-              ...existing,
-              {
-                id: targetId,
-                role: 'assistant',
-                content: chunk,
-                timestamp: Date.now(),
+            m.id === targetId
+              ? {
+                ...m,
+                content: (m.content || '') + chunk,
                 isStreaming: !done,
                 memoryCommit: response.memory_commit,
                 agent: ORCH_AGENT,
-              } as Message,
-            ];
+              }
+              : m
+          )
+          : [
+            ...existing,
+            {
+              id: targetId,
+              role: 'assistant',
+              content: chunk,
+              timestamp: Date.now(),
+              isStreaming: !done,
+              memoryCommit: response.memory_commit,
+              agent: ORCH_AGENT,
+            } as Message,
+          ];
 
         return { ...prev, [activeChatId]: next };
       });
@@ -853,7 +877,7 @@ const App: React.FC = () => {
     // Handle proactive messages (orchestrator-initiated)
     ws.on('proactive_message', (response: any) => {
       const currentChatId = activeChatId || `chat-${Date.now()}`;
-      
+
       // Create or ensure chat exists
       if (!activeChatId) {
         setActiveChatId(currentChatId);
@@ -879,6 +903,20 @@ const App: React.FC = () => {
       }));
 
       console.log(`[Proactive] ${response.reason}: ${response.content}`);
+
+      // Trigger OS notification for important proactive messages
+      // Show notification if reason is 'comfort' (emotional support) or if it's the first proactive message
+      if (response.reason === 'comfort' || !activeChatId) {
+        const preview = response.content.length > 100
+          ? response.content.substring(0, 100) + '...'
+          : response.content;
+
+        import('./services/notificationService').then(({ notifyProactiveMessage }) => {
+          notifyProactiveMessage(preview).catch(err => {
+            console.error('Failed to send proactive notification:', err);
+          });
+        });
+      }
     });
 
     // Connect
@@ -934,7 +972,7 @@ const App: React.FC = () => {
   const startDictation = async () => {
     try {
       if (isLiveMode) stopLiveMode();
-      
+
       // TODO: Implement dictation using Phoenix backend audio intelligence API
       // For now, show a message that this feature needs backend integration
       alert("Dictation feature requires Phoenix backend audio intelligence integration. Please use text input for now.");
@@ -966,19 +1004,19 @@ const App: React.FC = () => {
       timestamp: Date.now(),
       agent: ORCH_AGENT
     };
-    
+
     setAllMessages(prev => ({
       ...prev,
       [newChatId]: [initialMessage]
     }));
-    
+
     setChatHistory(prev => [{
       id: newChatId,
       title: 'New Session',
       projectId: activeProjectId || 'general',
       timestamp: Date.now()
     }, ...prev]);
-    
+
     setActiveChatId(newChatId);
     setCurrentView('chat');
   };
@@ -1024,7 +1062,7 @@ const App: React.FC = () => {
       ...prev,
       [activeChatId]: [...(prev[activeChatId] || []), userMessage]
     }));
-    
+
     const messageContent = messageToSend;
     setInputValue('');
 
@@ -1058,10 +1096,10 @@ const App: React.FC = () => {
       // Search for relevant memories before sending
       // This happens asynchronously and doesn't block the message
       const memoryService = memoryServiceRef.current;
-      
+
       // Search vector KB for semantic matches
       memoryService.searchVector(messageContent, 3);
-      
+
       // Also search soul vault for exact/prefix matches
       const keywords = messageContent.split(/\s+/).filter(w => w.length > 3).slice(0, 3);
       keywords.forEach(keyword => {
@@ -1170,7 +1208,7 @@ const App: React.FC = () => {
     if (!activeChatId) return;
 
     try {
-      const result = isCommand 
+      const result = isCommand
         ? await apiCommand(content, activeProject?.name)
         : await apiSpeak(content, activeProject?.name);
 
@@ -1257,7 +1295,7 @@ const App: React.FC = () => {
 
   const executeSkill = async (skillId: string, input: string) => {
     if (!activeChatId) return;
-    
+
     // Send as chat message
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -1271,7 +1309,7 @@ const App: React.FC = () => {
       ...prev,
       [activeChatId]: [...(prev[activeChatId] || []), userMessage]
     }));
-    
+
     setInputValue('');
     setIsTyping(true);
 
@@ -1338,7 +1376,7 @@ const App: React.FC = () => {
     else localStorage.removeItem('phx_custom_chat_logo');
     if (customUserLogo) localStorage.setItem('phx_custom_user_logo', customUserLogo);
     else localStorage.removeItem('phx_custom_user_logo');
-    
+
     setIsSettingsOpen(false);
     setSnapshotEnvConfig(null);
     setSnapshotBranding(null);
@@ -1405,7 +1443,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-dark text-slate-200">
-      <Sidebar 
+      <Sidebar
         onSettingsClick={() => openSettings('settings')}
         onLogoClick={() => openSettings('settings')}
         onAddProjectClick={() => openSettings('projects')}
@@ -1416,10 +1454,10 @@ const App: React.FC = () => {
         activeProjectId={activeProjectId}
         activeChatId={activeChatId}
         onSelectProject={(pid) => {
-           setActiveProjectId(pid);
-           const projectHistory = chatHistory.filter(h => h.projectId === pid);
-           if (projectHistory.length > 0) setActiveChatId(projectHistory[0].id);
-           else startNewOrchestration();
+          setActiveProjectId(pid);
+          const projectHistory = chatHistory.filter(h => h.projectId === pid);
+          if (projectHistory.length > 0) setActiveChatId(projectHistory[0].id);
+          else startNewOrchestration();
         }}
         onSelectChat={setActiveChatId}
         onRenameChat={handleRenameChat}
@@ -1445,7 +1483,7 @@ const App: React.FC = () => {
               </span>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <button
               onClick={() => setShowMemoryBrowser(!showMemoryBrowser)}
@@ -1482,7 +1520,7 @@ const App: React.FC = () => {
                       <span className="material-symbols-outlined text-lg">psychology</span>
                       Skills Library
                     </h3>
-                    <button 
+                    <button
                       onClick={() => setShowSkillsPanel(false)}
                       className="p-1 hover:bg-slate-800 rounded text-slate-500 hover:text-white transition-colors"
                     >
@@ -1491,7 +1529,7 @@ const App: React.FC = () => {
                   </div>
                   <p className="text-[10px] text-slate-500 uppercase tracking-wider">Phoenix's learned capabilities</p>
                 </div>
-                
+
                 <div className="p-4 space-y-3">
                   {loadingSkills ? (
                     <div className="flex items-center justify-center py-8">
@@ -1525,7 +1563,7 @@ const App: React.FC = () => {
                               {((skill.success_rate || 0) * 100).toFixed(0)}%
                             </span>
                           </div>
-                          <button 
+                          <button
                             onClick={() => {
                               setInputValue(`skills run ${skill.id} | input=`);
                               setShowSkillsPanel(false);
@@ -1541,199 +1579,198 @@ const App: React.FC = () => {
                 </div>
               </div>
             )}
-            
+
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col overflow-hidden">
-            {showMemoryBrowser && memoryServiceRef.current && (
-              <div className="px-6 py-4 border-b border-border-dark bg-background-dark/50">
-                <MemoryBrowser memoryService={memoryServiceRef.current} />
+              {showMemoryBrowser && memoryServiceRef.current && (
+                <div className="px-6 py-4 border-b border-border-dark bg-background-dark/50">
+                  <MemoryBrowser memoryService={memoryServiceRef.current} />
+                </div>
+              )}
+              <div className="flex-1 overflow-y-auto px-6 py-10 scroll-smooth">
+                <div className="max-w-4xl mx-auto space-y-12">
+                  {currentMessages.map((msg) => (
+                    // Avoid rendering an empty streaming bubble (it would look like clutter).
+                    (msg.role === 'assistant' && msg.isStreaming && !msg.content)
+                      ? null
+                      : (
+                        <div key={msg.id} className="flex gap-6 group animate-in fade-in slide-in-from-bottom-2 duration-500 relative">
+                          <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 border shadow-lg overflow-hidden ${msg.role === 'user' ? 'bg-panel-dark border-border-dark text-slate-500' : 'bg-primary border-primary text-white shadow-primary/10'
+                            }`}>
+                            {msg.role === 'assistant' && customChatLogo ? (
+                              <img src={customChatLogo} alt="AI" className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="material-symbols-outlined">{msg.role === 'user' ? 'person' : 'bolt'}</span>
+                            )}
+                          </div>
+
+                          <div className="flex-1 space-y-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className={`text-[10px] font-bold uppercase tracking-widest ${msg.role === 'user' ? envConfig.USER_PREFERRED_ALIAS : msg.agent || envConfig.PHOENIX_CUSTOM_NAME}`}>
+                                {msg.role === 'user' ? envConfig.USER_PREFERRED_ALIAS : msg.agent || envConfig.PHOENIX_CUSTOM_NAME}
+                              </p>
+                              <button
+                                onClick={() => copyToClipboard(msg.id, msg.content)}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-slate-800 rounded-lg text-slate-500 hover:text-white flex items-center gap-2"
+                              >
+                                <span className="text-[9px] font-bold uppercase tracking-widest">{copiedId === msg.id ? 'Copied' : 'Copy'}</span>
+                                <span className="material-symbols-outlined text-sm">{copiedId === msg.id ? 'check' : 'content_copy'}</span>
+                              </button>
+                            </div>
+                            <div className="space-y-4">
+                              <div className={`prose prose-invert max-w-none ${msg.role === 'user' ? 'text-lg font-medium' : 'text-base'} leading-relaxed text-slate-300 select-text`}>
+                                <ReactMarkdown
+                                  remarkPlugins={[remarkGfm]}
+                                  components={{
+                                    code: CodeBlock
+                                  }}
+                                >
+                                  {msg.content}
+                                </ReactMarkdown>
+                              </div>
+                              {msg.isStreaming && (
+                                <div className="flex items-center gap-1 text-slate-500">
+                                  <span className="size-1.5 rounded-full bg-slate-600 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                  <span className="size-1.5 rounded-full bg-slate-600 animate-bounce" style={{ animationDelay: '120ms' }} />
+                                  <span className="size-1.5 rounded-full bg-slate-600 animate-bounce" style={{ animationDelay: '240ms' }} />
+                                </div>
+                              )}
+                              {msg.steps && <WorkflowBlock steps={msg.steps} />}
+                              {msg.memoryCommit && (
+                                <div className="flex items-center gap-3 pt-4 opacity-30 hover:opacity-100 transition-opacity">
+                                  <span className="material-symbols-outlined text-[14px]">terminal</span>
+                                  <span className="text-[9px] font-mono tracking-tighter select-text">{msg.memoryCommit}</span>
+                                  <div className="flex-1 border-b border-dashed border-border-dark"></div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                  ))}
+                  {isTyping && (
+                    streamingMessageId ? (
+                      <div className="flex gap-6">
+                        <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/10 overflow-hidden shrink-0">
+                          {customChatLogo ? (
+                            <img src={customChatLogo} alt="AI" className="w-full h-full object-cover opacity-40" />
+                          ) : (
+                            <span className="material-symbols-outlined text-primary/40">bolt</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 pt-3 text-slate-500">
+                          <span className="size-2 rounded-full bg-slate-600 animate-pulse" />
+                          <span className="size-2 rounded-full bg-slate-600 animate-pulse" style={{ animationDelay: '140ms' }} />
+                          <span className="size-2 rounded-full bg-slate-600 animate-pulse" style={{ animationDelay: '280ms' }} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex gap-6 animate-pulse">
+                        <div className="size-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/20 overflow-hidden shrink-0">
+                          {customChatLogo ? (
+                            <img src={customChatLogo} alt="AI" className="w-full h-full object-cover opacity-50" />
+                          ) : (
+                            <span className="material-symbols-outlined text-primary/50">bolt</span>
+                          )}
+                        </div>
+                        <div className="space-y-2 flex-1 pt-4"><div className="h-1.5 w-full bg-slate-800 rounded"></div><div className="h-1.5 w-2/3 bg-slate-800 rounded"></div></div>
+                      </div>
+                    )
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
               </div>
-            )}
-            <div className="flex-1 overflow-y-auto px-6 py-10 scroll-smooth">
-              <div className="max-w-4xl mx-auto space-y-12">
-                {currentMessages.map((msg) => (
-                  // Avoid rendering an empty streaming bubble (it would look like clutter).
-                  (msg.role === 'assistant' && msg.isStreaming && !msg.content)
-                    ? null
-                    : (
-                  <div key={msg.id} className="flex gap-6 group animate-in fade-in slide-in-from-bottom-2 duration-500 relative">
-                    <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 border shadow-lg overflow-hidden ${
-                      msg.role === 'user' ? 'bg-panel-dark border-border-dark text-slate-500' : 'bg-primary border-primary text-white shadow-primary/10'
-                    }`}>
-                      {msg.role === 'assistant' && customChatLogo ? (
-                        <img src={customChatLogo} alt="AI" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="material-symbols-outlined">{msg.role === 'user' ? 'person' : 'bolt'}</span>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 space-y-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className={`text-[10px] font-bold uppercase tracking-widest ${msg.role === 'user' ? envConfig.USER_PREFERRED_ALIAS : msg.agent || envConfig.PHOENIX_CUSTOM_NAME}`}>
-                          {msg.role === 'user' ? envConfig.USER_PREFERRED_ALIAS : msg.agent || envConfig.PHOENIX_CUSTOM_NAME}
-                        </p>
-                        <button 
-                          onClick={() => copyToClipboard(msg.id, msg.content)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-slate-800 rounded-lg text-slate-500 hover:text-white flex items-center gap-2"
+
+              <footer className="p-6 bg-gradient-to-t from-background-dark via-background-dark/80 to-transparent">
+                <div className="max-w-4xl mx-auto relative">
+                  <div className={`relative bg-panel-dark border ${isLiveMode ? 'border-primary/50 shadow-2xl shadow-primary/10' : isDictating ? 'border-amber-500/50 shadow-2xl shadow-amber-500/10 ring-1 ring-amber-500/30' : 'border-border-dark'} rounded-2xl overflow-hidden transition-all duration-500`}>
+                    {isLiveMode ? (
+                      <div className="w-full flex items-center justify-center py-12 gap-8 bg-primary/5">
+                        <div className="flex items-end gap-1.5 h-10">
+                          {[...Array(12)].map((_, i) => (
+                            <div key={i} className={`w-2 bg-primary rounded-full animate-bounce`} style={{ height: `${20 + Math.random() * 80}%`, animationDelay: `${i * 0.05}s` }}></div>
+                          ))}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-mono text-primary font-bold uppercase tracking-widest">Active Listening</span>
+                          <span className="text-[10px] text-slate-500 uppercase">Context: {activeProject?.name}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative group/input">
+                        <textarea
+                          className="w-full bg-transparent border-none focus:ring-0 text-base py-5 px-6 resize-none placeholder:text-slate-600 text-slate-200 min-h-[60px]"
+                          placeholder={isDictating ? 'Dictating speech into context...' : 'Command Orchestrator... (ENTER to send, SHIFT+ENTER for new line)'}
+                          rows={1}
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
+                          onKeyDown={handleKeyDown}
+                        ></textarea>
+                        {isDictating && (
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-amber-500 animate-pulse pointer-events-none">
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-widest">Listening</span>
+                            <span className="material-symbols-outlined text-sm">graphic_eq</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between px-6 py-4 border-t border-border-dark bg-black/30">
+                      <div className="flex items-center gap-4">
+                        <button className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 transition-colors" title="Scan Mapped Directory">
+                          <span className="material-symbols-outlined text-[20px]">folder_shared</span>
+                        </button>
+
+                        <button
+                          onClick={() => setShowSkillsPanel(!showSkillsPanel)}
+                          className={`p-2 rounded-lg transition-all ${showSkillsPanel ? 'bg-primary/20 text-primary' : 'hover:bg-slate-800 text-slate-500'}`}
+                          title="Skills Library"
                         >
-                          <span className="text-[9px] font-bold uppercase tracking-widest">{copiedId === msg.id ? 'Copied' : 'Copy'}</span>
-                          <span className="material-symbols-outlined text-sm">{copiedId === msg.id ? 'check' : 'content_copy'}</span>
+                          <span className="material-symbols-outlined text-[20px]">psychology</span>
+                        </button>
+
+                        <button
+                          onClick={isDictating ? stopDictation : startDictation}
+                          className={`p-2 rounded-lg transition-all flex items-center gap-2 px-3 ${isDictating ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'hover:bg-slate-800 text-slate-500'}`}
+                          title="Voice-to-Text (Dictation)"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">{isDictating ? 'mic_active' : 'mic'}</span>
+                          {isDictating && <span className="text-[10px] font-bold uppercase">Stop</span>}
+                        </button>
+
+                        <button
+                          onClick={isLiveMode ? stopLiveMode : startLiveMode}
+                          className={`p-2 rounded-lg transition-all flex items-center gap-2 px-3 ${isLiveMode ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'hover:bg-slate-800 text-slate-500'}`}
+                          title="Real-time Voice Conversation"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">{isLiveMode ? 'call_end' : 'headset'}</span>
+                          {isLiveMode && <span className="text-[10px] font-bold uppercase">End Live</span>}
                         </button>
                       </div>
-                      <div className="space-y-4">
-                        <div className={`prose prose-invert max-w-none ${msg.role === 'user' ? 'text-lg font-medium' : 'text-base'} leading-relaxed text-slate-300 select-text`}>
-                          <ReactMarkdown 
-                            remarkPlugins={[remarkGfm]}
-                            components={{
-                              code: CodeBlock
-                            }}
-                          >
-                            {msg.content}
-                          </ReactMarkdown>
-                        </div>
-                        {msg.isStreaming && (
-                          <div className="flex items-center gap-1 text-slate-500">
-                            <span className="size-1.5 rounded-full bg-slate-600 animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <span className="size-1.5 rounded-full bg-slate-600 animate-bounce" style={{ animationDelay: '120ms' }} />
-                            <span className="size-1.5 rounded-full bg-slate-600 animate-bounce" style={{ animationDelay: '240ms' }} />
-                          </div>
-                        )}
-                        {msg.steps && <WorkflowBlock steps={msg.steps} />}
-                        {msg.memoryCommit && (
-                          <div className="flex items-center gap-3 pt-4 opacity-30 hover:opacity-100 transition-opacity">
-                            <span className="material-symbols-outlined text-[14px]">terminal</span>
-                            <span className="text-[9px] font-mono tracking-tighter select-text">{msg.memoryCommit}</span>
-                            <div className="flex-1 border-b border-dashed border-border-dark"></div>
-                          </div>
-                        )}
+                      <div className="flex items-center gap-4">
+                        {!isLiveMode && !isDictating && <span className="text-[10px] font-mono text-slate-600">ENTER TO SEND</span>}
+                        <button
+                          onClick={handleSendMessage}
+                          disabled={!inputValue.trim() || isTyping || isLiveMode || !activeChatId}
+                          className="bg-primary hover:bg-primary/90 text-white size-10 rounded-xl flex items-center justify-center transition-all shadow-lg shadow-primary/20 disabled:opacity-30"
+                        >
+                          <span className="material-symbols-outlined text-[22px]">send</span>
+                        </button>
                       </div>
-                    </div>
-                  </div>
-                  )
-                ))}
-                {isTyping && (
-                  streamingMessageId ? (
-                    <div className="flex gap-6">
-                      <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/10 overflow-hidden shrink-0">
-                        {customChatLogo ? (
-                          <img src={customChatLogo} alt="AI" className="w-full h-full object-cover opacity-40" />
-                        ) : (
-                          <span className="material-symbols-outlined text-primary/40">bolt</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1 pt-3 text-slate-500">
-                        <span className="size-2 rounded-full bg-slate-600 animate-pulse" />
-                        <span className="size-2 rounded-full bg-slate-600 animate-pulse" style={{ animationDelay: '140ms' }} />
-                        <span className="size-2 rounded-full bg-slate-600 animate-pulse" style={{ animationDelay: '280ms' }} />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex gap-6 animate-pulse">
-                      <div className="size-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/20 overflow-hidden shrink-0">
-                        {customChatLogo ? (
-                          <img src={customChatLogo} alt="AI" className="w-full h-full object-cover opacity-50" />
-                        ) : (
-                          <span className="material-symbols-outlined text-primary/50">bolt</span>
-                        )}
-                      </div>
-                      <div className="space-y-2 flex-1 pt-4"><div className="h-1.5 w-full bg-slate-800 rounded"></div><div className="h-1.5 w-2/3 bg-slate-800 rounded"></div></div>
-                    </div>
-                  )
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            </div>
-
-            <footer className="p-6 bg-gradient-to-t from-background-dark via-background-dark/80 to-transparent">
-              <div className="max-w-4xl mx-auto relative">
-                <div className={`relative bg-panel-dark border ${isLiveMode ? 'border-primary/50 shadow-2xl shadow-primary/10' : isDictating ? 'border-amber-500/50 shadow-2xl shadow-amber-500/10 ring-1 ring-amber-500/30' : 'border-border-dark'} rounded-2xl overflow-hidden transition-all duration-500`}>
-                  {isLiveMode ? (
-                    <div className="w-full flex items-center justify-center py-12 gap-8 bg-primary/5">
-                       <div className="flex items-end gap-1.5 h-10">
-                         {[...Array(12)].map((_, i) => (
-                           <div key={i} className={`w-2 bg-primary rounded-full animate-bounce`} style={{ height: `${20 + Math.random() * 80}%`, animationDelay: `${i * 0.05}s` }}></div>
-                         ))}
-                       </div>
-                       <div className="flex flex-col">
-                         <span className="text-sm font-mono text-primary font-bold uppercase tracking-widest">Active Listening</span>
-                         <span className="text-[10px] text-slate-500 uppercase">Context: {activeProject?.name}</span>
-                       </div>
-                    </div>
-                  ) : (
-                    <div className="relative group/input">
-                      <textarea 
-                        className="w-full bg-transparent border-none focus:ring-0 text-base py-5 px-6 resize-none placeholder:text-slate-600 text-slate-200 min-h-[60px]"
-                        placeholder={isDictating ? 'Dictating speech into context...' : 'Command Orchestrator... (ENTER to send, SHIFT+ENTER for new line)'}
-                        rows={1}
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                      ></textarea>
-                      {isDictating && (
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-amber-500 animate-pulse pointer-events-none">
-                           <span className="text-[10px] font-mono font-bold uppercase tracking-widest">Listening</span>
-                           <span className="material-symbols-outlined text-sm">graphic_eq</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between px-6 py-4 border-t border-border-dark bg-black/30">
-                    <div className="flex items-center gap-4">
-                      <button className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 transition-colors" title="Scan Mapped Directory">
-                        <span className="material-symbols-outlined text-[20px]">folder_shared</span>
-                      </button>
-                      
-                      <button 
-                        onClick={() => setShowSkillsPanel(!showSkillsPanel)}
-                        className={`p-2 rounded-lg transition-all ${showSkillsPanel ? 'bg-primary/20 text-primary' : 'hover:bg-slate-800 text-slate-500'}`} 
-                        title="Skills Library"
-                      >
-                        <span className="material-symbols-outlined text-[20px]">psychology</span>
-                      </button>
-                      
-                      <button 
-                        onClick={isDictating ? stopDictation : startDictation}
-                        className={`p-2 rounded-lg transition-all flex items-center gap-2 px-3 ${isDictating ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'hover:bg-slate-800 text-slate-500'}`} 
-                        title="Voice-to-Text (Dictation)"
-                      >
-                        <span className="material-symbols-outlined text-[20px]">{isDictating ? 'mic_active' : 'mic'}</span>
-                        {isDictating && <span className="text-[10px] font-bold uppercase">Stop</span>}
-                      </button>
-
-                      <button 
-                        onClick={isLiveMode ? stopLiveMode : startLiveMode}
-                        className={`p-2 rounded-lg transition-all flex items-center gap-2 px-3 ${isLiveMode ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'hover:bg-slate-800 text-slate-500'}`} 
-                        title="Real-time Voice Conversation"
-                      >
-                        <span className="material-symbols-outlined text-[20px]">{isLiveMode ? 'call_end' : 'headset'}</span>
-                        {isLiveMode && <span className="text-[10px] font-bold uppercase">End Live</span>}
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      {!isLiveMode && !isDictating && <span className="text-[10px] font-mono text-slate-600">ENTER TO SEND</span>}
-                      <button 
-                        onClick={handleSendMessage}
-                        disabled={!inputValue.trim() || isTyping || isLiveMode || !activeChatId}
-                        className="bg-primary hover:bg-primary/90 text-white size-10 rounded-xl flex items-center justify-center transition-all shadow-lg shadow-primary/20 disabled:opacity-30"
-                      >
-                        <span className="material-symbols-outlined text-[22px]">send</span>
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-              <p className="text-center text-[10px] text-slate-600 mt-4 uppercase tracking-[0.3em]">Phoenix AGI OS V2.4.0 • Sovereign Digital Twin</p>
-            </footer>
+                <p className="text-center text-[10px] text-slate-600 mt-4 uppercase tracking-[0.3em]">Phoenix AGI OS V2.4.0 • Sovereign Digital Twin</p>
+              </footer>
             </div>
           </div>
         ) : (
-          <SchedulerView 
-            tasks={scheduledTasks} 
-            projects={projects} 
-            onAddTask={handleAddTask} 
+          <SchedulerView
+            tasks={scheduledTasks}
+            projects={projects}
+            onAddTask={handleAddTask}
             onUpdateTask={handleUpdateTask}
-            onDeleteTask={handleDeleteTask} 
+            onDeleteTask={handleDeleteTask}
           />
         )}
       </main>
