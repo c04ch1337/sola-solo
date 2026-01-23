@@ -1295,7 +1295,7 @@ fn peel_leading_tags(input: &str) -> (std::collections::HashMap<String, String>,
 }
 
 /// Retrieve memories from all vaults and build EQ-first context.
-async fn build_memory_context(
+pub(crate) async fn build_memory_context(
     state: &AppState,
     user_input: &str,
     emotion_hint: Option<&str>,

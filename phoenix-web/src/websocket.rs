@@ -692,8 +692,26 @@ async fn handle_speak_streaming(
         identity.display_name(),
     );
     
-    // Build full prompt with system prompt and user input
-    let full_prompt = format!("{}\n\nUser: {}\nAssistant:", system_prompt, user_input.trim());
+    // Build memory context based on cognitive mode (with state isolation for Professional)
+    // This matches the logic in the HTTP command handler (main.rs lines 3694-3701)
+    let memory_context = if cognitive_mode == phoenix_identity::CognitiveMode::Professional {
+        // Professional mode: Build isolated context (NO L4/L5 memory)
+        let professional_context = crate::handlers::build_professional_context(&user_input, cognitive_mode);
+        professional_context.join("\n")
+    } else {
+        // Personal mode: Full memory context (EQ-first context from all vaults)
+        // Note: emotion_hint is None for WebSocket, but build_memory_context handles it
+        crate::build_memory_context(state, &user_input, None).await
+    };
+    
+    // Build full prompt with system prompt, memory context, and user input
+    // This matches the HTTP handler pattern (main.rs line 3915)
+    let full_prompt = format!(
+        "{}\n\n{}\n\nUser: {}\nAssistant:",
+        system_prompt,
+        memory_context,
+        user_input.trim()
+    );
 
     let mut full_response = String::new();
     let mut stream = Box::pin(llm.speak_stream(&full_prompt, tier).await);
