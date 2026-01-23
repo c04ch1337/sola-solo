@@ -1,13 +1,12 @@
-# Sola AGI v1.0.1 – Final Polish & Release
+# Sola AGI v1.0.1 – Tauri v2 Migration & Final Polish
 
 **Sola AGI** is your personal, emotionally-aware AI companion — built for privacy, voice, and real-world interaction.
 
 ### What's New in v1.0.1
-- ✅ Tauri v2 migration complete (modern APIs, improved security)
-- ✅ Icon generation workflow implemented (all platforms)
-- ✅ Help system comprehensive with 11 topics
-- ✅ All 30 phases complete
-- ✅ Production-ready installers
+- Migrated to **Tauri v2** (modern APIs, improved security, better tray/notifications)
+- Full feature polish: icons, help system, onboarding, analytics
+- All 30 phases complete
+- Production-ready installers
 
 ### Key Features
 - Chat-first interface with token-by-token streaming
