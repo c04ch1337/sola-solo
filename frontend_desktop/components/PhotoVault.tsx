@@ -35,7 +35,9 @@ export const PhotoVault: React.FC<PhotoVaultProps> = ({ compact = false }) => {
       try {
         setLoading(true);
         
+        // @ts-ignore - solaApp is defined in globals.d.ts
         if (window.solaApp?.listPhotoLibrary) {
+          // @ts-ignore - solaApp is defined in globals.d.ts
           const result = await window.solaApp.listPhotoLibrary();
           
           // Transform the data
@@ -140,7 +142,9 @@ export const PhotoVault: React.FC<PhotoVaultProps> = ({ compact = false }) => {
     }
     
     try {
+      // @ts-ignore - solaApp is defined in globals.d.ts
       if (window.solaApp?.deletePhoto) {
+        // @ts-ignore - solaApp is defined in globals.d.ts
         await window.solaApp.deletePhoto(photo.path);
       }
       
@@ -162,7 +166,9 @@ export const PhotoVault: React.FC<PhotoVaultProps> = ({ compact = false }) => {
 
   const handleExport = async (photo: PhotoFile) => {
     try {
+      // @ts-ignore - solaApp is defined in globals.d.ts
       if (window.solaApp?.exportPhoto) {
+        // @ts-ignore - solaApp is defined in globals.d.ts
         await window.solaApp.exportPhoto(photo.path);
       }
     } catch (err) {

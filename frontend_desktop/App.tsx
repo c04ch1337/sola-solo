@@ -1,6 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useAtom } from 'jotai';
+import { modeAtom } from './stores/modeStore';
 import Sidebar from './components/Sidebar';
+import CognitiveToggle from './components/CognitiveToggle';
 import WorkflowBlock from './components/WorkflowBlock';
 import SettingsPanel from './components/SettingsPanel';
 import SchedulerView from './components/SchedulerView';
@@ -13,6 +16,7 @@ import OnboardingMessage from './components/OnboardingMessage';
 import WebGuardReportPanel, { WebGuardReportData } from './components/WebGuardReportPanel';
 import ReportsPanel, { VulnerabilityReport } from './components/ReportsPanel';
 import ProfilesSwipePanel from './components/ProfilesSwipePanel';
+import ProfessionalDashboard from './components/ProfessionalDashboard';
 import { sendNotification } from './services/notificationService';
 import VoiceService from './services/voiceService';
 import analyticsService from './services/analyticsService';
@@ -184,7 +188,8 @@ function createBlob(data: Float32Array): any {
 const App: React.FC = () => {
   const BACKEND_URL = import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888';
 
-  const [currentView, setCurrentView] = useState<'chat' | 'scheduler'>('chat');
+  const [currentView, setCurrentView] = useState<'chat' | 'scheduler' | 'professional'>('chat');
+  const [mode] = useAtom(modeAtom);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
@@ -4418,7 +4423,7 @@ SUB_AGENT_MAX_PLAYBOOK_UPDATES=100
               </footer>
             </div>
           </div>
-        ) : (
+        ) : currentView === 'scheduler' ? (
           <SchedulerView
             tasks={scheduledTasks}
             projects={projects}
@@ -4426,6 +4431,8 @@ SUB_AGENT_MAX_PLAYBOOK_UPDATES=100
             onUpdateTask={handleUpdateTask}
             onDeleteTask={handleDeleteTask}
           />
+        ) : (
+          <ProfessionalDashboard />
         )}
       </main>
 

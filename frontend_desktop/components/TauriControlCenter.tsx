@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import GPUMonitor from './GPUMonitor';
+import GPUMonitor from './GpuMonitor';
 import ConsentToggle from './ConsentToggle';
 import PhotoVault from './PhotoVault';
 

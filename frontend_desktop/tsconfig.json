@@ -24,6 +24,12 @@
       ]
     },
     "allowImportingTsExtensions": true,
-    "noEmit": true
-  }
+    "noEmit": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "types/globals.d.ts"
+  ]
 }

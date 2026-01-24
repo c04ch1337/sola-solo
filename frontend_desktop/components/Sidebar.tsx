@@ -9,8 +9,8 @@ interface SidebarProps {
   onLogoClick: () => void;
   onAddProjectClick: () => void;
   onNewOrchestration: () => void;
-  onViewChange: (view: 'chat' | 'scheduler') => void;
-  currentView: 'chat' | 'scheduler';
+  onViewChange: (view: 'chat' | 'scheduler' | 'professional') => void;
+  currentView: 'chat' | 'scheduler' | 'professional';
   projects: Project[];
   activeProjectId: string | null;
   activeChatId: string | null;
@@ -126,6 +126,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <span className="material-symbols-outlined text-[18px]">factory</span>
                   <span className="text-xs font-bold uppercase tracking-wider">Agent Factory</span>
                 </button>
+                <button 
+                  onClick={() => onViewChange('professional')}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${currentView === 'professional' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:text-slate-200 hover:bg-panel-dark'}`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">monitoring</span>
+                  <span className="text-xs font-bold uppercase tracking-wider">Professional Dashboard</span>
+                </button>
               </>
             ) : (
               <>
@@ -142,6 +149,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <span className="material-symbols-outlined text-[18px]">timeline</span>
                   <span className="text-xs font-bold uppercase tracking-wider">Relationship Timeline</span>
+                </button>
+                <button 
+                  onClick={() => onViewChange('professional')}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${currentView === 'professional' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:text-slate-200 hover:bg-panel-dark'}`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">monitoring</span>
+                  <span className="text-xs font-bold uppercase tracking-wider">Professional Dashboard</span>
                 </button>
               </>
             )}

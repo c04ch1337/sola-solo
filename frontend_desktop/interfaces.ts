@@ -1,6 +1,6 @@
 // Type definitions for Sola Desktop application Tauri APIs
 
-interface SolaAppWindow {
+export interface SolaAppWindow {
   // Consent toggle capability
   setAccessPornCapability: (enabled: boolean) => void;
   
@@ -24,7 +24,7 @@ interface SolaAppWindow {
   }>;
 }
 
-interface PhotoLibraryItem {
+export interface PhotoLibraryItem {
   name: string;
   path: string;
   lastModified: string; // ISO date string
@@ -38,5 +38,3 @@ declare global {
     solaApp?: SolaAppWindow;
   }
 }
-
-export {};
