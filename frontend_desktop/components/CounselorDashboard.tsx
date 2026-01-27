@@ -8,9 +8,11 @@ import L9EntryAdvanced from './L9EntryAdvanced';
 import CorrelationChart from './CorrelationChart';
 import SemanticScratchpad from './SemanticScratchpad';
 import SystemStressOverlay from './SystemStressOverlay';
+import NarrativeReframer from './NarrativeReframer';
 import { fmtCountdown, useRegulatoryBrake } from '../hooks/useRegulatoryBrake';
 import { useAtom } from 'jotai';
 import { coolingStateAtom, setCoolingStateAtom } from '../stores/modeStore';
+import { getPhoenixApiBase } from '../env';
 
 type GriefAggregate = {
   day: string;
@@ -58,10 +60,7 @@ export default function CounselorDashboard() {
   const [coolingToast, setCoolingToast] = useState<null | { title: string; body: string }>(null);
   const coolingDebounceRef = useRef<number | null>(null);
 
-  const PHOENIX_API_BASE = useMemo(
-    () => import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888',
-    []
-  );
+  const PHOENIX_API_BASE = useMemo(() => getPhoenixApiBase(), []);
 
   // Phase: Mobile-Pairing helper (best-effort URL for the LAN device)
   const mobileBridgeUrl = useMemo(() => {
@@ -237,6 +236,8 @@ export default function CounselorDashboard() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4">
           <div className="space-y-4">
             <CounselorEcho refreshKey={echoRefreshKey} />
+
+            <NarrativeReframer />
 
             <L9EntryAdvanced
               onLogged={() => {

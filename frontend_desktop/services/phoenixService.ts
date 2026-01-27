@@ -1,11 +1,13 @@
 /**
  * Phoenix Backend Service
- * 
+ *
  * Replaces Gemini API with Phoenix Orchestrator backend API calls.
- * All interactions go through the Phoenix backend at http://localhost:8888
+ * All interactions go through the Phoenix backend.
  */
 
-const PHOENIX_API_BASE = import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888';
+import { getPhoenixApiBase } from '../env';
+
+const PHOENIX_API_BASE = getPhoenixApiBase();
 
 export interface SpeakRequest {
   user_input: string;
@@ -27,7 +29,7 @@ export interface PhoenixResponse {
 export interface WebGuardCommandResult {
   message: string;
   isWebGuardReport: boolean;
-  reportType?: 'passive' | 'xss' | 'sqli';
+  reportType?: 'passive' | 'xss' | 'sqli' | 'redirect' | 'cmdinj';
   report?: any;
 }
 
@@ -204,11 +206,15 @@ export const apiWebGuardCommand = async (command: string): Promise<WebGuardComma
     const isWebGuard = parsed.type?.startsWith('webguard.');
     
     if (isWebGuard && parsed.report) {
-      let reportType: 'passive' | 'xss' | 'sqli' = 'passive';
+      let reportType: 'passive' | 'xss' | 'sqli' | 'redirect' | 'cmdinj' = 'passive';
       if (parsed.type.includes('sqli')) {
         reportType = 'sqli';
       } else if (parsed.type.includes('xss')) {
         reportType = 'xss';
+      } else if (parsed.type.includes('redirect')) {
+        reportType = 'redirect';
+      } else if (parsed.type.includes('cmdinj') || parsed.type.includes('cmd')) {
+        reportType = 'cmdinj';
       }
       return {
         message: parsed.message || JSON.stringify(parsed, null, 2),

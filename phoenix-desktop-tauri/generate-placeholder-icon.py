@@ -1,156 +1,137 @@
 #!/usr/bin/env python3
 """
-Sola AGI - Placeholder Icon Generator
-Creates a 1024x1024 PNG icon with flame/circle design
+Generate a placeholder 1024x1024 PNG icon for Sola AGI.
+Creates a simple flame/phoenix-themed icon with gradient background.
 """
 
 try:
     from PIL import Image, ImageDraw, ImageFont
-    import os
 except ImportError:
-    print("❌ Error: Pillow (PIL) not installed")
-    print("Install with: pip install Pillow")
+    print("Error: Pillow not installed. Install with: pip install Pillow")
     exit(1)
 
-def create_sola_icon(output_path="src-tauri/icons/icon.png"):
-    """Create a beautiful Sola AGI icon with flame design"""
+import os
+import sys
+
+def generate_icon(output_path: str):
+    """Generate a 1024x1024 placeholder icon with Sola AGI branding."""
     
-    # Create 1024x1024 transparent image
+    # Create 1024x1024 image with transparency
     size = 1024
     img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     
-    # Color scheme
-    purple = '#6B46C1'    # Primary - wisdom, spirituality
-    orange = '#FF6B35'    # Accent - energy, warmth
-    yellow = '#FFD23F'    # Highlight - light, hope
-    white = '#FFFFFF'     # Core - purity
+    # Background gradient (dark purple to dark blue)
+    for y in range(size):
+        # Gradient from #1a1a2e to #16213e
+        r = int(26 + (22 - 26) * (y / size))
+        g = int(26 + (33 - 26) * (y / size))
+        b = int(46 + (62 - 46) * (y / size))
+        draw.rectangle([(0, y), (size, y + 1)], fill=(r, g, b, 255))
     
-    # Draw layered circles (flame effect)
+    # Draw central orb (AI consciousness)
     center = size // 2
+    orb_size = size // 3
+    orb_outer = orb_size + 20
     
-    # Outer glow (purple)
-    draw.ellipse([50, 50, size-50, size-50], fill=purple)
+    # Outer glow (cyan)
+    draw.ellipse(
+        [center - orb_outer, center - orb_outer, center + orb_outer, center + orb_outer],
+        fill=(0, 255, 255, 60)  # Cyan with transparency
+    )
     
-    # Middle layer (orange)
-    draw.ellipse([150, 150, size-150, size-150], fill=orange)
+    # Orb gradient (orange to yellow - phoenix fire)
+    for i in range(orb_size, 0, -5):
+        alpha = int(255 * (1 - i / orb_size))
+        color = (
+            int(255 - (255 - 255) * (i / orb_size)),  # R: 255
+            int(200 - (200 - 200) * (i / orb_size)),  # G: 200
+            int(100 - (100 - 100) * (i / orb_size)),  # B: 100
+            alpha
+        )
+        draw.ellipse(
+            [center - i, center - i, center + i, center + i],
+            fill=color
+        )
     
-    # Inner layer (yellow)
-    draw.ellipse([250, 250, size-250, size-250], fill=yellow)
+    # Draw stylized "S" shape (phoenix wings)
+    # Simplified S-curve representing Sola
+    points = []
+    for x in range(center - orb_size, center + orb_size):
+        y_offset = int(50 * (x - center) / orb_size)
+        y1 = center - orb_size // 2 + y_offset
+        y2 = center + orb_size // 2 + y_offset
+        points.append((x, y1))
+        points.append((x, y2))
     
-    # Core (white)
-    draw.ellipse([350, 350, size-350, size-350], fill=white)
+    # Draw orbital rings
+    for ring_radius in [orb_size + 40, orb_size + 80]:
+        draw.ellipse(
+            [center - ring_radius, center - ring_radius, center + ring_radius, center + ring_radius],
+            outline=(0, 255, 255, 100),
+            width=3
+        )
     
-    # Add "S" letter in center
+    # Add text "S" in center (if font available)
     try:
-        # Try to load a nice font
-        font_size = 400
-        font = ImageFont.truetype("arial.ttf", font_size)
-    except:
+        # Try to use a system font
+        font_size = size // 4
         try:
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 400)
+            font = ImageFont.truetype("arial.ttf", font_size)
         except:
             try:
-                font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 400)
+                font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", font_size)
             except:
-                print("⚠️  Warning: Could not load custom font, using default")
-                font = None
-    
-    if font:
-        # Draw "S" in purple
-        bbox = draw.textbbox((0, 0), "S", font=font)
+                font = ImageFont.load_default()
+        
+        # Draw "S" text
+        text = "S"
+        bbox = draw.textbbox((0, 0), text, font=font)
         text_width = bbox[2] - bbox[0]
         text_height = bbox[3] - bbox[1]
-        x = (size - text_width) // 2 - bbox[0]
-        y = (size - text_height) // 2 - bbox[1]
-        draw.text((x, y), "S", fill=purple, font=font)
+        text_x = center - text_width // 2
+        text_y = center - text_height // 2
+        
+        # Draw text with glow effect
+        for offset in [(0, 0), (-2, -2), (2, 2), (-2, 2), (2, -2)]:
+            draw.text(
+                (text_x + offset[0], text_y + offset[1]),
+                text,
+                font=font,
+                fill=(255, 255, 255, 200 if offset == (0, 0) else 50)
+            )
+    except Exception as e:
+        # If font fails, just draw a simple circle
+        pass
     
-    # Ensure output directory exists
+    # Save the image
+    img.save(output_path, 'PNG')
+    print(f"✅ Generated placeholder icon: {output_path}")
+    print(f"   Size: {size}x{size} pixels")
+    print(f"   Format: PNG (RGBA)")
+    return True
+
+if __name__ == '__main__':
+    # Determine output path
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_path = os.path.join(script_dir, 'src-tauri', 'icons', 'icon.png')
+    
+    # Create icons directory if it doesn't exist
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # Save icon
-    img.save(output_path, 'PNG')
-    print(f"✅ Created icon: {output_path}")
-    print(f"   Size: {size}x{size} PNG")
-    print(f"   Colors: Purple, Orange, Yellow, White")
-    
-    return output_path
-
-def create_simple_icon(output_path="src-tauri/icons/icon.png"):
-    """Create a simpler icon with just 'S' on colored background"""
-    
-    size = 1024
-    img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-    
-    # Draw purple circle background
-    draw.ellipse([50, 50, size-50, size-50], fill='#6B46C1')
-    
-    # Try to add "S" letter
-    try:
-        font = ImageFont.truetype("arial.ttf", 600)
-    except:
-        try:
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 600)
-        except:
-            try:
-                font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 600)
-            except:
-                font = None
-    
-    if font:
-        bbox = draw.textbbox((0, 0), "S", font=font)
-        text_width = bbox[2] - bbox[0]
-        text_height = bbox[3] - bbox[1]
-        x = (size - text_width) // 2 - bbox[0]
-        y = (size - text_height) // 2 - bbox[1]
-        draw.text((x, y), "S", fill='white', font=font)
-    
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    img.save(output_path, 'PNG')
-    print(f"✅ Created simple icon: {output_path}")
-    
-    return output_path
-
-if __name__ == "__main__":
-    import sys
-    
-    print("🎨 Sola AGI Icon Generator")
-    print("=" * 50)
-    print()
-    
-    # Check if icons directory exists
-    icons_dir = "src-tauri/icons"
-    if not os.path.exists(icons_dir):
-        os.makedirs(icons_dir)
-        print(f"📁 Created directory: {icons_dir}")
-    
-    # Check for existing icon
-    icon_path = os.path.join(icons_dir, "icon.png")
-    if os.path.exists(icon_path):
-        response = input(f"⚠️  {icon_path} already exists. Overwrite? (y/N): ")
+    # Check if icon already exists
+    if os.path.exists(output_path):
+        response = input(f"Icon already exists at {output_path}. Overwrite? (y/N): ")
         if response.lower() != 'y':
-            print("❌ Cancelled")
+            print("Skipping icon generation.")
             sys.exit(0)
     
-    # Ask which style
-    print()
-    print("Choose icon style:")
-    print("1. Flame design (layered circles)")
-    print("2. Simple 'S' on purple circle")
-    print()
-    choice = input("Enter choice (1 or 2, default=1): ").strip()
-    
-    print()
-    if choice == "2":
-        create_simple_icon(icon_path)
+    # Generate icon
+    if generate_icon(output_path):
+        print("\n📦 Next steps:")
+        print("   1. Review the generated icon.png")
+        print("   2. Run: cargo tauri icon src-tauri/icons/icon.png")
+        print("   3. Or run: npm run icon (if package.json script exists)")
     else:
-        create_sola_icon(icon_path)
-    
-    print()
-    print("📋 Next steps:")
-    print("1. Review icon: open src-tauri/icons/icon.png")
-    print("2. Generate all formats: cargo tauri icon src-tauri/icons/icon.png")
-    print("3. Rebuild app: npm run build")
-    print()
-    print("🕊️ Icon generation complete!")
+        print("❌ Failed to generate icon.")
+        sys.exit(1)

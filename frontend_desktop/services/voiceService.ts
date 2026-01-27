@@ -5,7 +5,9 @@
  * Provides recording, transcription, and text-to-speech capabilities.
  */
 
-const PHOENIX_API_BASE = import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888';
+import { getPhoenixApiBase } from '../env';
+
+const PHOENIX_API_BASE = getPhoenixApiBase();
 
 export interface VoiceRecordingResponse {
   status: string;

@@ -15,7 +15,7 @@ use async_stream::stream;
 use async_trait::async_trait;
 use futures::StreamExt;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// OpenRouter API endpoint
 const OPENROUTER_API_URL: &str = "https://openrouter.ai/api/v1/chat/completions";
@@ -55,14 +55,22 @@ fn env_nonempty(key: &str) -> Option<String> {
 ///
 /// This helper searches *upwards* from both the current working directory and the executable
 /// directory.
-fn load_dotenv_best_effort() -> Option<PathBuf> {
+fn try_load_dotenv_override(path: &Path) -> Result<(), String> {
+    dotenvy::from_path_override(path)
+        .map(|_| ())
+        .map_err(|e| format!("{e}"))
+}
+
+fn load_dotenv_best_effort() -> (Option<PathBuf>, Option<String>) {
     // Explicit override (useful for services / Windows shortcuts).
     if let Some(p) = env_nonempty("PHOENIX_DOTENV_PATH") {
         let path = PathBuf::from(p);
         if path.is_file() {
             // Override any already-set environment variables (including empty ones).
-            let _ = dotenvy::from_path_override(&path);
-            return Some(path);
+            match try_load_dotenv_override(&path) {
+                Ok(_) => return (Some(path), None),
+                Err(e) => return (Some(path), Some(e)),
+            }
         }
     }
 
@@ -81,16 +89,18 @@ fn load_dotenv_best_effort() -> Option<PathBuf> {
             let candidate = dir.join(".env");
             if candidate.is_file() {
                 // Override any already-set environment variables (including empty ones).
-                let _ = dotenvy::from_path_override(&candidate);
-                return Some(candidate);
+                match try_load_dotenv_override(&candidate) {
+                    Ok(_) => return (Some(candidate), None),
+                    Err(e) => return (Some(candidate), Some(e)),
+                }
             }
         }
     }
 
     // Fallback to dotenvy's default behavior.
     // Override any already-set environment variables (including empty ones).
-    dotenvy::dotenv_override().ok();
-    None
+    let res = dotenvy::dotenv_override();
+    (None, res.err().map(|e| format!("{e}")))
 }
 
 #[derive(Debug, Clone)]
@@ -211,7 +221,7 @@ impl Clone for LLMOrchestrator {
 
 impl LLMOrchestrator {
     pub fn awaken() -> Result<Self, String> {
-        let dotenv_path = load_dotenv_best_effort();
+        let (dotenv_path, dotenv_error) = load_dotenv_best_effort();
 
         let phoenix_name = env_nonempty("PHOENIX_CUSTOM_NAME")
             .or_else(|| env_nonempty("PHOENIX_NAME"))
@@ -246,12 +256,20 @@ impl LLMOrchestrator {
                 // OpenRouter configuration (default)
                 let api_key = env_nonempty("OPENROUTER_API_KEY").ok_or_else(|| {
                     if let Some(p) = dotenv_path {
-                        format!(
+                        let mut msg = format!(
                             "OPENROUTER_API_KEY not found (or empty). OpenRouter is the default LLM provider. Get your key at: https://openrouter.ai/keys\nLoaded .env from: {}",
                             p.display()
-                        )
+                        );
+                        if let Some(e) = dotenv_error.as_ref() {
+                            msg.push_str(&format!("\n.env parse/load error: {e}\nHint: wrap values containing spaces in quotes (e.g. APP_TITLE=\"Sola AGI\")."));
+                        }
+                        msg
                     } else {
-                        "OPENROUTER_API_KEY not found (or empty). OpenRouter is the default LLM provider. Get your key at: https://openrouter.ai/keys\nEnsure .env is in the working directory (or set PHOENIX_DOTENV_PATH).".to_string()
+                        let mut msg = "OPENROUTER_API_KEY not found (or empty). OpenRouter is the default LLM provider. Get your key at: https://openrouter.ai/keys\nEnsure .env is in the working directory (or set PHOENIX_DOTENV_PATH).".to_string();
+                        if let Some(e) = dotenv_error.as_ref() {
+                            msg.push_str(&format!("\n.env parse/load error: {e}\nHint: wrap values containing spaces in quotes (e.g. APP_TITLE=\"Sola AGI\")."));
+                        }
+                        msg
                     }
                 })?;
 

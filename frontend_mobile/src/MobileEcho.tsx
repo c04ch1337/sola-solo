@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { getPhoenixApiBase } from './env';
 
 type NarrativeResponse = {
   success?: boolean;
@@ -9,7 +10,7 @@ export default function MobileEcho(props: { apiBase: string; refreshKey?: string
   const { apiBase, refreshKey } = props;
 
   const url = useMemo(() => {
-    const base = String(apiBase || 'http://localhost:8888').replace(/\/$/, '');
+    const base = String(apiBase || getPhoenixApiBase()).replace(/\/$/, '');
     return `${base}/api/counselor/narrative?days=1`;
   }, [apiBase]);
 

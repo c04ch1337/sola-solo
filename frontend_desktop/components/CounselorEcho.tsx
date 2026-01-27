@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { getPhoenixApiBase } from '../env';
 
 type NarrativeResponse = {
   success: boolean;
@@ -24,10 +25,7 @@ type CorrelationsResponse = {
 
 export default function CounselorEcho(props: { refreshKey?: number }) {
   const { refreshKey } = props;
-  const PHOENIX_API_BASE = useMemo(
-    () => import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888',
-    []
-  );
+  const PHOENIX_API_BASE = useMemo(() => getPhoenixApiBase(), []);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

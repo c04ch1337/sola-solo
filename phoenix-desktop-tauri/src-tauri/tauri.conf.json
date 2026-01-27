@@ -28,10 +28,32 @@
         "alwaysOnTop": false,
         "fullscreen": false,
         "skipTaskbar": false
+      },
+      {
+        "label": "splash",
+        "title": "Sola AGI",
+        "width": 400,
+        "height": 300,
+        "resizable": false,
+        "center": true,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "fullscreen": false,
+        "skipTaskbar": true,
+        "visible": false
       }
     ],
     "security": {
       "csp": null
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": false,
+      "endpoints": [],
+      "dialog": true,
+      "pubkey": ""
     }
   },
   "bundle": {
@@ -45,6 +67,9 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "resources": [],
+    "copyright": "Copyright © 2026 Sola AGI. All rights reserved.",
+    "publisher": "Sola AGI",
     "longDescription": "Sola AGI - Your personal AI companion powered by Phoenix AGI OS v2.4.0. Emotionally intelligent, proactive, and voice-capable. Features include chat interface, voice interaction, browser control, dreams panel, proactive communication, and advanced memory system.",
     "shortDescription": "AI companion powered by Phoenix AGI OS v2.4.0",
     "windows": {

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import ResonanceSimulator from './ResonanceSimulator';
 import ReadinessCheck from './ReadinessCheck';
 import { fmtCountdown, useRegulatoryBrake } from '../hooks/useRegulatoryBrake';
+import { getPhoenixApiBase } from '../env';
 
 type NvcScript = {
   observation: string;
@@ -69,10 +70,7 @@ export default function RelationshipRepairScriptEngine() {
   const [lastResonanceScore, setLastResonanceScore] = useState<number | null>(null);
   const brake = useRegulatoryBrake();
 
-  const PHOENIX_API_BASE = useMemo(
-    () => import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888',
-    []
-  );
+  const PHOENIX_API_BASE = useMemo(() => getPhoenixApiBase(), []);
 
   const script = useMemo(() => buildNvcScript({ stressLog, partnerGoal, tone }), [stressLog, partnerGoal, tone]);
   const formatted = useMemo(

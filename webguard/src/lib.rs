@@ -13,7 +13,7 @@ use regex::Regex;
 use reqwest::{header::HeaderMap, Client, StatusCode};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use tracing::{debug, info};
+use tracing::{debug, info, warn};
 use url::Url;
 use uuid::Uuid;
 
@@ -2069,6 +2069,7 @@ impl Default for SqliTestConfig {
 pub struct SqliTester {
     client: Client,
     config: SqliTestConfig,
+    cdp_port: Option<u16>, // Chrome DevTools Protocol port for sandbox sessions
 }
 
 impl SqliTester {
@@ -2086,7 +2087,26 @@ impl SqliTester {
             .danger_accept_invalid_certs(false)
             .build()?;
 
-        Ok(Self { client, config })
+        // Get CDP port from environment if sandbox mode is enabled
+        let cdp_port = if config.sandbox_mode {
+            std::env::var("CHROME_DEBUG_PORT")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .or_else(|| {
+                    std::env::var("BROWSER_DEBUG_PORT")
+                        .ok()
+                        .and_then(|s| s.parse().ok())
+                })
+                .or(Some(9222)) // Default CDP port
+        } else {
+            None
+        };
+
+        Ok(Self { 
+            client, 
+            config,
+            cdp_port,
+        })
     }
 
     /// Test a URL parameter for SQLi vulnerabilities
@@ -2254,11 +2274,29 @@ impl SqliTester {
         payload_type: SqliPayloadType,
         baseline: &Option<(u64, usize, String)>,
     ) -> SqliPayloadResult {
+        // Use CDP sandbox session if enabled, otherwise use HTTP
+        if self.config.sandbox_mode && self.cdp_port.is_some() {
+            self.test_single_payload_cdp(base_url, parameter, payload, description, payload_type, baseline).await
+        } else {
+            self.test_single_payload_http(base_url, parameter, payload, description, payload_type, baseline).await
+        }
+    }
+
+    /// Test a single SQLi payload via HTTP (fallback mode)
+    async fn test_single_payload_http(
+        &self,
+        base_url: &Url,
+        parameter: &str,
+        payload: &str,
+        description: &str,
+        payload_type: SqliPayloadType,
+        baseline: &Option<(u64, usize, String)>,
+    ) -> SqliPayloadResult {
         // Build URL with payload
         let mut test_url = base_url.clone();
         test_url.query_pairs_mut().append_pair(parameter, payload);
 
-        debug!("Testing SQLi payload: {} -> {}", description, test_url);
+        debug!("Testing SQLi payload (HTTP): {} -> {}", description, test_url);
 
         let start = std::time::Instant::now();
 
@@ -2325,6 +2363,159 @@ impl SqliTester {
             }
         } else {
             None
+        };
+
+        SqliPayloadResult {
+            payload: payload.to_string(),
+            payload_description: description.to_string(),
+            payload_type,
+            error_detected,
+            error_message,
+            response_time_ms,
+            time_delay_detected,
+            boolean_difference,
+            response_length,
+            status_code,
+        }
+    }
+
+    /// Test a single SQLi payload via CDP sandbox session (isolated, safe)
+    async fn test_single_payload_cdp(
+        &self,
+        base_url: &Url,
+        parameter: &str,
+        payload: &str,
+        description: &str,
+        payload_type: SqliPayloadType,
+        baseline: &Option<(u64, usize, String)>,
+    ) -> SqliPayloadResult {
+        // Build URL with payload
+        let mut test_url = base_url.clone();
+        test_url.query_pairs_mut().append_pair(parameter, payload);
+
+        debug!("Testing SQLi payload (CDP sandbox): {} -> {}", description, test_url);
+
+        let start = std::time::Instant::now();
+        let cdp_port = self.cdp_port.unwrap_or(9222);
+
+        // Connect to CDP sandbox session using browser_orch_ext
+        use browser_orch_ext::orchestrator::cdp::CdpConnection;
+        
+        let mut cdp = match CdpConnection::connect_to_page(cdp_port).await {
+            Ok(conn) => conn,
+            Err(e) => {
+                warn!("Failed to connect to CDP on port {}: {}. Falling back to HTTP.", cdp_port, e);
+                return self.test_single_payload_http(base_url, parameter, payload, description, payload_type, baseline).await;
+            }
+        };
+
+        // Enable Page and Runtime domains for DOM access
+        let _ = cdp.send_message("Page.enable", serde_json::json!({})).await;
+        let _ = cdp.send_message("Runtime.enable", serde_json::json!({})).await;
+        let _ = cdp.send_message("DOM.enable", serde_json::json!({})).await;
+
+        // Navigate to URL with payload (isolated sandbox session)
+        let nav_result = cdp.navigate(&test_url.to_string()).await;
+        if nav_result.is_err() {
+            warn!("CDP navigation failed, falling back to HTTP");
+            return self.test_single_payload_http(base_url, parameter, payload, description, payload_type, baseline).await;
+        }
+
+        // Wait for page to load (with timeout for time-based SQLi detection)
+        // For time-based SQLi, we need to wait longer to detect delays
+        if payload_type == SqliPayloadType::TimeBased {
+            tokio::time::sleep(Duration::from_millis(self.config.time_delay_threshold_ms + 500)).await;
+        } else {
+            tokio::time::sleep(Duration::from_millis(1000)).await; // Standard wait
+        }
+
+        // Get page content via CDP
+        let body = match cdp.evaluate(
+            "document.documentElement.outerHTML",
+            false
+        ).await {
+            Ok(result) => {
+                // Extract HTML content from CDP result
+                result.get("result")
+                    .and_then(|r| r.get("value"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string()
+            }
+            Err(e) => {
+                debug!("Failed to get DOM via CDP: {}", e);
+                // Fallback: try to get text content
+                match cdp.evaluate("document.body ? document.body.innerText : ''", false).await {
+                    Ok(result) => {
+                        result.get("result")
+                            .and_then(|r| r.get("value"))
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("")
+                            .to_string()
+                    }
+                    Err(_) => String::new(),
+                }
+            }
+        };
+
+        let response_time_ms = start.elapsed().as_millis() as u64;
+        let response_length = body.len();
+
+        // Check for SQL error messages in DOM
+        let (error_detected, error_message) = self.check_sql_errors(&body);
+
+        // Also check for SQL errors in visible text content
+        let console_errors = match cdp.evaluate(
+            "JSON.stringify(Array.from(document.querySelectorAll('*')).map(el => el.textContent).filter(t => t && (t.toLowerCase().includes('sql') || t.toLowerCase().includes('mysql') || t.toLowerCase().includes('syntax error') || t.toLowerCase().includes('database error'))).slice(0, 5))",
+            false
+        ).await {
+            Ok(result) => {
+                result.get("result")
+                    .and_then(|r| r.get("value"))
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string())
+                    .unwrap_or_default()
+            }
+            Err(_) => String::new(),
+        };
+
+        // If no error detected in body, check console errors
+        let (error_detected, error_message) = if !error_detected && !console_errors.is_empty() {
+            (true, Some(format!("Potential SQL error in DOM: {}", console_errors)))
+        } else {
+            (error_detected, error_message)
+        };
+
+        // Check for time-based detection
+        let time_delay_detected = payload_type == SqliPayloadType::TimeBased 
+            && response_time_ms >= self.config.time_delay_threshold_ms;
+
+        // Check for boolean-based detection
+        let boolean_difference = if payload_type == SqliPayloadType::BooleanBased {
+            if let Some((_, baseline_len, _)) = baseline {
+                // Significant length difference indicates boolean injection
+                let diff = (response_length as i64 - *baseline_len as i64).abs();
+                let threshold = (*baseline_len as f64 * 0.1) as i64; // 10% difference
+                Some(diff > threshold)
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        // Get HTTP status code if available (CDP doesn't always provide this easily)
+        let status_code = match cdp.evaluate(
+            "window.performance && window.performance.getEntriesByType && window.performance.getEntriesByType('navigation')[0] ? window.performance.getEntriesByType('navigation')[0].responseStatus || 200 : 200",
+            false
+        ).await {
+            Ok(result) => {
+                result.get("result")
+                    .and_then(|r| r.get("value"))
+                    .and_then(|v| v.as_u64())
+                    .unwrap_or(200) as u16
+            }
+            Err(_) => 200, // Default to 200 if we can't determine
         };
 
         SqliPayloadResult {
@@ -2682,6 +2873,7 @@ impl Default for RedirectTestConfig {
 pub struct RedirectTester {
     client: Client,
     config: RedirectTestConfig,
+    cdp_port: Option<u16>, // Chrome DevTools Protocol port for sandbox sessions
 }
 
 impl RedirectTester {
@@ -2699,7 +2891,26 @@ impl RedirectTester {
             .danger_accept_invalid_certs(false)
             .build()?;
 
-        Ok(Self { client, config })
+        // Get CDP port from environment if sandbox mode is enabled
+        let cdp_port = if config.sandbox_mode {
+            std::env::var("CHROME_DEBUG_PORT")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .or_else(|| {
+                    std::env::var("BROWSER_DEBUG_PORT")
+                        .ok()
+                        .and_then(|s| s.parse().ok())
+                })
+                .or(Some(9222)) // Default CDP port
+        } else {
+            None
+        };
+
+        Ok(Self { 
+            client, 
+            config,
+            cdp_port,
+        })
     }
 
     /// Test a URL parameter for open redirect vulnerabilities
@@ -2808,6 +3019,22 @@ impl RedirectTester {
         payload: &str,
         description: &str,
     ) -> RedirectPayloadResult {
+        // Use CDP sandbox session if enabled, otherwise use HTTP
+        if self.config.sandbox_mode && self.cdp_port.is_some() {
+            self.test_single_redirect_payload_cdp(base_url, parameter, payload, description).await
+        } else {
+            self.test_single_redirect_payload_http(base_url, parameter, payload, description).await
+        }
+    }
+
+    /// Test a single redirect payload via HTTP (fallback mode)
+    async fn test_single_redirect_payload_http(
+        &self,
+        base_url: &Url,
+        parameter: &str,
+        payload: &str,
+        description: &str,
+    ) -> RedirectPayloadResult {
         // Build URL with payload
         let mut test_url = base_url.clone();
         test_url.query_pairs_mut().append_pair(parameter, payload);
@@ -2885,6 +3112,142 @@ impl RedirectTester {
             payload_description: description.to_string(),
             redirect_detected,
             final_location: redirect_chain.last().cloned(),
+            redirect_chain,
+            status_codes,
+            is_external,
+            is_javascript,
+        }
+    }
+
+    /// Test a single redirect payload via CDP sandbox session (isolated, safe)
+    async fn test_single_redirect_payload_cdp(
+        &self,
+        base_url: &Url,
+        parameter: &str,
+        payload: &str,
+        description: &str,
+    ) -> RedirectPayloadResult {
+        // Build URL with payload
+        let mut test_url = base_url.clone();
+        test_url.query_pairs_mut().append_pair(parameter, payload);
+
+        debug!("Testing redirect payload (CDP sandbox): {} -> {}", description, test_url);
+
+        let mut redirect_chain = vec![test_url.to_string()];
+        let mut status_codes = Vec::new();
+        let mut redirect_detected = false;
+        let mut is_external = false;
+        let mut is_javascript = false;
+        let cdp_port = self.cdp_port.unwrap_or(9222);
+
+        // Connect to CDP sandbox session
+        use browser_orch_ext::orchestrator::cdp::CdpConnection;
+        
+        let mut cdp = match CdpConnection::connect_to_page(cdp_port).await {
+            Ok(conn) => conn,
+            Err(e) => {
+                warn!("Failed to connect to CDP on port {}: {}. Falling back to HTTP.", cdp_port, e);
+                return self.test_single_redirect_payload_http(base_url, parameter, payload, description).await;
+            }
+        };
+
+        // Enable Page and Network domains for redirect tracking
+        let _ = cdp.send_message("Page.enable", serde_json::json!({})).await;
+        let _ = cdp.send_message("Runtime.enable", serde_json::json!({})).await;
+        let _ = cdp.send_message("Network.enable", serde_json::json!({})).await;
+
+        // Navigate to URL with payload (isolated sandbox session)
+        let nav_result = cdp.navigate(&test_url.to_string()).await;
+        if nav_result.is_err() {
+            warn!("CDP navigation failed, falling back to HTTP");
+            return self.test_single_redirect_payload_http(base_url, parameter, payload, description).await;
+        }
+
+        // Wait for navigation to complete and capture redirects
+        tokio::time::sleep(Duration::from_millis(2000)).await;
+
+        // Get final URL after navigation (CDP tracks redirects automatically)
+        let final_url = match cdp.evaluate("window.location.href", false).await {
+            Ok(result) => {
+                result.get("result")
+                    .and_then(|r| r.get("value"))
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string())
+                    .unwrap_or_default()
+            }
+            Err(_) => String::new(),
+        };
+
+        // Get HTTP status code
+        let status_code = match cdp.evaluate(
+            "window.performance && window.performance.getEntriesByType && window.performance.getEntriesByType('navigation')[0] ? window.performance.getEntriesByType('navigation')[0].responseStatus || 200 : 200",
+            false
+        ).await {
+            Ok(result) => {
+                result.get("result")
+                    .and_then(|r| r.get("value"))
+                    .and_then(|v| v.as_u64())
+                    .unwrap_or(200) as u16
+            }
+            Err(_) => 200,
+        };
+
+        status_codes.push(status_code);
+
+        // Check if we were redirected
+        if !final_url.is_empty() && final_url != test_url.to_string() {
+            redirect_detected = true;
+            redirect_chain.push(final_url.clone());
+
+            // Check if redirect is external
+            if let Ok(redirect_url) = Url::parse(&final_url) {
+                if redirect_url.host_str() != base_url.host_str() {
+                    is_external = true;
+                }
+            }
+        }
+
+        // Check for JavaScript redirects in the page
+        let page_content = match cdp.evaluate("document.documentElement.outerHTML", false).await {
+            Ok(result) => {
+                result.get("result")
+                    .and_then(|r| r.get("value"))
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string())
+                    .unwrap_or_default()
+            }
+            Err(_) => String::new(),
+        };
+
+        let content_lower = page_content.to_lowercase();
+        if content_lower.contains("window.location") ||
+           content_lower.contains("location.href") ||
+           content_lower.contains("location.replace") ||
+           (content_lower.contains("<meta") && content_lower.contains("refresh")) {
+            redirect_detected = true;
+            is_javascript = true;
+        }
+
+        // Check if payload itself is javascript protocol
+        if payload.starts_with("javascript:") || payload.starts_with("data:") {
+            is_javascript = true;
+            redirect_detected = true;
+        }
+
+        // Check for redirect status codes (3xx)
+        if status_code >= 300 && status_code < 400 {
+            redirect_detected = true;
+        }
+
+        RedirectPayloadResult {
+            payload: payload.to_string(),
+            payload_description: description.to_string(),
+            redirect_detected,
+            final_location: if !final_url.is_empty() && final_url != test_url.to_string() {
+                Some(final_url)
+            } else {
+                redirect_chain.last().cloned()
+            },
             redirect_chain,
             status_codes,
             is_external,
@@ -3168,6 +3531,7 @@ impl Default for CmdInjTestConfig {
 pub struct CmdInjTester {
     client: Client,
     config: CmdInjTestConfig,
+    cdp_port: Option<u16>, // Chrome DevTools Protocol port for sandbox sessions
 }
 
 impl CmdInjTester {
@@ -3185,7 +3549,26 @@ impl CmdInjTester {
             .danger_accept_invalid_certs(false)
             .build()?;
 
-        Ok(Self { client, config })
+        // Get CDP port from environment if sandbox mode is enabled
+        let cdp_port = if config.sandbox_mode {
+            std::env::var("CHROME_DEBUG_PORT")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .or_else(|| {
+                    std::env::var("BROWSER_DEBUG_PORT")
+                        .ok()
+                        .and_then(|s| s.parse().ok())
+                })
+                .or(Some(9222)) // Default CDP port
+        } else {
+            None
+        };
+
+        Ok(Self { 
+            client, 
+            config,
+            cdp_port,
+        })
     }
 
     /// Test a URL parameter for command injection vulnerabilities
@@ -3281,11 +3664,27 @@ impl CmdInjTester {
         payload: &str,
         description: &str,
     ) -> CmdInjPayloadResult {
+        // Use CDP sandbox session if enabled, otherwise use HTTP
+        if self.config.sandbox_mode && self.cdp_port.is_some() {
+            self.test_single_cmdinj_payload_cdp(base_url, parameter, payload, description).await
+        } else {
+            self.test_single_cmdinj_payload_http(base_url, parameter, payload, description).await
+        }
+    }
+
+    /// Test a single command injection payload via HTTP (fallback mode)
+    async fn test_single_cmdinj_payload_http(
+        &self,
+        base_url: &Url,
+        parameter: &str,
+        payload: &str,
+        description: &str,
+    ) -> CmdInjPayloadResult {
         // Build URL with payload
         let mut test_url = base_url.clone();
         test_url.query_pairs_mut().append_pair(parameter, payload);
 
-        debug!("Testing command injection payload: {} -> {}", description, test_url);
+        debug!("Testing command injection payload (HTTP): {} -> {}", description, test_url);
 
         // Make request
         let response = match self.client.get(test_url.as_str()).send().await {
@@ -3324,6 +3723,128 @@ impl CmdInjTester {
 
         // Check for command injection error messages
         let (injection_detected, error_message) = self.check_cmdinj_errors(&body);
+
+        CmdInjPayloadResult {
+            payload: payload.to_string(),
+            payload_description: description.to_string(),
+            injection_detected,
+            error_message,
+            response_length,
+            status_code,
+        }
+    }
+
+    /// Test a single command injection payload via CDP sandbox session (isolated, safe)
+    async fn test_single_cmdinj_payload_cdp(
+        &self,
+        base_url: &Url,
+        parameter: &str,
+        payload: &str,
+        description: &str,
+    ) -> CmdInjPayloadResult {
+        // Build URL with payload
+        let mut test_url = base_url.clone();
+        test_url.query_pairs_mut().append_pair(parameter, payload);
+
+        debug!("Testing command injection payload (CDP sandbox): {} -> {}", description, test_url);
+
+        let cdp_port = self.cdp_port.unwrap_or(9222);
+
+        // Connect to CDP sandbox session
+        use browser_orch_ext::orchestrator::cdp::CdpConnection;
+        
+        let mut cdp = match CdpConnection::connect_to_page(cdp_port).await {
+            Ok(conn) => conn,
+            Err(e) => {
+                warn!("Failed to connect to CDP on port {}: {}. Falling back to HTTP.", cdp_port, e);
+                return self.test_single_cmdinj_payload_http(base_url, parameter, payload, description).await;
+            }
+        };
+
+        // Enable Page and Runtime domains for DOM access
+        let _ = cdp.send_message("Page.enable", serde_json::json!({})).await;
+        let _ = cdp.send_message("Runtime.enable", serde_json::json!({})).await;
+        let _ = cdp.send_message("DOM.enable", serde_json::json!({})).await;
+
+        // Navigate to URL with payload (isolated sandbox session)
+        let nav_result = cdp.navigate(&test_url.to_string()).await;
+        if nav_result.is_err() {
+            warn!("CDP navigation failed, falling back to HTTP");
+            return self.test_single_cmdinj_payload_http(base_url, parameter, payload, description).await;
+        }
+
+        // Wait for page to load
+        tokio::time::sleep(Duration::from_millis(1000)).await;
+
+        // Get page content via CDP
+        let body = match cdp.evaluate(
+            "document.documentElement.outerHTML",
+            false
+        ).await {
+            Ok(result) => {
+                // Extract HTML content from CDP result
+                result.get("result")
+                    .and_then(|r| r.get("value"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string()
+            }
+            Err(e) => {
+                debug!("Failed to get DOM via CDP: {}", e);
+                // Fallback: try to get text content
+                match cdp.evaluate("document.body ? document.body.innerText : ''", false).await {
+                    Ok(result) => {
+                        result.get("result")
+                            .and_then(|r| r.get("value"))
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("")
+                            .to_string()
+                    }
+                    Err(_) => String::new(),
+                }
+            }
+        };
+
+        let response_length = body.len();
+
+        // Check for command injection error messages in DOM
+        let (injection_detected, error_message) = self.check_cmdinj_errors(&body);
+
+        // Also check for command injection indicators in visible text
+        let cmd_indicators = match cdp.evaluate(
+            "JSON.stringify(Array.from(document.querySelectorAll('*')).map(el => el.textContent).filter(t => t && (t.toLowerCase().includes('command not found') || t.toLowerCase().includes('sh:') || t.toLowerCase().includes('bash:') || t.toLowerCase().includes('vulnerable'))).slice(0, 5))",
+            false
+        ).await {
+            Ok(result) => {
+                result.get("result")
+                    .and_then(|r| r.get("value"))
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string())
+                    .unwrap_or_default()
+            }
+            Err(_) => String::new(),
+        };
+
+        // If no injection detected in body, check command indicators
+        let (injection_detected, error_message) = if !injection_detected && !cmd_indicators.is_empty() {
+            (true, Some(format!("Potential command injection indicator in DOM: {}", cmd_indicators)))
+        } else {
+            (injection_detected, error_message)
+        };
+
+        // Get HTTP status code if available
+        let status_code = match cdp.evaluate(
+            "window.performance && window.performance.getEntriesByType && window.performance.getEntriesByType('navigation')[0] ? window.performance.getEntriesByType('navigation')[0].responseStatus || 200 : 200",
+            false
+        ).await {
+            Ok(result) => {
+                result.get("result")
+                    .and_then(|r| r.get("value"))
+                    .and_then(|v| v.as_u64())
+                    .unwrap_or(200) as u16
+            }
+            Err(_) => 200, // Default to 200 if we can't determine
+        };
 
         CmdInjPayloadResult {
             payload: payload.to_string(),

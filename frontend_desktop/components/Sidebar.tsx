@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAtom } from 'jotai';
 import { modeAtom } from '../stores/modeStore';
+import { reframingAvailableAtom } from '../stores/counselorStore';
 import { Project, ChatHistoryItem } from '../types';
 
 interface SidebarProps {
@@ -44,6 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [tempTitle, setTempTitle] = useState('');
   const [mode] = useAtom(modeAtom);
+  const [reframingAvailable] = useAtom(reframingAvailableAtom);
 
   const filteredHistory = chatHistory.filter(h => h.projectId === activeProjectId);
 
@@ -147,6 +149,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <span className="material-symbols-outlined text-[18px]">spa</span>
                   <span className="text-xs font-bold uppercase tracking-wider">Counselor Dashboard</span>
+                  {reframingAvailable ? (
+                    <span className="ml-auto text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-rose-500/30 bg-rose-500/10 text-rose-200">
+                      Reframing Available
+                    </span>
+                  ) : null}
                 </button>
               </>
             ) : (
@@ -186,6 +193,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <span className="material-symbols-outlined text-[18px]">spa</span>
                   <span className="text-xs font-bold uppercase tracking-wider">Counselor Dashboard</span>
+                  {reframingAvailable ? (
+                    <span className="ml-auto text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-rose-500/30 bg-rose-500/10 text-rose-200">
+                      Reframing Available
+                    </span>
+                  ) : null}
                 </button>
               </>
             )}

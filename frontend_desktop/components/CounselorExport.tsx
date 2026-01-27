@@ -1,10 +1,8 @@
 import React, { useMemo, useState } from 'react';
+import { getPhoenixApiBase } from '../env';
 
 export default function CounselorExport() {
-  const PHOENIX_API_BASE = useMemo(
-    () => import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888',
-    []
-  );
+  const PHOENIX_API_BASE = useMemo(() => getPhoenixApiBase(), []);
 
   const [downloading, setDownloading] = useState(false);
 

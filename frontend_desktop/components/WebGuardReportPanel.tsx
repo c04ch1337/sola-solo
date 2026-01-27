@@ -78,9 +78,49 @@ export interface SqliScanReport {
   };
 }
 
+export interface RedirectScanReport {
+  id: string;
+  target_url: string;
+  parameter: string;
+  scan_time: string;
+  duration_ms: number;
+  payloads_tested: number;
+  redirects_detected: number;
+  external_redirects: number;
+  javascript_redirects: number;
+  findings: WebGuardFinding[];
+  summary: {
+    vulnerable: boolean;
+    total_findings: number;
+    critical_count: number;
+    high_count: number;
+    medium_count: number;
+    overall_risk: string;
+  };
+}
+
+export interface CmdInjScanReport {
+  id: string;
+  target_url: string;
+  parameter: string;
+  scan_time: string;
+  duration_ms: number;
+  payloads_tested: number;
+  injections_detected: number;
+  findings: WebGuardFinding[];
+  summary: {
+    vulnerable: boolean;
+    total_findings: number;
+    critical_count: number;
+    high_count: number;
+    medium_count: number;
+    overall_risk: string;
+  };
+}
+
 export interface WebGuardReportData {
-  type: 'passive' | 'xss' | 'sqli';
-  report: PassiveScanReport | XssScanReport | SqliScanReport | null;
+  type: 'passive' | 'xss' | 'sqli' | 'redirect' | 'cmdinj';
+  report: PassiveScanReport | XssScanReport | SqliScanReport | RedirectScanReport | CmdInjScanReport | null;
   markdown: string;
   timestamp: number;
 }
@@ -245,6 +285,59 @@ const WebGuardReportPanel: React.FC<WebGuardReportPanelProps> = ({ isOpen, onClo
     return report && 'parameter' in report && 'errors_detected' in report;
   };
 
+  // Type guard for redirect scan report
+  const isRedirectReport = (report: any): report is RedirectScanReport => {
+    return report && 'parameter' in report && 'redirects_detected' in report;
+  };
+
+  // Type guard for command injection scan report
+  const isCmdInjReport = (report: any): report is CmdInjScanReport => {
+    return report && 'parameter' in report && 'injections_detected' in report;
+  };
+
+  // Get unified statistics across all reports
+  const getUnifiedStats = () => {
+    const stats = {
+      totalScans: reports.length,
+      totalFindings: 0,
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+      info: 0,
+      vulnerable: 0,
+      scanTypes: {
+        passive: 0,
+        xss: 0,
+        sqli: 0,
+        redirect: 0,
+        cmdinj: 0,
+      }
+    };
+
+    reports.forEach(r => {
+      stats.scanTypes[r.type] = (stats.scanTypes[r.type] || 0) + 1;
+      
+      if (r.report?.summary) {
+        const summary = r.report.summary as any;
+        stats.totalFindings += summary.total_findings || 0;
+        stats.critical += summary.critical_count || 0;
+        stats.high += summary.high_count || 0;
+        stats.medium += summary.medium_count || 0;
+        stats.low += summary.low_count || 0;
+        stats.info += summary.info_count || 0;
+        
+        if (summary.vulnerable) {
+          stats.vulnerable += 1;
+        }
+      }
+    });
+
+    return stats;
+  };
+
+  const unifiedStats = getUnifiedStats();
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="w-full max-w-5xl h-[85vh] bg-panel-dark border border-border-dark rounded-xl shadow-2xl flex flex-col overflow-hidden">
@@ -254,12 +347,17 @@ const WebGuardReportPanel: React.FC<WebGuardReportPanelProps> = ({ isOpen, onClo
             <span className="material-symbols-outlined text-3xl text-cyan-400">shield</span>
             <div>
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                WebGuard Reports
+                WebGuard Unified Reports
                 <span className="text-[10px] px-2 py-0.5 bg-cyan-500/20 text-cyan-400 rounded uppercase tracking-widest">
                   Security Scanner
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">Web vulnerability analysis and security assessments</p>
+              <p className="text-xs text-slate-400">
+                Unified web vulnerability analysis • {unifiedStats.totalScans} scans • {unifiedStats.totalFindings} findings
+                {unifiedStats.vulnerable > 0 && (
+                  <span className="ml-2 text-red-400 font-semibold">• {unifiedStats.vulnerable} vulnerable</span>
+                )}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -346,6 +444,45 @@ const WebGuardReportPanel: React.FC<WebGuardReportPanelProps> = ({ isOpen, onClo
           </div>
         </div>
 
+        {/* Unified Statistics Banner */}
+        {reports.length > 0 && (
+          <div className="px-6 py-4 border-b border-border-dark bg-gradient-to-r from-slate-900/50 to-slate-800/50">
+            <div className="grid grid-cols-6 gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-cyan-400">{unifiedStats.totalScans}</p>
+                <p className="text-[10px] uppercase tracking-wider text-slate-400">Total Scans</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-red-400">{unifiedStats.critical}</p>
+                <p className="text-[10px] uppercase tracking-wider text-slate-400">Critical</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-orange-400">{unifiedStats.high}</p>
+                <p className="text-[10px] uppercase tracking-wider text-slate-400">High</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-yellow-400">{unifiedStats.medium}</p>
+                <p className="text-[10px] uppercase tracking-wider text-slate-400">Medium</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-blue-400">{unifiedStats.low}</p>
+                <p className="text-[10px] uppercase tracking-wider text-slate-400">Low</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-slate-400">{unifiedStats.totalFindings}</p>
+                <p className="text-[10px] uppercase tracking-wider text-slate-400">Total Findings</p>
+              </div>
+            </div>
+            <div className="mt-3 flex items-center justify-center gap-4 text-xs">
+              <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 rounded">Passive: {unifiedStats.scanTypes.passive}</span>
+              <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded">XSS: {unifiedStats.scanTypes.xss}</span>
+              <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded">SQLi: {unifiedStats.scanTypes.sqli}</span>
+              <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded">Redirect: {unifiedStats.scanTypes.redirect}</span>
+              <span className="px-2 py-1 bg-pink-500/20 text-pink-400 rounded">CmdInj: {unifiedStats.scanTypes.cmdinj}</span>
+            </div>
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="flex border-b border-border-dark bg-black/10">
           <button
@@ -396,16 +533,30 @@ const WebGuardReportPanel: React.FC<WebGuardReportPanelProps> = ({ isOpen, onClo
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
                       <span className={`material-symbols-outlined text-2xl ${
-                        report.type === 'xss' ? 'text-orange-400' : report.type === 'sqli' ? 'text-red-400' : 'text-cyan-400'
+                        report.type === 'xss' ? 'text-orange-400' : 
+                        report.type === 'sqli' ? 'text-red-400' : 
+                        report.type === 'redirect' ? 'text-purple-400' :
+                        report.type === 'cmdinj' ? 'text-pink-400' :
+                        'text-cyan-400'
                       }`}>
-                        {report.type === 'xss' ? 'bug_report' : report.type === 'sqli' ? 'database' : 'radar'}
+                        {report.type === 'xss' ? 'bug_report' : 
+                         report.type === 'sqli' ? 'database' : 
+                         report.type === 'redirect' ? 'open_in_new' :
+                         report.type === 'cmdinj' ? 'terminal' :
+                         'radar'}
                       </span>
                       <div>
                         <h3 className="font-semibold text-white truncate max-w-md">
                           {report.report?.target_url || 'Unknown Target'}
                         </h3>
                         <p className="text-xs text-slate-400">
-                          {new Date(report.timestamp).toLocaleString()} • {report.type === 'xss' ? 'XSS Test' : report.type === 'sqli' ? 'SQLi Test' : 'Passive Scan'}
+                          {new Date(report.timestamp).toLocaleString()} • {
+                            report.type === 'xss' ? 'XSS Test' : 
+                            report.type === 'sqli' ? 'SQLi Test' : 
+                            report.type === 'redirect' ? 'Redirect Test' :
+                            report.type === 'cmdinj' ? 'CmdInj Test' :
+                            'Passive Scan'
+                          }
                         </p>
                       </div>
                     </div>
@@ -434,11 +585,23 @@ const WebGuardReportPanel: React.FC<WebGuardReportPanelProps> = ({ isOpen, onClo
                     <div>
                       <h3 className="text-lg font-bold text-white flex items-center gap-2">
                         <span className={`material-symbols-outlined ${
-                          currentReport.type === 'xss' ? 'text-orange-400' : currentReport.type === 'sqli' ? 'text-red-400' : 'text-cyan-400'
+                          currentReport.type === 'xss' ? 'text-orange-400' : 
+                          currentReport.type === 'sqli' ? 'text-red-400' : 
+                          currentReport.type === 'redirect' ? 'text-purple-400' :
+                          currentReport.type === 'cmdinj' ? 'text-pink-400' :
+                          'text-cyan-400'
                         }`}>
-                          {currentReport.type === 'xss' ? 'bug_report' : currentReport.type === 'sqli' ? 'database' : 'shield'}
+                          {currentReport.type === 'xss' ? 'bug_report' : 
+                           currentReport.type === 'sqli' ? 'database' : 
+                           currentReport.type === 'redirect' ? 'open_in_new' :
+                           currentReport.type === 'cmdinj' ? 'terminal' :
+                           'shield'}
                         </span>
-                        {currentReport.type === 'xss' ? 'XSS Vulnerability Test' : currentReport.type === 'sqli' ? 'SQL Injection Test' : 'Passive Security Scan'}
+                        {currentReport.type === 'xss' ? 'XSS Vulnerability Test' : 
+                         currentReport.type === 'sqli' ? 'SQL Injection Test' : 
+                         currentReport.type === 'redirect' ? 'Open Redirect Test' :
+                         currentReport.type === 'cmdinj' ? 'Command Injection Test' :
+                         'Passive Security Scan'}
                       </h3>
                       <p className="text-sm text-slate-400 mt-1 font-mono truncate max-w-2xl">
                         {currentReport.report.target_url}
@@ -554,6 +717,94 @@ const WebGuardReportPanel: React.FC<WebGuardReportPanelProps> = ({ isOpen, onClo
                     </div>
                   )}
 
+                  {/* Redirect-specific stats */}
+                  {isRedirectReport(currentReport.report) && (
+                    <div className="grid grid-cols-4 gap-4 mb-4 p-4 bg-black/20 rounded-lg">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-cyan-400">{currentReport.report.payloads_tested}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-400">Payloads Tested</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-orange-400">{currentReport.report.redirects_detected}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-400">Redirects Detected</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-purple-400">{currentReport.report.external_redirects}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-400">External</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-yellow-400">{currentReport.report.javascript_redirects}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-400">JavaScript</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Vulnerability Status - Redirect */}
+                  {isRedirectReport(currentReport.report) && (
+                    <div className={`p-4 rounded-lg border ${
+                      currentReport.report.summary.vulnerable 
+                        ? 'bg-red-500/10 border-red-500/30' 
+                        : 'bg-green-500/10 border-green-500/30'
+                    }`}>
+                      <div className="flex items-center gap-2">
+                        <span className={`material-symbols-outlined text-2xl ${
+                          currentReport.report.summary.vulnerable ? 'text-red-400' : 'text-green-400'
+                        }`}>
+                          {currentReport.report.summary.vulnerable ? 'warning' : 'verified_user'}
+                        </span>
+                        <span className={`font-bold ${
+                          currentReport.report.summary.vulnerable ? 'text-red-400' : 'text-green-400'
+                        }`}>
+                          {currentReport.report.summary.vulnerable 
+                            ? 'Open Redirect Vulnerabilities Detected!' 
+                            : 'No Open Redirect Vulnerabilities Found'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CmdInj-specific stats */}
+                  {isCmdInjReport(currentReport.report) && (
+                    <div className="grid grid-cols-3 gap-4 mb-4 p-4 bg-black/20 rounded-lg">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-cyan-400">{currentReport.report.payloads_tested}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-400">Payloads Tested</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-red-400">{currentReport.report.injections_detected}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-400">Injections Detected</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-orange-400">{currentReport.report.summary.total_findings}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-400">Total Findings</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Vulnerability Status - CmdInj */}
+                  {isCmdInjReport(currentReport.report) && (
+                    <div className={`p-4 rounded-lg border ${
+                      currentReport.report.summary.vulnerable 
+                        ? 'bg-red-500/10 border-red-500/30' 
+                        : 'bg-green-500/10 border-green-500/30'
+                    }`}>
+                      <div className="flex items-center gap-2">
+                        <span className={`material-symbols-outlined text-2xl ${
+                          currentReport.report.summary.vulnerable ? 'text-red-400' : 'text-green-400'
+                        }`}>
+                          {currentReport.report.summary.vulnerable ? 'warning' : 'verified_user'}
+                        </span>
+                        <span className={`font-bold ${
+                          currentReport.report.summary.vulnerable ? 'text-red-400' : 'text-green-400'
+                        }`}>
+                          {currentReport.report.summary.vulnerable 
+                            ? 'Command Injection Vulnerabilities Detected!' 
+                            : 'No Command Injection Vulnerabilities Found'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Scan Metadata */}
                   <div className="flex items-center gap-6 text-xs text-slate-400 mt-4">
                     <span className="flex items-center gap-1">
@@ -575,6 +826,18 @@ const WebGuardReportPanel: React.FC<WebGuardReportPanelProps> = ({ isOpen, onClo
                     {isSqliReport(currentReport.report) && (
                       <span className="flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm">database</span>
+                        Param: {currentReport.report.parameter}
+                      </span>
+                    )}
+                    {isRedirectReport(currentReport.report) && (
+                      <span className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">open_in_new</span>
+                        Param: {currentReport.report.parameter}
+                      </span>
+                    )}
+                    {isCmdInjReport(currentReport.report) && (
+                      <span className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">terminal</span>
                         Param: {currentReport.report.parameter}
                       </span>
                     )}

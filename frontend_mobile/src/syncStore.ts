@@ -19,6 +19,8 @@ export type SyncState = {
   retryingInSec: number;
 };
 
+import { getPhoenixApiBase } from './env';
+
 const QUEUE_KEY = 'l9.mobile.queue.v1';
 
 function safeJsonParse<T>(raw: string | null): T | null {
@@ -98,7 +100,7 @@ export function peekQueue(): MobileL9Log[] {
 }
 
 export async function syncOnce(): Promise<{ sent: number; remaining: number }> {
-  const base = import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888';
+  const base = getPhoenixApiBase();
   const url = `${String(base).replace(/\/$/, '')}/api/counselor/events`;
 
   // Respect backoff window when the last attempt failed.

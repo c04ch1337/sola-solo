@@ -10,6 +10,7 @@ import {
   subscribeSyncState,
   type SyncState,
 } from './syncStore';
+import { getPhoenixApiBase } from './env';
 
 const STAGES: L9Stage[] = ['Denial', 'Anger', 'Bargaining', 'Depression', 'Acceptance'];
 const TAGS: ContextTag[] = ['Home', 'Transit', 'Work', 'Other'];
@@ -37,7 +38,7 @@ export default function App() {
     return subscribeSyncState(setSync);
   }, []);
 
-  const apiBase = import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888';
+  const apiBase = getPhoenixApiBase();
   const port = import.meta.env.VITE_MOBILE_PORT || '3000';
 
   const onSubmit = (e: React.FormEvent) => {

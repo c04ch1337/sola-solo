@@ -90,6 +90,12 @@ cargo build --workspace --release
 cargo run --bin phoenix-web --release
 ```
 
+### Default Dev Ports
+
+- **Backend (phoenix-web)**: `http://127.0.0.1:8888`
+- **Desktop UI (Vite dev server)**: `http://localhost:5173`
+- **Mobile Bridge (Vite dev server)**: `http://localhost:3000`
+
 ### Configuration
 
 **OpenRouter (Default)**
@@ -129,6 +135,10 @@ SOLA is built on a modular, Rust-based architecture with clear separation of con
 - **Vital Organ Vaults** — Mind/Body/Soul knowledge bases with encryption
 - **Context Engine** — EQ-first context building with emotional weighting
 - **Vector Knowledge Base** — Semantic search using embeddings
+
+### Safe-Space Research Modules
+
+- **Module 2: The Relational Ghost (Phases 16–20)** — Persona-based simulation, drift mirror, multi-persona "Echo Chamber", and safety interlocks (Regulatory Brake + External Mediator)
 
 ### Automation & Intelligence
 
@@ -225,6 +235,7 @@ graph TD
 ## Documentation
 
 ### Quick Links
+- [🚀 Training Curriculum: Mastering the Relational Autopilot](./TRAINING_CURRICULUM.md)
 - [`DOCUMENTATION_INDEX.md`](DOCUMENTATION_INDEX.md) — **Complete documentation index**
 - [`SECURITY.md`](SECURITY.md) — Security policies and best practices
 - [`AUTONOMOUS_OPERATION.md`](AUTONOMOUS_OPERATION.md) — Autonomous operation guide

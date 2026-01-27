@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { fmtCountdown, useIntervention, useRegulatoryBrake } from '../hooks/useRegulatoryBrake';
+import { getPhoenixApiBase } from '../env';
 
 type ReadinessResponse = {
   ready: boolean;
@@ -26,10 +27,7 @@ export default function ReadinessCheck(props: {
   resonanceScore?: number | null;
 }) {
   const { open, onClose, onProceed, stressLog, resonanceScore } = props;
-  const PHOENIX_API_BASE = useMemo(
-    () => import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888',
-    []
-  );
+  const PHOENIX_API_BASE = useMemo(() => getPhoenixApiBase(), []);
 
   const [answers, setAnswers] = useState({ hungry: false, angry: false, lonely: false, tired: false });
   const [loading, setLoading] = useState(false);

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { getPhoenixApiBase } from '../env';
 
 type GriefStage = 'Denial' | 'Anger' | 'Bargaining' | 'Depression' | 'Acceptance';
 
@@ -6,10 +7,7 @@ const TAGS = ['Work', 'Social', 'Health', 'Internal', 'Partner'] as const;
 
 export default function L9EntryAdvanced(props: { onLogged?: () => void }) {
   const { onLogged } = props;
-  const PHOENIX_API_BASE = useMemo(
-    () => import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888',
-    []
-  );
+  const PHOENIX_API_BASE = useMemo(() => getPhoenixApiBase(), []);
 
   const [stage, setStage] = useState<GriefStage>('Acceptance');
   const [intensity, setIntensity] = useState(55);

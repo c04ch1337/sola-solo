@@ -16,6 +16,7 @@ use crate::analytics::{calculate_trigger_correlations, find_contextual_hotspots,
 use crate::interventions::get_grounding_exercise;
 use crate::env_sensor;
 use crate::ghost_engine;
+use crate::narrative_auditor;
 
 const GLOBAL_CONTEXT_KEY: &str = "vault:global_context";
 
@@ -529,6 +530,20 @@ pub async fn get_narrative(
     }))
 }
 
+/// GET /api/counselor/narrative/reframe
+///
+/// Phase 19: Cognitive Reframing — identify one Fixed Belief and propose a Growth Reframe.
+pub async fn get_narrative_reframe(state: web::Data<AppState>) -> Result<HttpResponse, ApiError> {
+    let out = narrative_auditor::generate_reframe(&state).await;
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "success": true,
+        "fixed_belief": out.fixed_belief,
+        "growth_reframe": out.growth_reframe,
+        "evidence": out.evidence,
+        "lessons_used": out.lessons_used,
+    })))
+}
+
 /// POST /api/counselor/resonate
 ///
 /// Runs a dry-run simulation of how a script may land with a given partner persona.
@@ -546,10 +561,11 @@ pub async fn post_resonate(
 ///
 /// Phase 16: Deterministic simulation of the recipient (“Relational Ghost”).
 pub async fn post_ghost_simulate(
+    state: web::Data<AppState>,
     body: web::Json<ghost_engine::SimulateRequest>,
 ) -> Result<HttpResponse, ApiError> {
     let req = body.into_inner();
-    let resp = ghost_engine::simulate(req);
+    let resp = ghost_engine::simulate(&state, req).await;
     Ok(HttpResponse::Ok().json(resp))
 }
 
@@ -720,11 +736,15 @@ pub async fn get_system_stress() -> Result<HttpResponse, ApiError> {
 /// Configure counselor API routes
 pub fn configure_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/api/counselor")
+        // NOTE: This config is registered under the main `/api` scope in
+        // [`main.rs`](phoenix-web/src/main.rs:7209). Therefore we must NOT include `/api`
+        // here, otherwise routes become `/api/api/counselor/*`.
+        web::scope("/counselor")
             .route("/events", web::post().to(post_grief_event))
             .route("/scripts", web::post().to(post_script))
             .route("/grief-stats", web::get().to(get_grief_stats))
             .route("/narrative", web::get().to(get_narrative))
+            .route("/narrative/reframe", web::get().to(get_narrative_reframe))
             .route("/resonate", web::post().to(post_resonate))
             .route("/ghost/simulate", web::post().to(post_ghost_simulate))
             .route("/readiness", web::post().to(post_readiness))

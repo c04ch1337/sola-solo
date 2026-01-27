@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { getPhoenixApiBase } from '../env';
 
 type Persona = 'Secure' | 'Avoidant-Dismissive' | 'Anxious-Preoccupied';
 
@@ -13,10 +14,7 @@ type ResonanceResult = {
 
 export default function ResonanceSimulator(props: { script: string; tone?: 'gentle' | 'direct' }) {
   const { script, tone } = props;
-  const PHOENIX_API_BASE = useMemo(
-    () => import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888',
-    []
-  );
+  const PHOENIX_API_BASE = useMemo(() => getPhoenixApiBase(), []);
 
   const [persona, setPersona] = useState<Persona>('Secure');
   const [loading, setLoading] = useState(false);

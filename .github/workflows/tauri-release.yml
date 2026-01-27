@@ -1,0 +1,182 @@
+name: Tauri Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ============================================
+  # Build Tauri Installers
+  # ============================================
+  build-tauri:
+    name: Build Tauri (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            bundle_type: appimage,deb
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bundle_type: msi
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            bundle_type: dmg
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            frontend_desktop/package-lock.json
+            phoenix-desktop-tauri/package-lock.json
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install system dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev \
+            build-essential \
+            curl \
+            wget \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      - name: Install system dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install create-dmg
+
+      - name: Install Tauri CLI
+        run: npm install -g @tauri-apps/cli@latest
+
+      - name: Install frontend dependencies
+        working-directory: frontend_desktop
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend_desktop
+        run: npm run build
+
+      - name: Generate icon if missing
+        working-directory: phoenix-desktop-tauri
+        run: |
+          if [ ! -f "src-tauri/icons/icon.png" ]; then
+            echo "Generating placeholder icon..."
+            python3 generate-placeholder-icon.py || echo "Icon generation skipped (Pillow may not be installed)"
+          fi
+
+      - name: Generate all icon formats
+        working-directory: phoenix-desktop-tauri
+        run: |
+          if [ -f "src-tauri/icons/icon.png" ]; then
+            npm run icon || cargo tauri icon src-tauri/icons/icon.png
+          else
+            echo "⚠️ Warning: icon.png not found. Using existing icon formats."
+          fi
+
+      - name: Install Tauri dependencies
+        working-directory: phoenix-desktop-tauri
+        run: npm ci
+
+      - name: Build Tauri app
+        working-directory: phoenix-desktop-tauri
+        run: npm run build
+        env:
+          # Note: These secrets must be configured in GitHub repository settings
+          # for code signing. If not set, builds will succeed but won't be signed.
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauri-installer-${{ matrix.os }}
+          path: |
+            phoenix-desktop-tauri/src-tauri/target/${{ matrix.target }}/release/bundle/**/*
+          retention-days: 30
+
+  # ============================================
+  # Create GitHub Release
+  # ============================================
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-tauri
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p final-assets
+          
+          # Find and copy installers
+          find release-assets -name "*.msi" -exec cp {} final-assets/ \;
+          find release-assets -name "*.dmg" -exec cp {} final-assets/ \;
+          find release-assets -name "*.AppImage" -exec cp {} final-assets/ \;
+          find release-assets -name "*.deb" -exec cp {} final-assets/ \;
+          
+          # Rename with version
+          cd final-assets
+          for file in *; do
+            if [[ "$file" != *"${{ steps.version.outputs.version }}"* ]]; then
+              ext="${file##*.}"
+              name="${file%.*}"
+              mv "$file" "${name}-${{ steps.version.outputs.version }}.${ext}"
+            fi
+          done
+          cd ..
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Sola AGI Desktop ${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }}
+          generate_release_notes: true
+          files: final-assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

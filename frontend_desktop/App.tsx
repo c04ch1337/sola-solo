@@ -14,6 +14,7 @@ import { MemoryBrowser } from './components/MemoryBrowser';
 import DreamsPanel from './components/DreamsPanel';
 import OnboardingMessage from './components/OnboardingMessage';
 import WebGuardReportPanel, { WebGuardReportData } from './components/WebGuardReportPanel';
+import WebGuardSQLiReportPanel, { WebGuardSQLiReportData } from './components/WebGuardSQLiReportPanel';
 import ReportsPanel, { VulnerabilityReport } from './components/ReportsPanel';
 import ProfilesSwipePanel from './components/ProfilesSwipePanel';
 import ProfessionalDashboard from './components/ProfessionalDashboard';
@@ -26,6 +27,7 @@ import { Message, WorkflowStep, StepStatus, SystemMetrics, Project, ScheduledTas
 // Removed GoogleGenAI - now using Phoenix backend
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { getPhoenixApiBase } from './env';
 
 // Default favicon when no custom branding: Phoenix flame (matches primary, avoids 404 from missing favicon.ico)
 const DEFAULT_FAVICON =
@@ -188,7 +190,7 @@ function createBlob(data: Float32Array): any {
 }
 
 const App: React.FC = () => {
-  const BACKEND_URL = import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888';
+  const BACKEND_URL = getPhoenixApiBase();
 
   const [currentView, setCurrentView] = useState<'chat' | 'scheduler' | 'professional' | 'counselor' | 'missions'>('chat');
   const [mode] = useAtom(modeAtom);
@@ -243,6 +245,10 @@ const App: React.FC = () => {
   // WebGuard panel state (hidden by default, toggle via "show webguard")
   const [showWebGuardPanel, setShowWebGuardPanel] = useState(false);
   const [webGuardReports, setWebGuardReports] = useState<WebGuardReportData[]>([]);
+  
+  // WebGuard SQLi panel state (hidden by default, toggle via "show webguard sqli")
+  const [showWebGuardSQLiPanel, setShowWebGuardSQLiPanel] = useState(false);
+  const [webGuardSQLiReport, setWebGuardSQLiReport] = useState<WebGuardSQLiReportData | null>(null);
 
   // Reports panel state (hidden by default, toggle via "show reports")
   const [showReportsPanel, setShowReportsPanel] = useState(false);
@@ -286,6 +292,22 @@ const App: React.FC = () => {
     if (lower === 'hide webguard' || lower === 'close webguard') {
       setShowWebGuardPanel(false);
       return { kind: 'handled', localAssistantMessage: 'WebGuard panel hidden.' };
+    }
+    
+    // WebGuard SQLi Panel toggles
+    if (lower === 'show webguard sqli' || lower === 'webguard sqli panel' || lower === 'open webguard sqli') {
+      setShowWebGuardSQLiPanel(true);
+      return { kind: 'handled', localAssistantMessage: '🔍 SQLi report panel opened. View SQL injection test results here.' };
+    }
+    if (lower === 'hide webguard sqli' || lower === 'close webguard sqli') {
+      setShowWebGuardSQLiPanel(false);
+      return { kind: 'handled', localAssistantMessage: 'SQLi panel hidden.' };
+    }
+    
+    // WebGuard SQLi report command
+    if (lower.startsWith('webguard sqli report') || lower.startsWith('webguard sqli-report')) {
+      // This will be handled by the backend, but we can prepare the panel
+      return { kind: 'pass_through' };
     }
 
     // Reports panel commands
@@ -366,6 +388,8 @@ reset voice               # Reset to defaults
 
 **Quick Tip:** Voice output adapts to emotional state and affection levels!
 
+![Voice Controls](docs/screenshots/voice-icons.png)
+
 📖 **Learn more:** \`help voice\`
 
 ---
@@ -382,6 +406,8 @@ Access ${phoenixName}'s layered memory system.
 - **Soul** - Encrypted personal data (dreams, intimate moments)
 - **Mind** - Thoughts, ideas, semantic knowledge
 - **Body** - Physical world data, screenshots, system info
+
+![Memory Browser](docs/screenshots/memory-browser.png)
 
 **Examples:**
 \`\`\`
@@ -406,6 +432,8 @@ Explore emotional healing and creative dream sessions.
 - \`replay dream <id>\` - Replay a recorded dream
 
 **Dream Types:** Lucid, Shared, Healing, Recorded
+
+![Dreams Panel](docs/screenshots/dreams-panel.png)
 
 **Examples:**
 \`\`\`
@@ -434,6 +462,8 @@ Control your local browser via Chrome DevTools Protocol.
 
 **Setup Required:** Launch Chrome with \`--remote-debugging-port=9222\`
 
+![Browser Control](docs/screenshots/browser-control.png)
+
 **Examples:**
 \`\`\`
 use chrome for browsing
@@ -459,6 +489,8 @@ Spawn specialized AI agents and import external repositories.
 - \`ecosystem status\` - Check ecosystem status
 
 **Use Cases:** Research, coding, analysis, parallel tasks
+
+![Agent Spawning](docs/screenshots/agent-spawning.png)
 
 **Examples:**
 \`\`\`
@@ -491,6 +523,9 @@ webguard test-sqli https://example.com/product id
 webguard report last
 show webguard
 \`\`\`
+
+![WebGuard Panel](docs/screenshots/webguard-panel.png)
+![SQLi Test Report](docs/screenshots/sqli-report.png)
 
 📖 **Learn more:** \`help webguard\`
 
@@ -597,30 +632,52 @@ ping
 ### Common Issues
 
 **Voice not working?**
-- Check TTS engine configuration in backend .env
+- Check TTS engine configuration in backend .env (\`TTS_ENGINE\`, \`ELEVENLABS_API_KEY\`)
+- Verify microphone permissions are granted
 - Try \`reset voice\` to restore defaults
+- Check audio output device settings
 - See \`help voice\` for detailed troubleshooting
 
 **Browser control failing?**
 - Verify Chrome is running with \`--remote-debugging-port=9222\`
-- Grant consent with \`system grant\`
+- Grant consent with \`system grant\` (required for Tier-2 commands)
 - Check connection with \`system browser status\`
+- Ensure Chrome DevTools Protocol is accessible
 - See \`help browser\` for setup guide
 
 **Memory search not finding results?**
-- Try different query keywords
-- Check if MemoryBrowser panel is open
-- Verify memory vaults are populated
+- Try different query keywords (semantic search works best with concepts)
+- Check if MemoryBrowser panel is open (\`show memory\`)
+- Verify memory vaults are populated (check backend logs)
+- Try searching in specific vault: Soul, Mind, or Body
+- Vector KB requires \`VECTOR_KB_ENABLED=true\` in .env
 
 **Agent not responding?**
 - Check agent status with \`agents list\`
-- Verify agent ID is correct
+- Verify agent ID is correct (use exact ID from list)
+- Check backend logs for agent errors
+- Ensure LLM is configured and accessible
 - See \`help agents\` for agent management
 
 **WebGuard scan errors?**
 - Verify URL format (must start with http:// or https://)
-- Check network connectivity
+- Check network connectivity to target URL
+- Ensure target site allows security scanning (authorized testing only)
+- CDP sandbox requires Chrome with \`--remote-debugging-port=9222\`
 - See \`help webguard\` for detailed troubleshooting
+
+**Backend connection issues?**
+- Verify backend is running: \`ping\` or \`status\`
+- Check \`VITE_PHOENIX_API_URL\` in frontend .env
+- Ensure backend port 8888 is accessible
+- Check firewall settings
+- Review backend logs for errors
+
+**Installation issues?**
+- Windows: Ensure WebView2 Runtime is installed
+- macOS: May need to allow app in System Preferences → Security
+- Linux: Install webkit2gtk dependencies (see BUILD.md)
+- Check BUILD.md for platform-specific requirements
 
 ---
 
@@ -648,6 +705,29 @@ Type \`help <topic>\` for comprehensive guides:
 - **Panel shortcuts:** Click icons in chat footer to toggle panels
 - **Command history:** Use arrow keys to navigate previous commands
 - **Ask ${phoenixName} directly:** "How do I use browser control?"
+- **Keyboard shortcuts:** ENTER to send, SHIFT+ENTER for new line
+- **Multi-platform:** Works on Windows, macOS, and Linux
+- **Offline capable:** Many features work without internet (TTS, memory, local browser)
+
+## 📸 Screenshots & Visual Guides
+
+![Main Interface](docs/screenshots/main-interface.png)
+*Sola AGI main chat interface with panels and voice controls*
+
+![Settings Panel](docs/screenshots/settings-panel.png)
+*Customize ${phoenixName}'s personality, appearance, and features*
+
+![Dreams Panel](docs/screenshots/dreams-panel.png)
+*Emotional processing and creative dream sessions*
+
+![Memory Browser](docs/screenshots/memory-browser.png)
+*Search across all memory vaults and vector knowledge base*
+
+![WebGuard Reports](docs/screenshots/webguard-panel.png)
+*Unified security scanning results and vulnerability reports*
+
+![Browser Control](docs/screenshots/browser-automation.png)
+*Automated browser control via Chrome DevTools Protocol*
 
 ---
 
@@ -1954,6 +2034,8 @@ ${phoenixName}'s WebGuard is a lightweight web vulnerability scanner for passive
 ### SQL Injection Testing (Phase 28d)
 - \`webguard test-sqli <url> <param>\` - Test URL parameter for SQL injection
 - \`webguard sqli-report last\` - Show last SQLi test report
+- \`show webguard sqli\` - Open SQLi report panel
+- \`hide webguard sqli\` - Close SQLi report panel
 
 ### Open Redirect Testing (Phase 28f)
 - \`webguard test-redirect <url> <param>\` - Test URL parameter for open redirect vulnerabilities
@@ -3805,6 +3887,62 @@ SUB_AGENT_MAX_PLAYBOOK_UPDATES=100
             timestamp: Date.now()
           };
           setWebGuardReports(prev => [reportData, ...prev.slice(0, 19)]); // Keep last 20 reports
+          
+          // Auto-open unified panel if vulnerabilities found
+          if (webGuardResult.report?.summary?.vulnerable) {
+            setShowWebGuardPanel(true);
+          }
+          
+          // Also store SQLi reports separately for SQLi panel
+          if (webGuardResult.reportType === 'sqli') {
+            const sqliReportData: WebGuardSQLiReportData = {
+              report: webGuardResult.report as any,
+              markdown: webGuardResult.message,
+              timestamp: Date.now()
+            };
+            setWebGuardSQLiReport(sqliReportData);
+            // Auto-open SQLi panel if vulnerabilities found
+            if (webGuardResult.report?.summary?.vulnerable) {
+              setShowWebGuardSQLiPanel(true);
+            }
+          }
+        }
+        
+        // Handle "webguard report last" - open unified panel with latest report
+        if (content.toLowerCase().includes('report last') && !content.toLowerCase().includes('sqli') && 
+            !content.toLowerCase().includes('xss') && !content.toLowerCase().includes('redirect') && 
+            !content.toLowerCase().includes('cmdinj')) {
+          // Open unified panel to show latest report
+          if (webGuardReports.length > 0) {
+            setShowWebGuardPanel(true);
+          }
+        }
+        
+        // Handle SQLi report commands - check if response contains SQLi report
+        if (content.toLowerCase().includes('sqli-report') || content.toLowerCase().includes('sqli report') || 
+            webGuardResult.reportType === 'sqli') {
+          // If we got a SQLi report in this response, use it
+          if (webGuardResult.reportType === 'sqli' && webGuardResult.report) {
+            const sqliReportData: WebGuardSQLiReportData = {
+              report: webGuardResult.report as any,
+              markdown: webGuardResult.message,
+              timestamp: Date.now()
+            };
+            setWebGuardSQLiReport(sqliReportData);
+            setShowWebGuardSQLiPanel(true);
+          } else {
+            // Try to find the latest SQLi report from stored reports
+            const latestSQLiReport = webGuardReports.find(r => r.type === 'sqli');
+            if (latestSQLiReport) {
+              const sqliReportData: WebGuardSQLiReportData = {
+                report: latestSQLiReport.report as any,
+                markdown: latestSQLiReport.markdown,
+                timestamp: latestSQLiReport.timestamp
+              };
+              setWebGuardSQLiReport(sqliReportData);
+              setShowWebGuardSQLiPanel(true);
+            }
+          }
         }
       } else if (isReportCommand) {
         // Handle report commands
@@ -4409,9 +4547,16 @@ SUB_AGENT_MAX_PLAYBOOK_UPDATES=100
                         <button
                           onClick={() => setShowWebGuardPanel(!showWebGuardPanel)}
                           className={`p-2 rounded-lg transition-all ${showWebGuardPanel ? 'bg-cyan-500/20 text-cyan-400' : 'hover:bg-slate-800 text-slate-500'}`}
-                          title="WebGuard Security Scanner"
+                          title="WebGuard Reports"
                         >
-                          <span className="material-symbols-outlined text-[20px]">shield</span>
+                          <span className="material-symbols-outlined">shield</span>
+                        </button>
+                        <button
+                          onClick={() => setShowWebGuardSQLiPanel(!showWebGuardSQLiPanel)}
+                          className={`p-2 rounded-lg transition-all ${showWebGuardSQLiPanel ? 'bg-red-500/20 text-red-400' : 'hover:bg-slate-800 text-slate-500'}`}
+                          title="SQLi Test Reports"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">database</span>
                         </button>
 
                         <button
@@ -4511,6 +4656,16 @@ SUB_AGENT_MAX_PLAYBOOK_UPDATES=100
         onCommand={(cmd) => {
           setInputValue(cmd);
           setShowWebGuardPanel(false);
+        }}
+      />
+
+      <WebGuardSQLiReportPanel
+        isOpen={showWebGuardSQLiPanel}
+        onClose={() => setShowWebGuardSQLiPanel(false)}
+        report={webGuardSQLiReport}
+        onCommand={(cmd) => {
+          setInputValue(cmd);
+          setShowWebGuardSQLiPanel(false);
         }}
       />
 

@@ -95,6 +95,12 @@
 
 ## Naming Conventions
 
+## Default Dev Ports (Project Standard)
+
+- Backend (phoenix-web): `127.0.0.1:8888`
+- Desktop UI dev server (Vite): `5173`
+- Mobile Bridge dev server (Vite): `3000`
+
 ### Documentation Files
 - Major docs: UPPERCASE_NAME.md (e.g., SETUP.md, BUILD_INSTRUCTIONS.md)
 - Specific guides: lowercase-name.md (e.g., quick-start.md, api-reference.md)

@@ -4,7 +4,12 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
-    const phoenixApiUrl = env.VITE_PHOENIX_API_URL || 'http://localhost:8888';
+    const phoenixApiUrl = env.VITE_PHOENIX_API_URL;
+    if (!phoenixApiUrl) {
+      throw new Error(
+        'VITE_PHOENIX_API_URL is required. Set it to your backend base URL (e.g. http://localhost:8888).'
+      );
+    }
     
     // Derive WebSocket URL from API URL if not explicitly set
     let phoenixWsUrl = env.VITE_PHOENIX_WS_URL;
@@ -14,13 +19,16 @@ export default defineConfig(({ mode }) => {
         const wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
         phoenixWsUrl = `${wsProtocol}//${url.host}/ws`;
       } catch {
-        phoenixWsUrl = 'ws://localhost:8888/ws';
+        const url = new URL(phoenixApiUrl);
+        const wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+        phoenixWsUrl = `${wsProtocol}//${url.host}/ws`;
       }
     }
     
     return {
       server: {
-        port: 3000,
+        // Desktop UI dev server port (align with project standard)
+        port: 5173,
         strictPort: true,
         host: '0.0.0.0',
         proxy: {

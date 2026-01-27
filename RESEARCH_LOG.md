@@ -1,5 +1,9 @@
 # RESEARCH LOG — The Relational Autopilot (Phases 1–15)
 
+Related:
+- Training curriculum: [`TRAINING_CURRICULUM.md`](TRAINING_CURRICULUM.md)
+- Project overview: [`README.md`](README.md)
+
 This document archives the completed **Safe-Space Counselor** build arc (Phases 1–15): a local-first, closed-loop, bio-digital system that turns **environmental friction + episodic emotion logs + semantic context** into actionable relational interventions.
 
 ---

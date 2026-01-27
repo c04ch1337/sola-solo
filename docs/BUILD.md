@@ -89,7 +89,12 @@ npm install
 cd ..
 
 # Install Tauri CLI (if not already installed)
-npm install -g @tauri-apps/cli
+npm install -g @tauri-apps/cli@latest
+
+# Install Tauri project dependencies
+cd phoenix-desktop-tauri
+npm install
+cd ..
 ```
 
 ### 3. Configure Environment
@@ -109,7 +114,30 @@ OPENROUTER_API_KEY=your_key_here
 DEFAULT_LLM_MODEL=deepseek/deepseek-v3.2
 ```
 
-### 4. Build Frontend
+**Optional but Recommended:**
+```env
+VECTOR_KB_ENABLED=true
+PROACTIVE_ENABLED=true
+CHROME_DEBUG_PORT=9222
+```
+
+### 4. Generate Icons
+
+```bash
+cd phoenix-desktop-tauri
+
+# Generate placeholder 1024x1024 icon (if missing)
+python3 generate-placeholder-icon.py
+
+# Generate all platform icon formats
+npm run icon
+# OR
+cargo tauri icon src-tauri/icons/icon.png
+```
+
+**Note:** Icons are required before building. The script creates a flame/phoenix-themed placeholder.
+
+### 5. Build Frontend
 
 ```bash
 cd frontend_desktop
@@ -117,12 +145,17 @@ npm run build
 cd ..
 ```
 
-### 5. Run Development Build
+### 6. Run Development Build
 
 ```bash
 cd phoenix-desktop-tauri
 tauri dev
 ```
+
+**First Run:**
+- Backend will start automatically (if configured)
+- Frontend will connect to backend on port 8888
+- Tauri window opens with chat interface
 
 ---
 
@@ -379,12 +412,36 @@ tauri dev
 
 ## Production Build
 
+### Pre-Build Checklist
+
+Before building for release:
+
+- [ ] Update version in `tauri.conf.json`
+- [ ] Update version in `Cargo.toml` (if needed)
+- [ ] Icons generated (`npm run icon:generate` or `cargo tauri icon`)
+- [ ] Frontend built (`cd frontend_desktop && npm run build`)
+- [ ] Test development build (`tauri dev`)
+- [ ] Code signing certificates ready (if signing)
+
 ### Build Release Installers
 
 ```bash
 cd phoenix-desktop-tauri
+
+# Ensure frontend is built
+cd ../frontend_desktop
+npm run build
+cd ../phoenix-desktop-tauri
+
+# Build Tauri installers
 tauri build
 ```
+
+**Build Output:**
+- Windows: `src-tauri/target/release/bundle/msi/Sola AGI_1.0.1_x64_en-US.msi`
+- macOS: `src-tauri/target/release/bundle/dmg/Sola AGI_1.0.1_x64.dmg`
+- Linux: `src-tauri/target/release/bundle/appimage/Sola AGI_1.0.1_amd64.AppImage`
+- Linux DEB: `src-tauri/target/release/bundle/deb/sola-agi_1.0.1_amd64.deb`
 
 **Build Process:**
 1. Compiles frontend (`frontend_desktop/dist`)
@@ -567,14 +624,36 @@ security import cert.p12 -k build.keychain -P password -T /usr/bin/codesign
 
 ### Release Checklist
 
-- [ ] Update version in `tauri.conf.json`
-- [ ] Update version in `Cargo.toml`
-- [ ] Update version in `package.json`
-- [ ] Update CHANGELOG.md
-- [ ] Test on all target platforms
-- [ ] Code sign installers
+**Version Management:**
+- [ ] Update version in `phoenix-desktop-tauri/src-tauri/tauri.conf.json`
+- [ ] Update version in `phoenix-desktop-tauri/package.json`
+- [ ] Update version in `phoenix-desktop-tauri/src-tauri/Cargo.toml`
+- [ ] Update CHANGELOG.md with release notes
+
+**Icons & Assets:**
+- [ ] Generate/verify 1024x1024 icon.png exists
+- [ ] Run `cargo tauri icon` to generate all formats
+- [ ] Verify icons display correctly in dev mode
+
+**Build & Test:**
+- [ ] Build frontend: `cd frontend_desktop && npm run build`
+- [ ] Test development build: `cd phoenix-desktop-tauri && tauri dev`
+- [ ] Build release installers: `tauri build`
+- [ ] Test installers on target platforms
+- [ ] Verify icons appear in installers
+
+**Code Signing (Optional but Recommended):**
+- [ ] Windows: Configure certificate in `tauri.conf.json`
+- [ ] macOS: Configure signing identity and notarize
+- [ ] Test signed installers
+
+**Release:**
 - [ ] Create release notes
-- [ ] Tag release in Git
+- [ ] Tag release in Git: `git tag v1.0.2`
+- [ ] Push tag: `git push origin v1.0.2`
+- [ ] GitHub Actions builds installers automatically
+- [ ] Verify GitHub release created with installers
+- [ ] Test download and installation from GitHub release
 
 ### Version Management
 
@@ -597,34 +676,67 @@ version = "1.0.2"
 
 ### GitHub Releases
 
+**Automated Release (Recommended):**
+
+The `.github/workflows/tauri-release.yml` workflow automatically:
+1. Builds Tauri installers for Windows, macOS, and Linux
+2. Generates icons if missing
+3. Creates GitHub release with installers
+4. Uploads installers as release assets
+
+**Trigger Automated Release:**
+```bash
+# Tag the release
+git tag v1.0.2
+git push origin v1.0.2
+
+# GitHub Actions will:
+# - Build installers for all platforms
+# - Create GitHub release
+# - Upload installers automatically
+```
+
 **Manual Release:**
-1. Build installers for all platforms
-2. Create GitHub release
-3. Upload installers as assets
+1. Build installers locally: `cd phoenix-desktop-tauri && tauri build`
+2. Create GitHub release manually
+3. Upload installers from `src-tauri/target/release/bundle/`
 4. Write release notes
 
-**Automated Release (CI/CD):**
-See `.github/workflows/release.yml` for automated builds.
+### Auto-Updates
 
-### Auto-Updates (Future)
+Tauri supports auto-updates via the updater plugin. Currently configured as inactive in `tauri.conf.json`.
 
-Tauri supports auto-updates via the updater plugin:
+**To Enable Auto-Updates:**
 
-**Configuration:**
-```json
-{
-  "plugins": {
-    "updater": {
-      "active": true,
-      "endpoints": [
-        "https://releases.myapp.com/{{target}}/{{current_version}}"
-      ],
-      "dialog": true,
-      "pubkey": "YOUR_PUBLIC_KEY"
-    }
-  }
-}
-```
+1. **Generate Updater Keys:**
+   ```bash
+   cd phoenix-desktop-tauri
+   cargo tauri signer generate -w ~/.tauri/myapp.key
+   # This generates a keypair and outputs the public key
+   ```
+
+2. **Configure in tauri.conf.json:**
+   ```json
+   {
+     "plugins": {
+       "updater": {
+         "active": true,
+         "endpoints": [
+           "https://github.com/yourusername/pagi-twin-desktop/releases/latest/download/{{target}}/{{current_version}}"
+         ],
+         "dialog": true,
+         "pubkey": "YOUR_PUBLIC_KEY_HERE"
+       }
+     }
+   }
+   ```
+
+3. **Host Update Manifest:**
+   - Create update manifest JSON on your server
+   - Include download URLs for each platform
+   - Sign updates with private key
+
+**Note:** Auto-updates require proper key management and hosting. For initial releases, manual updates via GitHub releases are recommended.
 
 ---
 
@@ -740,13 +852,34 @@ tauri build
 
 ### GitHub Actions
 
-See `.github/workflows/release.yml` for automated builds on tag push.
+Two workflows are available:
 
-**Trigger Release:**
+1. **Backend Release** (`.github/workflows/release.yml`):
+   - Builds backend binaries (pagi-sola-web)
+   - Creates platform-specific binaries
+   - For backend-only releases
+
+2. **Tauri Release** (`.github/workflows/tauri-release.yml`):
+   - Builds Tauri desktop installers (MSI, DMG, AppImage, DEB)
+   - Includes frontend bundle
+   - Generates icons automatically
+   - Creates GitHub release with installers
+
+**Trigger Tauri Release:**
 ```bash
+# Tag the release
 git tag v1.0.2
 git push origin v1.0.2
+
+# Or use workflow_dispatch in GitHub Actions UI
 ```
+
+**Manual Release (Workflow Dispatch):**
+1. Go to GitHub Actions → "Tauri Release Build"
+2. Click "Run workflow"
+3. Enter version tag (e.g., `v1.0.2`)
+4. Workflow builds installers for all platforms
+5. Creates GitHub release automatically
 
 ### Local CI Testing
 
@@ -759,6 +892,31 @@ rm -rf phoenix-desktop-tauri/src-tauri/target
 # Full build
 cd frontend_desktop && npm run build && cd ..
 cd phoenix-desktop-tauri && tauri build
+```
+
+**Test Icon Generation:**
+```bash
+cd phoenix-desktop-tauri
+
+# Test icon generation
+python3 generate-placeholder-icon.py
+npm run icon
+
+# Verify icons exist
+ls src-tauri/icons/
+# Should see: icon.png, icon.ico, icon.icns, 32x32.png, 128x128.png, etc.
+```
+
+**Test Installer Creation:**
+```bash
+cd phoenix-desktop-tauri
+
+# Build for current platform
+tauri build
+
+# Verify installer created
+ls src-tauri/target/release/bundle/
+# Should see platform-specific installer (MSI, DMG, AppImage, or DEB)
 ```
 
 ---
@@ -783,5 +941,97 @@ For issues and questions:
 
 ---
 
-**Last Updated:** 2026-01-23
+## Release Process
+
+### Step-by-Step Release Guide
+
+**1. Prepare Release:**
+```bash
+# Update version numbers
+# Edit phoenix-desktop-tauri/src-tauri/tauri.conf.json
+# Edit phoenix-desktop-tauri/package.json
+# Edit phoenix-desktop-tauri/src-tauri/Cargo.toml
+
+# Update CHANGELOG.md with release notes
+```
+
+**2. Generate Icons:**
+```bash
+cd phoenix-desktop-tauri
+
+# Generate placeholder if missing
+python3 generate-placeholder-icon.py
+
+# Generate all formats
+npm run icon
+```
+
+**3. Build Frontend:**
+```bash
+cd frontend_desktop
+npm run build
+cd ..
+```
+
+**4. Test Development Build:**
+```bash
+cd phoenix-desktop-tauri
+tauri dev
+# Test all features, verify icons display correctly
+```
+
+**5. Build Release Installers (Local):**
+```bash
+cd phoenix-desktop-tauri
+tauri build
+# Installers created in src-tauri/target/release/bundle/
+```
+
+**6. Test Installers:**
+- Install MSI on Windows (or portable .exe)
+- Install DMG on macOS
+- Install AppImage/DEB on Linux
+- Verify icons, functionality, no errors
+
+**7. Create GitHub Release:**
+```bash
+# Tag the release
+git tag v1.0.2
+git push origin v1.0.2
+
+# GitHub Actions automatically:
+# - Builds installers for all platforms
+# - Creates GitHub release
+# - Uploads installers
+```
+
+**8. Verify Release:**
+- Check GitHub Releases page
+- Download and test installers
+- Verify release notes are correct
+- Test installation on clean systems
+
+### Automated Release (GitHub Actions)
+
+The `.github/workflows/tauri-release.yml` workflow handles:
+- ✅ Building installers for Windows, macOS, Linux
+- ✅ Generating icons if missing
+- ✅ Creating GitHub release
+- ✅ Uploading installers as assets
+
+**Trigger:**
+```bash
+git tag v1.0.2
+git push origin v1.0.2
+```
+
+**Or use GitHub UI:**
+1. Go to Actions → "Tauri Release Build"
+2. Click "Run workflow"
+3. Enter version tag
+4. Workflow runs automatically
+
+---
+
+**Last Updated:** 2026-01-26
 **Version:** 1.0.1

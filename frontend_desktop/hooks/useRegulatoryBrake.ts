@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { getPhoenixApiBase } from '../env';
 
 const BRAKE_UNTIL_KEY = 'pagi.regulatory_brake_until_ms';
 
@@ -90,10 +91,7 @@ export function useRegulatoryBrake() {
 }
 
 export function useIntervention(riskScore: number | null) {
-  const PHOENIX_API_BASE = useMemo(
-    () => import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888',
-    []
-  );
+  const PHOENIX_API_BASE = useMemo(() => getPhoenixApiBase(), []);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -132,4 +130,3 @@ export function useIntervention(riskScore: number | null) {
 
   return { loading, error, data };
 }
-

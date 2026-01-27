@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { getPhoenixApiBase } from '../env';
 
 type NotesGetResponse = {
   success: boolean;
@@ -14,10 +15,7 @@ type NotesPostResponse = {
 
 export default function SemanticScratchpad(props: { onSettled?: () => void }) {
   const { onSettled } = props;
-  const PHOENIX_API_BASE = useMemo(
-    () => import.meta.env.VITE_PHOENIX_API_URL || 'http://localhost:8888',
-    []
-  );
+  const PHOENIX_API_BASE = useMemo(() => getPhoenixApiBase(), []);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

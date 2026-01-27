@@ -175,6 +175,7 @@ mod interventions;
 mod resonance;
 mod readiness;
 mod websocket;
+mod narrative_auditor;
 use google::{GoogleInitError, GoogleManager};
 use handlers::{build_mode_specific_prompt, detect_intimacy_intent, generate_soft_refusal};
 use internal_bus::{create_swarm_system, InternalSwarmBus, SolaSwarmInterface};
@@ -1111,6 +1112,33 @@ struct MemoryNotesPostBody {
     note: String,
 }
 
+#[derive(Debug, Deserialize)]
+struct MemoryReconstructRequest {
+    /// Simulation score, expressed as 0..=100.
+    #[serde(default)]
+    score: u8,
+    /// The NVC script that was simulated.
+    #[serde(default)]
+    script: String,
+    /// The Ghost reply (optional; can be used as additional context).
+    #[serde(default)]
+    ghost_reply: Option<String>,
+
+    /// Manual reinforcement write: prepend this note into `vault:global_context`.
+    /// Used by Phase 19 "Adopt Reframe".
+    #[serde(default)]
+    note: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+struct MemoryReconstructResponse {
+    success: bool,
+    updated: bool,
+    lesson: Option<String>,
+    key: String,
+    new_global_context: Option<String>,
+}
+
 #[derive(Debug, Serialize)]
 struct MemoryNotesResponse {
     success: bool,
@@ -1147,6 +1175,134 @@ async fn api_memory_notes_post(
         success: true,
         key: GLOBAL_CONTEXT_KEY.to_string(),
         note,
+    }))
+}
+
+/// POST /api/memory/reconstruct
+///
+/// Semantic feedback loop:
+/// If a simulation score is >90% (clean NVC), summarize a "Lesson Learned" and
+/// prepend it to the `vault:global_context` (Soul vault) so it can influence
+/// future generations.
+async fn api_memory_reconstruct(
+    state: web::Data<AppState>,
+    body: web::Json<MemoryReconstructRequest>,
+) -> Result<HttpResponse, ApiError> {
+    // Manual reinforcement write branch (Phase 19: Adopt Reframe).
+    if let Some(note) = body
+        .note
+        .as_deref()
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+    {
+        let key = GLOBAL_CONTEXT_KEY.to_string();
+        let previous = state.vaults.recall_soul(GLOBAL_CONTEXT_KEY).unwrap_or_default();
+
+        // Prepend note for salience (same pattern as lessons).
+        let prefix = format!("{note}\n\n");
+        let new_value = format!("{prefix}{prev}", prev = previous.trim_start());
+
+        state
+            .vaults
+            .store_soul(GLOBAL_CONTEXT_KEY, &new_value)
+            .map_err(|e| ApiError::internal(format!("Failed to update global context: {e}")))?;
+
+        if std::env::var("PHOENIX_ENV_DEBUG")
+            .ok()
+            .map(|s| s.trim().eq_ignore_ascii_case("true") || s.trim() == "1")
+            .unwrap_or(false)
+        {
+            info!(
+                "[PHOENIX_ENV_DEBUG] memory.reconstruct manual-note updated vault:global_context note_len={} new_total_len={}",
+                note.len(),
+                new_value.len()
+            );
+        }
+
+        return Ok(HttpResponse::Ok().json(MemoryReconstructResponse {
+            success: true,
+            updated: true,
+            lesson: None,
+            key,
+            new_global_context: Some(new_value),
+        }));
+    }
+
+    let score = body.score.min(100);
+    let script = body.script.trim().to_string();
+    if script.is_empty() {
+        return Err(ApiError::bad_request("Empty script."));
+    }
+
+    let key = GLOBAL_CONTEXT_KEY.to_string();
+
+    // Gate: only learn when the score is clearly clean.
+    if score <= 90 {
+        return Ok(HttpResponse::Ok().json(MemoryReconstructResponse {
+            success: true,
+            updated: false,
+            lesson: None,
+            key,
+            new_global_context: None,
+        }));
+    }
+
+    // Build lesson (LLM-backed if available; deterministic fallback otherwise).
+    let lesson = {
+        let llm_opt = state.llm.lock().await.clone();
+        if let Some(llm) = llm_opt {
+            let ghost_reply = body.ghost_reply.clone().unwrap_or_default();
+            let prompt = format!(
+                "You are summarizing communication wisdom from a successful Nonviolent Communication (NVC) script.\n\n\
+INPUT NVC SCRIPT:\n{script}\n\n\
+OPTIONAL RECIPIENT RESPONSE:\n{ghost_reply}\n\n\
+TASK:\n- Write ONE concise 'Lesson Learned' (<= 240 characters).\n- Make it generalizable (pattern-level), not a story recap.\n- No disclaimers, no meta.\n- Output only the lesson text.\n",
+                script = script,
+                ghost_reply = ghost_reply.trim()
+            );
+
+            match llm.speak(&prompt, None).await {
+                Ok(t) => t.trim().to_string(),
+                Err(e) => {
+                    warn!("memory.reconstruct LLM summarize failed: {e}");
+                    "Name the observation, feeling, need, then make one specific, doable request.".to_string()
+                }
+            }
+        } else {
+            "Name the observation, feeling, need, then make one specific, doable request.".to_string()
+        }
+    };
+
+    let lesson = lesson.trim().to_string();
+    if lesson.is_empty() {
+        return Ok(HttpResponse::Ok().json(MemoryReconstructResponse {
+            success: true,
+            updated: false,
+            lesson: None,
+            key,
+            new_global_context: None,
+        }));
+    }
+
+    let previous = state.vaults.recall_soul(GLOBAL_CONTEXT_KEY).unwrap_or_default();
+    let prefix = format!("Lesson Learned (NVC): {lesson}\n\n");
+    let new_value = format!("{prefix}{prev}", prev = previous.trim_start());
+
+    state
+        .vaults
+        .store_soul(GLOBAL_CONTEXT_KEY, &new_value)
+        .map_err(|e| ApiError::internal(format!("Failed to update global context: {e}")))?;
+
+    if std::env::var("PHOENIX_ENV_DEBUG").ok().map(|s| s.trim().eq_ignore_ascii_case("true") || s.trim() == "1").unwrap_or(false) {
+        info!("[PHOENIX_ENV_DEBUG] memory.reconstruct updated vault:global_context with lesson_len={} new_total_len={}", lesson.len(), new_value.len());
+    }
+
+    Ok(HttpResponse::Ok().json(MemoryReconstructResponse {
+        success: true,
+        updated: true,
+        lesson: Some(lesson),
+        key,
+        new_global_context: Some(new_value),
     }))
 }
 
@@ -6252,6 +6408,15 @@ async fn main() -> std::io::Result<()> {
         )
         .init();
 
+    // Always surface dotenv parse/load failures. If dotenv failed, downstream features will
+    // appear "disabled" because their env vars never loaded.
+    if let Some(e) = dotenv_error.as_ref() {
+        warn!(
+            "Failed to load/parse .env ({:?}). {e} | Hint: if any values contain spaces, wrap the value in quotes (e.g. APP_TITLE=\"Sola AGI\").",
+            dotenv_path.as_ref().map(|p| p.display().to_string())
+        );
+    }
+
     // Frontend/backend UI port - configurable via PHOENIX_WEB_BIND env var
     let bind = common_types::ports::PhoenixWebPort::bind();
 
@@ -6641,7 +6806,7 @@ async fn main() -> std::io::Result<()> {
     // This is safe to call before starting the HTTP server.
     pairing::print_mobile_pairing_info(3000);
 
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
         // Mobile PWA bridge (internal research / LAN testing)
         // - Allow localhost + common private LAN ranges.
         // - Keep credentials support for existing UI calls.
@@ -6725,6 +6890,10 @@ async fn main() -> std::io::Result<()> {
                         web::resource("/memory/notes")
                             .route(web::get().to(api_memory_notes_get))
                             .route(web::post().to(api_memory_notes_post)),
+                    )
+                    .service(
+                        web::resource("/memory/reconstruct")
+                            .route(web::post().to(api_memory_reconstruct)),
                     )
                     .service(web::resource("/memory/store").route(web::post().to(api_memory_store)))
                     .service(
@@ -7089,8 +7258,23 @@ async fn main() -> std::io::Result<()> {
                     .configure(counselor_api::configure_routes)
                     .default_service(web::route().to(api_not_found)),
             )
-    })
-    .bind(bind)?
-    .run()
-    .await
+    });
+
+    // `bind` is used in logs below; clone before passing it into `bind()`.
+    let bind_addr = bind.clone();
+    let server = match server.bind(bind_addr) {
+        Ok(s) => s,
+        Err(e) if e.kind() == std::io::ErrorKind::AddrInUse => {
+            // Make this failure mode explicit and actionable.
+            // This is the most common reason Sola "doesn't start" locally.
+            eprintln!(
+                "PORT 8888 is already in use. Run 'lsof -ti:8888 | xargs kill -9' (Unix) or check Task Manager (Windows) to clear the zombie process."
+            );
+            warn!("Bind failed (addr in use): http://{bind} | {e}");
+            return Err(e);
+        }
+        Err(e) => return Err(e),
+    };
+
+    server.run().await
 }
