@@ -6,6 +6,12 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const port = Number(env.VITE_MOBILE_PORT || 3000);
+  const phoenixApiUrl = env.VITE_PHOENIX_API_URL;
+  if (!phoenixApiUrl) {
+    throw new Error(
+      'VITE_PHOENIX_API_URL is required. Set it to your backend base URL (e.g. http://localhost:8888).'
+    );
+  }
 
   return {
     plugins: [
@@ -38,6 +44,9 @@ export default defineConfig(({ mode }) => {
     preview: {
       host: true,
       port,
+    },
+    define: {
+      'import.meta.env.VITE_PHOENIX_API_URL': JSON.stringify(phoenixApiUrl),
     },
   };
 });

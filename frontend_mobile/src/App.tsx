@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import MobileEcho from './MobileEcho';
 import {
@@ -38,7 +38,16 @@ export default function App() {
     return subscribeSyncState(setSync);
   }, []);
 
-  const apiBase = getPhoenixApiBase();
+  // Lazy initialization with error handling - allows app to start even if env var is missing
+  const apiBase = useMemo(() => {
+    try {
+      return getPhoenixApiBase();
+    } catch (error) {
+      // Fallback to default for development - allows app to start without crashing
+      console.warn('VITE_PHOENIX_API_URL not set, using fallback:', error);
+      return 'http://localhost:8888';
+    }
+  }, []);
   const port = import.meta.env.VITE_MOBILE_PORT || '3000';
 
   const onSubmit = (e: React.FormEvent) => {
