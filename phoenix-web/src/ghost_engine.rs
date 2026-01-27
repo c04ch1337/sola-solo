@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use tokio::time::sleep;
 use tracing::{debug, info, warn};
 
 use crate::resonance::{analyze_resonance, PartnerPersona};
@@ -475,7 +476,7 @@ INSTRUCTIONS:\n- Produce ONE concise message as this speaker.\n- If a prior spea
 
     // Step 4: Sample END load AFTER response generation (t=end)
     // Small delay to allow system to reflect any stress from processing
-    std::thread::sleep(std::time::Duration::from_millis(100));
+    sleep(std::time::Duration::from_millis(100)).await;
     let end_load = crate::env_sensor::get_system_stress().cpu_usage_percent.min(100);
     
     // Step 5: Calculate drift and detect enmeshment

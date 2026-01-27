@@ -3918,9 +3918,8 @@ SUB_AGENT_MAX_PLAYBOOK_UPDATES=100
           }
         }
         
-        // Handle SQLi report commands - check if response contains SQLi report
-        if (content.toLowerCase().includes('sqli-report') || content.toLowerCase().includes('sqli report') || 
-            webGuardResult.reportType === 'sqli') {
+        // Handle explicit SQLi report commands (user requests SQLi report)
+        if (content.toLowerCase().includes('sqli-report') || content.toLowerCase().includes('sqli report')) {
           // If we got a SQLi report in this response, use it
           if (webGuardResult.reportType === 'sqli' && webGuardResult.report) {
             const sqliReportData: WebGuardSQLiReportData = {

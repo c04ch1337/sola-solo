@@ -7,8 +7,6 @@
 
 import { getPhoenixApiBase } from '../env';
 
-const PHOENIX_API_BASE = getPhoenixApiBase();
-
 export interface VoiceRecordingResponse {
   status: string;
   session_id?: string;
@@ -43,7 +41,8 @@ export class VoiceService {
     }
 
     try {
-      const response = await fetch(`${PHOENIX_API_BASE}/api/audio/start-recording`, {
+      const apiBase = getPhoenixApiBase();
+      const response = await fetch(`${apiBase}/api/audio/start-recording`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +82,8 @@ export class VoiceService {
     }
 
     try {
-      const response = await fetch(`${PHOENIX_API_BASE}/api/audio/stop-recording`, {
+      const apiBase = getPhoenixApiBase();
+      const response = await fetch(`${apiBase}/api/audio/stop-recording`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +117,8 @@ export class VoiceService {
    */
   async getStatus(): Promise<VoiceStatusResponse> {
     try {
-      const response = await fetch(`${PHOENIX_API_BASE}/api/audio/status`, {
+      const apiBase = getPhoenixApiBase();
+      const response = await fetch(`${apiBase}/api/audio/status`, {
         method: 'GET',
       });
 
@@ -148,7 +149,8 @@ export class VoiceService {
     }
 
     try {
-      const response = await fetch(`${PHOENIX_API_BASE}/api/audio/speak`, {
+      const apiBase = getPhoenixApiBase();
+      const response = await fetch(`${apiBase}/api/audio/speak`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

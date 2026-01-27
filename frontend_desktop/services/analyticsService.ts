@@ -7,8 +7,6 @@
 
 import { getPhoenixApiBase } from '../env';
 
-const PHOENIX_API_BASE = getPhoenixApiBase();
-
 interface AnalyticsEvent {
   event: string;
   data?: Record<string, any>;
@@ -106,7 +104,8 @@ class AnalyticsService {
    */
   private async sendEvent(event: AnalyticsEvent): Promise<void> {
     try {
-      await fetch(`${PHOENIX_API_BASE}/api/analytics/track`, {
+      const apiBase = getPhoenixApiBase();
+      await fetch(`${apiBase}/api/analytics/track`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

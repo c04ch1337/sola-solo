@@ -10,8 +10,20 @@ export default function MobileEcho(props: { apiBase: string; refreshKey?: string
   const { apiBase, refreshKey } = props;
 
   const url = useMemo(() => {
-    const base = String(apiBase || getPhoenixApiBase()).replace(/\/$/, '');
-    return `${base}/api/counselor/narrative?days=1`;
+    // Use apiBase prop if provided, otherwise try to get from env (with error handling)
+    let base: string;
+    if (apiBase && apiBase.trim()) {
+      base = apiBase;
+    } else {
+      try {
+        base = getPhoenixApiBase();
+      } catch {
+        // If getPhoenixApiBase throws, use empty string to trigger error in fetch
+        base = '';
+      }
+    }
+    const normalized = base.replace(/\/$/, '');
+    return normalized ? `${normalized}/api/counselor/narrative?days=1` : '';
   }, [apiBase]);
 
   const [loading, setLoading] = useState(false);

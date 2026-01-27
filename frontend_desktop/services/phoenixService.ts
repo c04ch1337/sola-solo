@@ -7,8 +7,6 @@
 
 import { getPhoenixApiBase } from '../env';
 
-const PHOENIX_API_BASE = getPhoenixApiBase();
-
 export interface SpeakRequest {
   user_input: string;
   dad_emotion_hint?: string;
@@ -38,6 +36,7 @@ export interface WebGuardCommandResult {
  */
 export const apiSpeak = async (userInput: string, projectContext?: string): Promise<string> => {
   try {
+    const apiBase = getPhoenixApiBase();
     const request: SpeakRequest = {
       user_input: userInput,
     };
@@ -47,7 +46,7 @@ export const apiSpeak = async (userInput: string, projectContext?: string): Prom
       request.mode = projectContext;
     }
 
-    const response = await fetch(`${PHOENIX_API_BASE}/api/speak`, {
+    const response = await fetch(`${apiBase}/api/speak`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -119,7 +118,8 @@ export const apiCommand = async (command: string, projectContext?: string): Prom
       command: fullCommand,
     };
 
-    const response = await fetch(`${PHOENIX_API_BASE}/api/command`, {
+    const apiBase = getPhoenixApiBase();
+    const response = await fetch(`${apiBase}/api/command`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -172,11 +172,12 @@ export const apiCommand = async (command: string, projectContext?: string): Prom
  */
 export const apiWebGuardCommand = async (command: string): Promise<WebGuardCommandResult> => {
   try {
+    const apiBase = getPhoenixApiBase();
     const request: CommandRequest = {
       command: command,
     };
 
-    const response = await fetch(`${PHOENIX_API_BASE}/api/command`, {
+    const response = await fetch(`${apiBase}/api/command`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -241,7 +242,8 @@ export const apiWebGuardCommand = async (command: string): Promise<WebGuardComma
  */
 export const checkPhoenixHealth = async (): Promise<boolean> => {
   try {
-    const response = await fetch(`${PHOENIX_API_BASE}/health`, {
+    const apiBase = getPhoenixApiBase();
+    const response = await fetch(`${apiBase}/health`, {
       method: 'GET',
     });
     return response.ok;
@@ -255,7 +257,8 @@ export const checkPhoenixHealth = async (): Promise<boolean> => {
  */
 export const getPhoenixStatus = async (): Promise<any> => {
   try {
-    const response = await fetch(`${PHOENIX_API_BASE}/api/status`, {
+    const apiBase = getPhoenixApiBase();
+    const response = await fetch(`${apiBase}/api/status`, {
       method: 'GET',
     });
 
