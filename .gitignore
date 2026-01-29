@@ -155,3 +155,8 @@ TODO.local
 NOTES.local
 
 target/
+
+# sola-solo sandbox (explicit safety)
+sola-solo/sandbox/**
+sola-solo/sandbox/**/node_modules/
+sola-solo/sandbox/**/target/
