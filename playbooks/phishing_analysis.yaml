@@ -1,0 +1,126 @@
+# Phishing Analysis Playbook
+# Specialized workflow for analyzing phishing emails and attachments
+
+name: "Phishing Analysis"
+description: "Comprehensive phishing email and attachment analysis"
+version: "1.0"
+author: "Phoenix AGI Security Team"
+
+metadata:
+  category: "phishing_analysis"
+  severity: "high"
+  requires_authorization: false
+  estimated_duration_minutes: 3
+
+steps:
+  - name: "Email Parsing"
+    action: "parse_email"
+    description: "Extract email headers, body, and attachments"
+    parameters:
+      parse_headers: true
+      extract_links: true
+      extract_attachments: true
+      decode_base64: true
+    on_failure: "abort"
+
+  - name: "Header Analysis"
+    action: "analyze_headers"
+    description: "Analyze email headers for spoofing and anomalies"
+    parameters:
+      check_spf: true
+      check_dkim: true
+      check_dmarc: true
+      analyze_received_path: true
+      check_reply_to_mismatch: true
+    on_failure: "continue"
+
+  - name: "Link Analysis"
+    action: "analyze_links"
+    description: "Analyze URLs for phishing indicators"
+    parameters:
+      check_url_reputation: true
+      detect_url_obfuscation: true
+      check_domain_age: true
+      check_typosquatting: true
+      follow_redirects: false
+    on_failure: "continue"
+
+  - name: "Attachment Analysis"
+    action: "analyze_attachments"
+    description: "Scan attachments for malware"
+    parameters:
+      scan_with_virustotal: true
+      check_macros: true
+      check_scripts: true
+      analyze_office_docs: true
+    on_failure: "continue"
+
+  - name: "Content Analysis"
+    action: "analyze_content"
+    description: "Analyze email body for social engineering tactics"
+    parameters:
+      detect_urgency_language: true
+      detect_impersonation: true
+      check_grammar_errors: true
+      detect_credential_requests: true
+    on_failure: "continue"
+
+  - name: "MITRE ATT&CK Mapping"
+    action: "mitre_mapping"
+    description: "Map phishing tactics to MITRE ATT&CK"
+    parameters:
+      primary_tactic: "TA0001"  # Initial Access
+      primary_technique: "T1566"  # Phishing
+      include_sub_techniques: true
+    on_failure: "continue"
+
+  - name: "Threat Assessment"
+    action: "assess_phishing_threat"
+    description: "Calculate phishing risk score"
+    parameters:
+      weight_headers: 0.2
+      weight_links: 0.3
+      weight_attachments: 0.3
+      weight_content: 0.2
+    on_failure: "continue"
+
+  - name: "Generate Report"
+    action: "generate_phishing_report"
+    description: "Create phishing analysis report"
+    parameters:
+      include_iocs: true
+      include_screenshots: false
+      include_recommendations: true
+    on_failure: "continue"
+
+mitre_techniques:
+  - T1566.001  # Phishing: Spearphishing Attachment
+  - T1566.002  # Phishing: Spearphishing Link
+  - T1566.003  # Phishing: Spearphishing via Service
+  - T1598      # Phishing for Information
+  - T1204      # User Execution
+
+threat_indicators:
+  - spf_failure
+  - dkim_failure
+  - sender_mismatch
+  - suspicious_links
+  - malicious_attachments
+  - urgency_language
+  - credential_requests
+  - impersonation_attempt
+
+recommendations:
+  critical:
+    - "Block sender immediately"
+    - "Quarantine all similar emails"
+    - "Alert users about phishing campaign"
+  high:
+    - "Update email security rules"
+    - "Block malicious URLs/domains"
+    - "Conduct user awareness training"
+  medium:
+    - "Monitor for similar attempts"
+    - "Review email authentication policies"
+  low:
+    - "Document phishing tactics for training"

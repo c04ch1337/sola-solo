@@ -1,0 +1,24 @@
+[package]
+name = "relationship_dynamics"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+once_cell = "1"
+rand = "0.8"
+
+# Zodiac personality archetypes (kept as a separate crate).
+horoscope_archetypes = { path = "../../horoscope_archetypes" }
+zodiac_thresholds = { path = "../../zodiac_thresholds" }
+
+llm_orchestrator = { path = "../../llm_orchestrator" }
+vital_organ_vaults = { path = "../../vital_organ_vaults" }
+intimate_girlfriend_module = { path = "../../intimate_girlfriend_module" }
+emotion_detection = { path = "../../emotion_detection" }
+vector_kb = { path = "../../vector_kb" }
+tokio = { version = "1", features = ["rt"] }
+

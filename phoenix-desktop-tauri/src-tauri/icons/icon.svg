@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sola AGI Icon - Digital Twin / Phoenix Theme -->
+  
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="phoenixGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e94560;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ff6b6b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#feca57;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d9ff;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#0abde3;stop-opacity:0.4" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="512" cy="512" r="480" fill="url(#bgGradient)" stroke="#0f3460" stroke-width="8"/>
+  
+  <!-- Outer ring glow -->
+  <circle cx="512" cy="512" r="420" fill="none" stroke="url(#glowGradient)" stroke-width="4" opacity="0.6"/>
+  
+  <!-- Phoenix wings (stylized S shape for Sola) -->
+  <g filter="url(#glow)">
+    <!-- Left wing -->
+    <path d="M 280 512 
+             Q 320 380, 420 340 
+             Q 480 320, 512 360 
+             Q 480 400, 420 420 
+             Q 360 440, 340 512 
+             Q 360 584, 420 604 
+             Q 480 624, 512 664 
+             Q 480 704, 420 684 
+             Q 320 644, 280 512 Z" 
+          fill="url(#phoenixGradient)" opacity="0.9"/>
+    
+    <!-- Right wing -->
+    <path d="M 744 512 
+             Q 704 380, 604 340 
+             Q 544 320, 512 360 
+             Q 544 400, 604 420 
+             Q 664 440, 684 512 
+             Q 664 584, 604 604 
+             Q 544 624, 512 664 
+             Q 544 704, 604 684 
+             Q 704 644, 744 512 Z" 
+          fill="url(#phoenixGradient)" opacity="0.9"/>
+  </g>
+  
+  <!-- Central orb (AI core) -->
+  <circle cx="512" cy="512" r="80" fill="url(#glowGradient)" filter="url(#glow)"/>
+  <circle cx="512" cy="512" r="60" fill="#1a1a2e"/>
+  <circle cx="512" cy="512" r="40" fill="url(#glowGradient)" opacity="0.8"/>
+  
+  <!-- Inner eye/consciousness -->
+  <ellipse cx="512" cy="512" rx="20" ry="30" fill="#ffffff" opacity="0.9"/>
+  
+  <!-- Orbital rings -->
+  <ellipse cx="512" cy="512" rx="200" ry="60" fill="none" stroke="url(#glowGradient)" stroke-width="2" opacity="0.4" transform="rotate(-30 512 512)"/>
+  <ellipse cx="512" cy="512" rx="200" ry="60" fill="none" stroke="url(#glowGradient)" stroke-width="2" opacity="0.4" transform="rotate(30 512 512)"/>
+  
+  <!-- Data streams -->
+  <g opacity="0.5">
+    <line x1="512" y1="100" x2="512" y2="200" stroke="#00d9ff" stroke-width="2"/>
+    <line x1="512" y1="824" x2="512" y2="924" stroke="#00d9ff" stroke-width="2"/>
+    <line x1="100" y1="512" x2="200" y2="512" stroke="#00d9ff" stroke-width="2"/>
+    <line x1="824" y1="512" x2="924" y2="512" stroke="#00d9ff" stroke-width="2"/>
+  </g>
+  
+  <!-- Corner accents -->
+  <g opacity="0.3">
+    <circle cx="200" cy="200" r="8" fill="#e94560"/>
+    <circle cx="824" cy="200" r="8" fill="#e94560"/>
+    <circle cx="200" cy="824" r="8" fill="#e94560"/>
+    <circle cx="824" cy="824" r="8" fill="#e94560"/>
+  </g>
+</svg>

@@ -1,0 +1,24 @@
+[package]
+name = "privacy_framework"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = []
+
+# Enable content blurring
+# blur = ["dep:imageproc", "dep:image", "dep:opencv-rust"]
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+chrono = "0.4"
+anyhow = "1.0"
+
+# Image processing for blurring (optional)
+# Note: These are placeholder versions, adjust as needed
+# imageproc = { version = "0.24", optional = true }
+# image = { version = "0.25", optional = true }
+# opencv-rust = { version = "0.80", optional = true }

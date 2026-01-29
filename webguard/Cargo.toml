@@ -1,0 +1,50 @@
+[package]
+name = "webguard"
+version = "0.1.0"
+edition = "2021"
+description = "Lightweight web vulnerability scanner for Sola - passive security header analysis, fingerprinting, XSS testing, and misconfiguration detection"
+authors = ["Phoenix AGI Team"]
+license = "MIT"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client for passive scanning
+reqwest = { version = "0.11", features = ["json", "cookies"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+anyhow = "1"
+thiserror = "1"
+
+# Logging
+tracing = "0.1"
+
+# URL parsing
+url = "2"
+
+# Regex for pattern matching
+regex = "1"
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID for scan IDs
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# WebSocket for CDP communication (XSS and SQLi testing)
+tokio-tungstenite = "0.21"
+futures = "0.3"
+
+# CDP client for sandbox browser sessions
+browser_orch_ext = { path = "../browser_orch_ext" }
+
+# HTML parsing for XSS detection
+scraper = "0.18"
+
+[dev-dependencies]
+tokio-test = "0.4"

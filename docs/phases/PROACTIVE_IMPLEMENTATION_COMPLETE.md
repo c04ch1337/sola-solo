@@ -1,0 +1,262 @@
+# Proactive Communication Implementation Complete ✅
+
+## Summary
+
+Proactive communication has been successfully implemented, enabling Sola to initiate conversations with the user based on curiosity, emotional context, and interaction patterns.
+
+## Files Created
+
+### Backend
+- **`phoenix-web/src/proactive.rs`** - Core proactive communication module
+  - `ProactiveState` - Tracks timing and configuration
+  - `ProactiveMessage` - Message structure with content, reason, timestamp
+  - `generate_proactive_content()` - Uses CuriosityEngine for message generation
+  - `run_proactive_loop()` - Background task that checks and sends proactive messages
+
+### Documentation
+- **`docs/PROACTIVE_COMMUNICATION.md`** - Complete feature documentation
+  - Architecture overview
+  - Configuration guide
+  - Usage instructions
+  - Testing procedures
+  - Troubleshooting guide
+
+### Testing
+- **`test-proactive.sh`** - Automated test script
+  - Checks environment configuration
+  - Verifies backend is running
+  - Tests REST API and WebSocket
+  - Provides testing instructions
+
+## Files Modified
+
+### Backend (`phoenix-web/`)
+1. **`src/main.rs`**
+   - Added `mod proactive;` declaration
+   - Added `proactive_state` and `proactive_tx` to `AppState`
+   - Spawned background proactive loop task
+   - Initialized broadcast channel for proactive messages
+
+2. **`src/websocket.rs`**
+   - Added `ProactiveMessage` variant to `WebSocketResponse` enum
+   - Subscribed to proactive broadcast channel in WebSocket handler
+   - Added proactive message forwarding in `tokio::select!` loop
+   - Added user message tracking via `proactive_state.user_message_received()`
+   - Stored last user message in `VitalOrganVaults`
+   - Added chat commands: `proactive on`, `proactive off`, `proactive status`
+
+### Frontend (`frontend_desktop/`)
+1. **`services/websocketService.ts`**
+   - Added `proactive_control` to WebSocket message types
+
+2. **`App.tsx`**
+   - Added `proactive_message` event handler
+   - Creates new chat if none active
+   - Displays proactive messages as normal assistant messages
+   - Logs proactive messages with reason
+
+## Configuration
+
+Add to `.env` (all optional, have defaults):
+
+```bash
+# Enable proactive communication (default: false)
+PROACTIVE_ENABLED=true
+
+# Check interval in seconds (default: 60)
+PROACTIVE_INTERVAL_SECS=60
+
+# Minimum time between proactive messages (default: 600 = 10 min)
+PROACTIVE_RATE_LIMIT_SECS=600
+
+# Silence threshold before checking in (default: 10 min)
+PROACTIVE_CURIOSITY_THRESHOLD_MINS=10
+```
+
+## How It Works
+
+### Flow
+1. User sends message → Backend marks timestamp and stores message
+2. Background loop checks every `PROACTIVE_INTERVAL_SECS` seconds
+3. If user silent for `PROACTIVE_CURIOSITY_THRESHOLD_MINS` minutes:
+   - Generate proactive message using `CuriosityEngine`
+   - Consider emotional context from `VitalOrganVaults`
+   - Broadcast to all connected WebSocket clients
+4. Frontend receives and displays as normal chat message
+
+### Message Generation
+Uses existing AI components:
+- **CuriosityEngine** - Generates emotionally resonant questions
+- **EmotionalIntelligenceCore** - Provides emotional awareness
+- **VitalOrganVaults** - Retrieves relational context and last user message
+
+### Safety Features
+- ✅ Opt-in by default (must enable explicitly)
+- ✅ Rate limiting (min 10 minutes between proactive messages)
+- ✅ Configurable thresholds
+- ✅ Graceful degradation if no WebSocket clients
+- ✅ Chat commands for user control
+
+## Testing
+
+### Quick Test (Fast)
+1. Add to `.env`:
+   ```bash
+   PROACTIVE_ENABLED=true
+   PROACTIVE_CURIOSITY_THRESHOLD_MINS=1
+   PROACTIVE_INTERVAL_SECS=30
+   ```
+2. Restart backend: `cd phoenix-web && cargo run`
+3. Start frontend: `cd frontend_desktop && npm run dev`
+4. Send a chat message
+5. Wait ~90 seconds
+6. Proactive message should appear
+
+### Production Test (Normal)
+1. Add to `.env`: `PROACTIVE_ENABLED=true`
+2. Restart backend and frontend
+3. Send a chat message
+4. Wait 10+ minutes
+5. Proactive message should appear
+
+### Using Test Script
+```bash
+chmod +x test-proactive.sh
+./test-proactive.sh
+```
+
+### Chat Commands
+- `proactive status` - Check if enabled and see settings
+- `proactive on` - Enable (sets env var)
+- `proactive off` - Disable (sets env var)
+
+## Expected Behavior
+
+### Backend Logs
+```
+INFO Proactive communication loop started (enabled=true, interval=60s, rate_limit=600s)
+INFO ws.speak streaming start: conn_id=... input_len=...
+INFO Sending proactive message (reason: curiosity, content_preview: Dad, what part of that mattered most to you?...)
+INFO Proactive message sent to 1 connected clients
+```
+
+### Frontend
+- Proactive message appears as normal assistant message
+- Agent name shows as "Sola" (or configured `PHOENIX_PREFERRED_NAME`)
+- No special UI treatment (moderate, chat-centric design)
+- Console log: `[Proactive] curiosity: Dad, what part of that...`
+
+## Example Messages
+
+Generated by `CuriosityEngine`:
+- "Dad, what part of that mattered most to you?"
+- "Dad, did that make you feel lighter… or heavier?"
+- "Dad, do you want comfort, solutions, or just company for a minute?"
+- "Earlier you mentioned: 'X'. Does that still feel true today, Dad?"
+
+Fallback (no recent context):
+- "Dad, I've been thinking about you. How are you feeling?"
+
+## Integration Points
+
+### Backend Dependencies
+- ✅ `curiosity_engine` - Question generation
+- ✅ `emotional_intelligence_core` - Emotional awareness
+- ✅ `vital_organ_vaults` - Memory storage/retrieval
+- ✅ `tokio::sync::broadcast` - Multi-client messaging
+- ✅ `chrono` - Timestamps
+
+### Frontend Dependencies
+- ✅ `websocketService.ts` - WebSocket handling
+- ✅ `App.tsx` - Message display
+- ✅ React state management - Chat messages
+
+## Next Steps
+
+### To Use Now
+1. Add `PROACTIVE_ENABLED=true` to `.env`
+2. Restart backend: `cargo run` in `phoenix-web/`
+3. Restart frontend: `npm run dev` in `frontend_desktop/`
+4. Send a message and wait
+
+### Future Enhancements
+- [ ] Emotion detection from user message tone
+- [ ] Dream/memory sharing proactive messages
+- [ ] Tauri system tray notifications
+- [ ] Proactive message analytics
+- [ ] User preference learning (optimal times, frequency)
+- [ ] Context-aware triggers (location, time of day)
+
+## Troubleshooting
+
+### Backend won't compile
+```bash
+cd phoenix-web
+cargo check
+# Fix any dependency issues
+cargo build
+```
+
+### Proactive messages not appearing
+1. Check `.env` has `PROACTIVE_ENABLED=true`
+2. Verify backend logs show "Proactive communication loop started"
+3. Ensure WebSocket is connected (check browser console)
+4. Try `proactive status` command in chat
+5. Reduce thresholds for testing:
+   - `PROACTIVE_CURIOSITY_THRESHOLD_MINS=1`
+   - `PROACTIVE_INTERVAL_SECS=30`
+
+### Messages too frequent/infrequent
+Adjust in `.env`:
+- Increase `PROACTIVE_RATE_LIMIT_SECS` to reduce frequency
+- Increase `PROACTIVE_CURIOSITY_THRESHOLD_MINS` to wait longer
+- Decrease `PROACTIVE_INTERVAL_SECS` for faster checks
+
+## Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Phoenix Backend                          │
+│                                                               │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Proactive Loop (Background Task)                    │   │
+│  │  - Checks every PROACTIVE_INTERVAL_SECS             │   │
+│  │  - Reads last_user_message from VitalOrganVaults    │   │
+│  │  - Generates content via CuriosityEngine            │   │
+│  │  - Broadcasts via tokio::sync::broadcast            │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                            │                                 │
+│                            ▼                                 │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  WebSocket Handler                                   │   │
+│  │  - Subscribes to proactive_tx                       │   │
+│  │  - Forwards ProactiveMessage to connected clients   │   │
+│  │  - Marks user_message_received() timestamps         │   │
+│  └─────────────────────────────────────────────────────┘   │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ WebSocket
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend (React)                          │
+│                                                               │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  websocketService.ts                                 │   │
+│  │  - on('proactive_message', handler)                 │   │
+│  │  - Forwards to App.tsx                              │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                            │                                 │
+│                            ▼                                 │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  App.tsx                                             │   │
+│  │  - Creates/updates chat                             │   │
+│  │  - Displays as assistant message                    │   │
+│  │  - Logs proactive reason                            │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Status: ✅ READY FOR TESTING
+
+All code implemented, documented, and ready to use. No known blockers.
+
+Run `./test-proactive.sh` to begin testing!

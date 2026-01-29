@@ -1,0 +1,22 @@
+{
+  "name": "sola-agi-desktop",
+  "version": "1.0.1",
+  "description": "Sola AGI - Your personal companion",
+  "private": true,
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "build:frontend": "cd ../frontend_desktop && npm run build",
+    "prebuild": "npm run build:frontend",
+    "icon": "tauri icon src-tauri/icons/icon.png",
+    "icon:generate": "python generate-placeholder-icon.py && npm run icon",
+    "icon:verify": "node -e \"const fs=require('fs');const path='src-tauri/icons/icon.png';if(fs.existsSync(path)){const stats=fs.statSync(path);console.log('✅ icon.png exists ('+stats.size+' bytes)');}else{console.log('❌ icon.png missing - run: npm run icon:generate');}\""
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  },
+  "dependencies": {
+    "sharp": "^0.34.5"
+  }
+}

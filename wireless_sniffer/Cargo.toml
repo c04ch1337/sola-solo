@@ -1,0 +1,32 @@
+[package]
+name = "wireless_sniffer"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = []
+
+# Enable WiFi sniffing
+# wifi = ["dep:libpcap", "dep:nix", "dep:pnet"]
+
+# Enable Bluetooth
+# bluetooth = ["dep:bluer", "dep:btleplug"]
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+chrono = "0.4"
+anyhow = "1.0"
+
+# WiFi sniffing (optional)
+# Note: These are placeholder versions, adjust as needed
+# libpcap = { version = "0.1", optional = true }
+# nix = { version = "0.28", optional = true }
+# pnet = { version = "0.34", optional = true }
+
+# Bluetooth (optional)
+# Note: These are placeholder versions, adjust as needed
+# bluer = { version = "0.15", optional = true }
+# btleplug = { version = "0.10", optional = true }

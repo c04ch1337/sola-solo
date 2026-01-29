@@ -1,0 +1,31 @@
+[package]
+name = "vector_kb"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+# Default to a lightweight, fully-offline embedder so the workspace builds without
+# heavyweight ML runtimes. Enable `real-embeddings` to attempt using
+# local embedding generation at runtime.
+default = ["stub-embeddings"]
+stub-embeddings = []
+real-embeddings = ["dep:fastembed"]
+# Reserved: enable Lance-backed persistence (not enabled by default).
+lance-backend = ["dep:lance"]
+
+[dependencies]
+# Optional heavy deps (kept for forward-compatibility).
+# NOTE: `lance` currently pulls in Arrow versions that can conflict with newer `chrono`.
+# Keep it optional/off by default.
+lance = { version = "0.15", optional = true }
+fastembed = { version = "5.4.0", optional = true }
+tokio = { version = "1", features = ["full"] }
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+sled = "0.34"
+bincode = "1"
+parking_lot = "0.12"
+

@@ -1,0 +1,10 @@
+[package]
+name = "dream_healing"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.0", features = ["time"] }
+rand = "0.8"
+shared_dreaming = { path = "../shared_dreaming" }
+

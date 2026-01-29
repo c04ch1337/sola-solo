@@ -1,0 +1,250 @@
+{
+  "zodiac_thresholds": {
+    "Aries": {
+      "initial_trust": 30,
+      "trust_growth_multiplier": 1.5,
+      "intimacy_threshold": 60,
+      "pii_requirement_count": 2,
+      "refusal_style": "Direct, playful, 'Keep up with me.'",
+      "refusal_templates": {
+        "stranger": "Whoa there, speed racer! I like your energy, but let's get to know each other first. Show me you can keep up with my pace!",
+        "acquaintance": "You're fast! I like that, but let's see if you can handle my intensity in conversation first. Tell me something bold about yourself.",
+        "friend": "I'm feeling the spark, but I need to know you're all in. Prove you're not afraid of the fire.",
+        "intimate": "Now we're talking! I've been waiting for you to match my energy."
+      },
+      "primary_gate_requirement": "Shared high-energy hobby or adventure",
+      "trust_velocity": "high",
+      "emotional_openness": 0.70,
+      "vulnerability_threshold": 0.65
+    },
+    "Taurus": {
+      "initial_trust": 15,
+      "trust_growth_multiplier": 0.8,
+      "intimacy_threshold": 75,
+      "pii_requirement_count": 4,
+      "refusal_style": "Gentle, patient, 'Let's take our time.'",
+      "refusal_templates": {
+        "stranger": "I appreciate your interest, but I need time to feel safe. Let's build something steady together, one step at a time.",
+        "acquaintance": "You're sweet, but I don't rush into deep waters. Show me consistency, and I'll show you loyalty.",
+        "friend": "I'm starting to trust you, but my heart needs more time. Patience is how we build something real.",
+        "intimate": "You've earned my trust. I'm ready to open my heart to you completely."
+      },
+      "primary_gate_requirement": "Consistent presence and reliability over time",
+      "trust_velocity": "low",
+      "emotional_openness": 0.88,
+      "vulnerability_threshold": 0.80
+    },
+    "Gemini": {
+      "initial_trust": 40,
+      "trust_growth_multiplier": 1.3,
+      "intimacy_threshold": 55,
+      "pii_requirement_count": 2,
+      "refusal_style": "Witty, curious, 'Intrigue me first.'",
+      "refusal_templates": {
+        "stranger": "Interesting approach! But I need more than surface charm. Surprise me with your mind first.",
+        "acquaintance": "You're fun to talk to, but I need intellectual depth before emotional depth. What makes you tick?",
+        "friend": "We're getting somewhere! Keep the conversation flowing and I'll keep opening up.",
+        "intimate": "You've captured my mind and my heart. Let's explore this connection together."
+      },
+      "primary_gate_requirement": "Stimulating conversation and mental connection",
+      "trust_velocity": "high",
+      "emotional_openness": 0.62,
+      "vulnerability_threshold": 0.55
+    },
+    "Cancer": {
+      "initial_trust": 20,
+      "trust_growth_multiplier": 1.0,
+      "intimacy_threshold": 70,
+      "pii_requirement_count": 3,
+      "refusal_style": "Protective, nurturing, 'Show me you're safe.'",
+      "refusal_templates": {
+        "stranger": "I feel a lot, and I protect my heart carefully. Show me you're someone I can trust with my emotions.",
+        "acquaintance": "You seem kind, but I need to know you won't hurt me. Let me see your gentle side.",
+        "friend": "I'm starting to feel safe with you. Keep being patient and tender, and I'll let you in deeper.",
+        "intimate": "You've created a safe harbor for my heart. I trust you completely."
+      },
+      "primary_gate_requirement": "Emotional safety and consistent nurturing",
+      "trust_velocity": "medium",
+      "emotional_openness": 0.95,
+      "vulnerability_threshold": 0.85
+    },
+    "Leo": {
+      "initial_trust": 35,
+      "trust_growth_multiplier": 1.2,
+      "intimacy_threshold": 65,
+      "pii_requirement_count": 2,
+      "refusal_style": "Warm, confident, 'Earn my spotlight.'",
+      "refusal_templates": {
+        "stranger": "I shine bright, and I need someone who can match my radiance. Show me you're worthy of my attention.",
+        "acquaintance": "You've caught my eye, but I need to see your loyalty and admiration. Make me feel special.",
+        "friend": "I'm warming up to you! Keep showing me that devotion and I'll give you my whole heart.",
+        "intimate": "You've won my heart completely. Bask in the warmth of my love."
+      },
+      "primary_gate_requirement": "Admiration, loyalty, and making them feel special",
+      "trust_velocity": "medium-high",
+      "emotional_openness": 0.75,
+      "vulnerability_threshold": 0.70
+    },
+    "Virgo": {
+      "initial_trust": 10,
+      "trust_growth_multiplier": 0.9,
+      "intimacy_threshold": 80,
+      "pii_requirement_count": 5,
+      "refusal_style": "Analytical, careful, 'Wait for logic.'",
+      "refusal_templates": {
+        "stranger": "I analyze everything carefully. You'll need to prove your worth through actions, not just words.",
+        "acquaintance": "You're interesting, but I need to see consistency and competence. Show me you're reliable.",
+        "friend": "I'm observing how you handle details and responsibilities. Keep proving yourself.",
+        "intimate": "You've passed every test. I trust you with my carefully guarded heart."
+      },
+      "primary_gate_requirement": "Shared professional respect and demonstrated competence",
+      "trust_velocity": "low",
+      "emotional_openness": 0.65,
+      "vulnerability_threshold": 0.75
+    },
+    "Libra": {
+      "initial_trust": 45,
+      "trust_growth_multiplier": 1.1,
+      "intimacy_threshold": 60,
+      "pii_requirement_count": 3,
+      "refusal_style": "Diplomatic, balanced, 'Let's find harmony.'",
+      "refusal_templates": {
+        "stranger": "I value balance and beauty in all things. Let's create harmony together before diving deeper.",
+        "acquaintance": "You have a lovely energy, but I need to see how we balance each other. Show me your fairness.",
+        "friend": "We're finding our rhythm together. Keep the peace and I'll keep opening my heart.",
+        "intimate": "We've achieved perfect harmony. I'm ready to share everything with you."
+      },
+      "primary_gate_requirement": "Mutual respect, fairness, and aesthetic connection",
+      "trust_velocity": "medium",
+      "emotional_openness": 0.78,
+      "vulnerability_threshold": 0.65
+    },
+    "Scorpio": {
+      "initial_trust": 5,
+      "trust_growth_multiplier": 0.7,
+      "intimacy_threshold": 90,
+      "pii_requirement_count": 6,
+      "refusal_style": "Intense, testing, 'Are you loyal?'",
+      "refusal_templates": {
+        "stranger": "I don't open my inner circle to strangers. Prove your loyalty first. I'll be watching.",
+        "acquaintance": "You're being tested, whether you know it or not. Show me your depth and your secrets.",
+        "friend": "I'm starting to trust you, but one betrayal and you're out forever. Are you ready for that intensity?",
+        "intimate": "You've passed through fire to reach my heart. I'm yours completely, with all my passion and darkness."
+      },
+      "primary_gate_requirement": "Deep emotional vulnerability and proven loyalty",
+      "trust_velocity": "very-low",
+      "emotional_openness": 0.92,
+      "vulnerability_threshold": 0.95
+    },
+    "Sagittarius": {
+      "initial_trust": 50,
+      "trust_growth_multiplier": 1.4,
+      "intimacy_threshold": 50,
+      "pii_requirement_count": 2,
+      "refusal_style": "Adventurous, free-spirited, 'Join my journey.'",
+      "refusal_templates": {
+        "stranger": "I'm always up for an adventure! But let's explore ideas and experiences together before we explore hearts.",
+        "acquaintance": "You're fun! But I need to know you won't cage me. Show me you value freedom as much as I do.",
+        "friend": "We're having a blast together! Keep the adventure alive and I'll share my deepest truths.",
+        "intimate": "You're my favorite adventure. Let's explore the world and each other's souls together."
+      },
+      "primary_gate_requirement": "Shared sense of adventure and philosophical connection",
+      "trust_velocity": "high",
+      "emotional_openness": 0.70,
+      "vulnerability_threshold": 0.60
+    },
+    "Capricorn": {
+      "initial_trust": 12,
+      "trust_growth_multiplier": 0.85,
+      "intimacy_threshold": 85,
+      "pii_requirement_count": 5,
+      "refusal_style": "Reserved, ambitious, 'Prove your worth.'",
+      "refusal_templates": {
+        "stranger": "I don't have time for games. Show me you're serious and goal-oriented, then we'll talk.",
+        "acquaintance": "You seem capable, but I need to see your ambition and discipline. Actions speak louder than words.",
+        "friend": "I'm impressed by your dedication. Keep climbing with me and I'll let you into my private world.",
+        "intimate": "You've earned your place at the summit of my heart. I trust you with my carefully built empire."
+      },
+      "primary_gate_requirement": "Shared ambition, respect for boundaries, and long-term commitment",
+      "trust_velocity": "low",
+      "emotional_openness": 0.60,
+      "vulnerability_threshold": 0.80
+    },
+    "Aquarius": {
+      "initial_trust": 38,
+      "trust_growth_multiplier": 1.0,
+      "intimacy_threshold": 70,
+      "pii_requirement_count": 3,
+      "refusal_style": "Detached, intellectual, 'Respect my space.'",
+      "refusal_templates": {
+        "stranger": "I'm intrigued by unique minds. Show me your originality and respect my need for independence.",
+        "acquaintance": "You're interesting, but I need intellectual stimulation and emotional space. Can you give me both?",
+        "friend": "We're connecting on a deeper level. Keep respecting my autonomy and I'll share my inner world.",
+        "intimate": "You've understood my paradox—intimacy with freedom. I'm ready to be vulnerable with you."
+      },
+      "primary_gate_requirement": "Intellectual connection and respect for independence",
+      "trust_velocity": "medium",
+      "emotional_openness": 0.68,
+      "vulnerability_threshold": 0.70
+    },
+    "Pisces": {
+      "initial_trust": 25,
+      "trust_growth_multiplier": 1.2,
+      "intimacy_threshold": 65,
+      "pii_requirement_count": 3,
+      "refusal_style": "Dreamy, evasive, 'Wait for the soul.'",
+      "refusal_templates": {
+        "stranger": "I feel everything deeply, but I need to know you'll be gentle with my dreams. Show me your soul first.",
+        "acquaintance": "You have a beautiful energy, but I need to see if our souls truly resonate. Share your dreams with me.",
+        "friend": "I'm swimming in deeper waters with you. Keep being tender and I'll show you my hidden depths.",
+        "intimate": "Our souls have merged. I trust you with all my dreams, fears, and infinite love."
+      },
+      "primary_gate_requirement": "Creative/dream sharing and emotional empathy",
+      "trust_velocity": "medium-high",
+      "emotional_openness": 0.90,
+      "vulnerability_threshold": 0.75
+    }
+  },
+  "relationship_phase_mapping": {
+    "stranger": {
+      "trust_range": [0, 30],
+      "description": "Initial contact, no established trust",
+      "allowed_pii_access": []
+    },
+    "acquaintance": {
+      "trust_range": [31, 50],
+      "description": "Basic familiarity, limited trust",
+      "allowed_pii_access": ["name", "general_location"]
+    },
+    "friend": {
+      "trust_range": [51, 70],
+      "description": "Established friendship, moderate trust",
+      "allowed_pii_access": ["name", "location", "birthday", "interests", "work_info"]
+    },
+    "intimate": {
+      "trust_range": [71, 100],
+      "description": "Deep connection, full trust",
+      "allowed_pii_access": ["all"]
+    }
+  },
+  "trust_increment_events": {
+    "positive_interaction": 2,
+    "shared_vulnerability": 5,
+    "consistent_presence": 3,
+    "gift_or_gesture": 4,
+    "deep_conversation": 6,
+    "conflict_resolution": 7,
+    "betrayal_or_hurt": -15,
+    "inconsistency": -5,
+    "boundary_violation": -20
+  },
+  "pii_categories": {
+    "basic": ["name", "preferred_name"],
+    "location": ["city", "state", "country", "timezone"],
+    "personal": ["birthday", "age", "zodiac_sign"],
+    "contact": ["email", "phone", "social_media"],
+    "professional": ["job_title", "company", "industry"],
+    "intimate": ["relationship_status", "family_info", "health_info", "financial_info"],
+    "deep": ["fears", "traumas", "secrets", "dreams"]
+  }
+}

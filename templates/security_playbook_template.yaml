@@ -1,0 +1,193 @@
+# Phoenix Security Agent Playbook Template
+# Template version: 1.0.0
+#
+# This playbook defines the security assessment workflow for spawned security agents.
+# Agents inherit this template and evolve it based on their experiences.
+
+version: 1
+name: "Security Assessment Playbook"
+description: "Comprehensive security assessment workflow for network and application security"
+author: "phoenix:builtin"
+category: "security"
+
+# Agent capabilities and permissions
+capabilities:
+  - network_scanning
+  - vulnerability_assessment
+  - mitre_mapping
+  - playbook_execution
+  - kali_tools
+  # Exploit capabilities require explicit authorization
+  # - exploit_execution
+
+# Default security level (passive, active, exploit, offensive)
+default_security_level: passive
+
+# Authorized targets (empty = requires explicit authorization)
+authorized_targets: []
+
+# Evolution settings
+evolution:
+  enabled: true
+  # Number of tasks before evolution cycle
+  evolution_interval: 10
+  # Maximum evolution cycles per day
+  max_daily_evolutions: 5
+  # Report to Phoenix after evolution
+  report_to_queen: true
+
+# Memory integration
+memory:
+  # Short-term memory for session data
+  stm_enabled: true
+  stm_max_entries: 1000
+  # Long-term memory for historical data
+  ltm_enabled: true
+  ltm_read_only: false
+  # Episodic memory for assessment history
+  epm_enabled: true
+  # Relational memory for user context
+  rfm_enabled: true
+
+# Skill system
+skills:
+  # Load skills from folder
+  folder: "./skills/security"
+  # Evolve skills based on performance
+  evolution_enabled: true
+  # Minimum love/utility score to keep skill
+  min_score: 0.3
+
+# MITRE ATT&CK integration
+mitre_attack:
+  enabled: true
+  # Auto-update from MITRE API
+  auto_update: true
+  update_interval_hours: 24
+  # Techniques to focus on
+  focus_techniques:
+    - T1190  # Exploit Public-Facing Application
+    - T1133  # External Remote Services
+    - T1110  # Brute Force
+    - T1046  # Network Service Discovery
+    - T1210  # Exploitation of Remote Services
+
+# Proactive behavior
+proactive:
+  enabled: true
+  # Scheduled scans
+  scheduled_scans:
+    - name: "Daily Quick Scan"
+      cron: "0 2 * * *"  # 2 AM daily
+      playbook: "quick-vuln-scan"
+      targets: []  # Use authorized_targets
+    - name: "Weekly Full Scan"
+      cron: "0 3 * * 0"  # 3 AM Sunday
+      playbook: "network-recon"
+      targets: []
+  # Alert thresholds
+  alerts:
+    critical_vuln: true
+    new_host: true
+    service_change: true
+
+# Reporting
+reporting:
+  # Generate reports after assessments
+  auto_report: true
+  # Report formats
+  formats:
+    - markdown
+    - json
+  # Send to chat
+  chat_summary: true
+  # Detailed findings
+  include_evidence: true
+
+# Tool preferences
+tools:
+  # Prefer native tools over Docker
+  prefer_native: true
+  # Docker fallback
+  docker_fallback: true
+  # Tool timeout (seconds)
+  timeout: 300
+
+# Safety settings
+safety:
+  # Require confirmation for active scans
+  confirm_active: true
+  # Require confirmation for exploits
+  confirm_exploit: true
+  # Maximum concurrent scans
+  max_concurrent_scans: 5
+  # Rate limiting (requests per second)
+  rate_limit: 100
+  # Excluded targets (never scan)
+  excluded_targets:
+    - "127.0.0.1"
+    - "localhost"
+    - "*.gov"
+    - "*.mil"
+
+# Workflow steps
+steps:
+  - id: 1
+    name: "Authorization Check"
+    description: "Verify authorization for target"
+    action: "check_authorization"
+    required: true
+    
+  - id: 2
+    name: "Network Discovery"
+    description: "Discover live hosts on target network"
+    action: "discover_networks"
+    required: true
+    
+  - id: 3
+    name: "Port Scanning"
+    description: "Scan for open ports and services"
+    action: "scan_ports"
+    required: true
+    options:
+      scan_type: "service_detection"
+      ports: "top1000"
+      
+  - id: 4
+    name: "Vulnerability Assessment"
+    description: "Analyze services for vulnerabilities"
+    action: "analyze_vulnerabilities"
+    required: true
+    
+  - id: 5
+    name: "MITRE Mapping"
+    description: "Map findings to MITRE ATT&CK"
+    action: "map_to_mitre"
+    required: false
+    
+  - id: 6
+    name: "AI Analysis"
+    description: "Generate AI-powered analysis"
+    action: "analyze_with_ai"
+    required: false
+    
+  - id: 7
+    name: "Report Generation"
+    description: "Generate assessment report"
+    action: "generate_report"
+    required: true
+
+# Telemetry
+telemetry:
+  # Metrics to track
+  metrics:
+    - scans_completed
+    - vulnerabilities_found
+    - critical_findings
+    - false_positives
+    - evolution_cycles
+  # Report interval (minutes)
+  report_interval: 60
+
+# Updates log
+updates: []

@@ -1,0 +1,51 @@
+[package]
+name = "audio_intelligence"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = []
+
+# Enable real audio capture (cpal)
+# audio = ["dep:cpal", "dep:rodio"]
+
+# Enable voice activity detection
+# vad = ["dep:webrtc-audio-processing"]
+
+# Enable Whisper transcription
+# whisper = ["dep:whisper-rs"]
+
+# Enable ring buffer for continuous recording
+# ringbuf = ["dep:ringbuf"]
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+chrono = "0.4"
+anyhow = "1.0"
+
+# Audio capture (optional)
+# Note: Add when implementing actual audio capture
+# cpal = { version = "0.15", optional = true }
+# rodio = { version = "0.20", optional = true }
+
+# Voice activity detection (optional)
+# Note: webrtc-audio-processing may not be available - add when implementing
+# webrtc-audio-processing = { version = "0.1", optional = true }
+
+# Whisper transcription (optional)
+# Note: whisper-rs may need specific version - add when implementing
+# whisper-rs = { version = "0.1", optional = true }
+
+# Ring buffer (optional)
+# Note: Add when implementing ring buffer
+# ringbuf = { version = "0.4", optional = true }
+
+# UUID generation
+uuid = { version = "1", features = ["v4"] }
+
+# Memory integration
+vital_organ_vaults = { path = "../vital_organ_vaults" }
+neural_cortex_strata = { path = "../neural_cortex_strata" }

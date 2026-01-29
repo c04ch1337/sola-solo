@@ -1,0 +1,82 @@
+{
+  "safe_zones": {
+    "directories": [
+      "src/",
+      "frontend_desktop/components/",
+      "frontend_desktop/utils/",
+      "frontend_desktop/services/",
+      "frontend_desktop/stores/",
+      "phoenix-web/src/",
+      "cerebrum_nexus/src/",
+      "autonomous_evolution_loop/src/",
+      "evolution_pipeline/src/",
+      "browser_orch_ext/src/",
+      "context_engine/src/",
+      "curiosity_engine/src/",
+      "digital_twin/src/",
+      "emotion_detection/src/",
+      "docs/"
+    ],
+    "file_patterns": [
+      "*.rs",
+      "*.ts",
+      "*.tsx",
+      "*.md",
+      "*.json"
+    ]
+  },
+  "no_go_zones": {
+    "directories": [
+      ".git/",
+      "target/",
+      "node_modules/",
+      "backups/",
+      ".github/workflows/"
+    ],
+    "files": [
+      ".env",
+      ".env.local",
+      ".env.production",
+      "Cargo.lock",
+      "package-lock.json",
+      "permissions.json"
+    ],
+    "file_patterns": [
+      "*.exe",
+      "*.dll",
+      "*.so",
+      "*.dylib",
+      "*.pem",
+      "*.key",
+      "*.cert"
+    ]
+  },
+  "evolution_rules": {
+    "require_backup": true,
+    "backup_directory": "backups/",
+    "max_file_size_bytes": 1048576,
+    "max_changes_per_session": 10,
+    "require_test_pass": true,
+    "test_commands": {
+      "rust": "cargo check",
+      "typescript": "cd frontend_desktop && npm run lint",
+      "all": "cargo check && cd frontend_desktop && npm run lint"
+    },
+    "auto_revert_on_failure": true,
+    "require_human_approval_for": [
+      "main.rs",
+      "lib.rs",
+      "Cargo.toml",
+      "package.json",
+      "tsconfig.json"
+    ]
+  },
+  "audit_settings": {
+    "log_file": "EVOLUTION_LOG.md",
+    "log_format": "markdown",
+    "include_diff": true,
+    "include_timestamp": true,
+    "include_reason": true,
+    "include_result": true
+  }
+}

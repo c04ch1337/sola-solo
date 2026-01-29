@@ -1,0 +1,13 @@
+# Icons Directory
+# 
+# Place your app icons here:
+# - icon.ico (Windows, 256x256 recommended)
+# - icon.icns (macOS)
+# - 32x32.png (Linux)
+# - 128x128.png (Linux)
+# - 128x128@2x.png (Linux, retina)
+#
+# You can generate icons from a 1024x1024 PNG using:
+# - Tauri Icon Generator: https://github.com/tauri-apps/tauri-icon
+# - IconKitchen: https://icon.kitchen/
+# - Online tools or ImageMagick

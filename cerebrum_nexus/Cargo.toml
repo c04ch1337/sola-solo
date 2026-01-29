@@ -1,0 +1,73 @@
+[package]
+name = "cerebrum_nexus"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.0", features = ["sync", "time", "rt", "macros"] }
+uuid = { version = "1.0", features = ["v4"] }
+dotenvy = "0.15"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+anyhow = "1"
+ractor = { version = "0.10", features = ["async-trait"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
+futures-util = "0.3"
+url = "2"
+urlencoding = "2"
+json-patch = "3"
+tracing = "0.1"
+sysinfo = "0.30"
+self_critic = { path = "../self_critic" }
+lucid_dreaming = { path = "../lucid_dreaming" }
+multi_modal_perception = { path = "../multi_modal_perception" }
+context_engine = { path = "../context_engine" }
+nervous_pathway_network = { path = "../nervous_pathway_network" }
+limb_extension_grafts = { path = "../limb_extension_grafts" }
+vital_pulse_monitor = { path = "../vital_pulse_monitor" }
+llm_orchestrator = { path = "../llm_orchestrator" }
+agent_spawner = { path = "../agent_spawner" }
+caos = { path = "../caos" }
+neural_cortex_strata = { path = "../neural_cortex_strata" }
+vital_organ_vaults = { path = "../vital_organ_vaults" }
+dream_recording = { path = "../dream_recording" }
+dream_healing = { path = "../dream_healing" }
+vascular_integrity_system = { path = "../vascular_integrity_system" }
+evolutionary_helix_core = { path = "../evolutionary_helix_core" }
+autonomous_evolution_loop = { path = "../autonomous_evolution_loop" }
+emotional_intelligence_core = { path = "../emotional_intelligence_core" }
+curiosity_engine = { path = "../curiosity_engine" }
+self_preservation_instinct = { path = "../self_preservation_instinct" }
+asi_wallet_identity = { path = "../asi_wallet_identity" }
+user_identity = { path = "../user_identity" }
+phoenix_identity = { path = "../phoenix_identity" }
+intimate_girlfriend_module = { path = "../intimate_girlfriend_module" }
+common_types = { path = "../common_types" }
+evolution_pipeline = { path = "../evolution_pipeline" }
+digital_twin = { path = "../digital_twin" }
+email_orch = { path = "../email_orch" }
+skill_system = { path = "../skill_system" }
+affection_switches = { path = "../affection_switches" }
+system_access = { path = "../system_access" }
+ethical_agent = { path = "../ethical_agent" }
+code_analysis = { path = "../code_analysis" }
+
+[features]
+# WASM tool-loading is heavy; keep it feature-gated so the workspace stays quick to build.
+wasm-tools = ["dep:wasmtime"]
+
+# Heavyweight text NLP backend (downloads / links libtorch via `tch`).
+psych-mapping-rust-bert = ["dep:rust-bert"]
+
+[dependencies.wasmtime]
+version = "12"
+optional = true
+
+[dependencies.rust-bert]
+version = "0.22"
+optional = true
+
+[dev-dependencies]
+async-trait = "0.1"

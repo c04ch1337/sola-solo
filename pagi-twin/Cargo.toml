@@ -1,0 +1,27 @@
+[package]
+name = "pagi-twin"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "pagi-twin"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+dotenvy = "0.15"
+
+# Internal utilities
+pagi-utils = { path = "../pagi-utils" }
+
+# Phoenix web server (will be converted to library)
+phoenix-web = { path = "../phoenix-web" }
+
+# Telemetry services
+vital_pulse_collector = { path = "../vital_pulse_collector" }
+synaptic_pulse_distributor = { path = "../synaptic_pulse_distributor" }
+
+# Common types
+common_types = { path = "../common_types" }

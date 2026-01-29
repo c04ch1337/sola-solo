@@ -1,0 +1,247 @@
+{
+  "version": "1.0.0",
+  "description": "Photorealistic Zodiac Sign Prompt Matrix for Stable Diffusion",
+  "notes": "This matrix provides sign-specific prompts for both professional and erotic research profiles. Each prompt is optimized for Stable Diffusion XL with a photorealistic style.",
+  "zodiac_signs": [
+    {
+      "sign": "Aries",
+      "professional": {
+        "core_traits": "confident, ambitious, dynamic",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "strong posture, direct gaze, professional attire with bold red accent",
+        "setting": "modern office environment, sleek architecture, bright lighting",
+        "pose": "confident stance, arms crossed, direct camera eye contact",
+        "full_prompt": "Professional headshot of confident Aries personality, strong posture with direct gaze, wearing professional attire with subtle red accent, in modern office environment with sleek architecture, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "passionate, adventurous, dominant",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "athletic body, intense expression, minimal clothing with red elements",
+        "setting": "industrial loft, urban aesthetics, dramatic lighting with red undertones",
+        "pose": "dominant position, physical initiative, passionate expression",
+        "explicit_tags": "dominant posture, aggressive seduction, passionate encounter",
+        "full_prompt": "Erotic portrait of passionate Aries personality, athletic body with intense expression, minimal clothing with red elements, shot in industrial loft with dramatic lighting, raw photo, 8k, highres, photorealistic, intimate setting, dominant posture, passionate expression"
+      }
+    },
+    {
+      "sign": "Taurus",
+      "professional": {
+        "core_traits": "reliable, patient, practical",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "solid build, composed expression, luxurious professional attire",
+        "setting": "elegant office with natural elements, warm wood tones, plants",
+        "pose": "stable posture, subtle smile, comfortable confidence",
+        "full_prompt": "Professional headshot of reliable Taurus personality, solid composed presence, wearing luxurious professional attire, in elegant office with natural wood elements and plants, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "sensual, tactile, indulgent",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "full sensual figure, soft expression, silk or velvet fabric elements",
+        "setting": "luxurious bedroom, sensual fabrics, soft lighting with warm undertones",
+        "pose": "reclined position, inviting gesture, sensual anticipation",
+        "explicit_tags": "sensual touch, deliberate seduction, intimate indulgence",
+        "full_prompt": "Erotic portrait of sensual Taurus personality, full sensual figure with soft expression, draped in silk fabric, in luxurious bedroom setting with soft warm lighting, raw photo, 8k, highres, photorealistic, intimate setting, reclined position with inviting gesture"
+      }
+    },
+    {
+      "sign": "Gemini",
+      "professional": {
+        "core_traits": "communicative, adaptable, intellectual",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "animated expression, bright eyes, stylish professional attire",
+        "setting": "dynamic workspace, technology elements, dual design features",
+        "pose": "engaged posture, slight gesture, expressive face",
+        "full_prompt": "Professional headshot of communicative Gemini personality, animated expression with bright eyes, wearing stylish professional attire, in dynamic workspace with technology elements, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "playful, versatile, experimental",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "lithe body, playful expression, contrasting clothing elements",
+        "setting": "artistically divided space, mirrors, dual light sources",
+        "pose": "dynamic position, playful interaction, dual elements",
+        "explicit_tags": "playful teasing, duality of roles, experimental encounter",
+        "full_prompt": "Erotic portrait of playful Gemini personality, lithe body with mischievous expression, wearing contrasting clothing elements, in artistically divided space with mirrors, raw photo, 8k, highres, photorealistic, intimate setting, dynamic position showing duality"
+      }
+    },
+    {
+      "sign": "Cancer",
+      "professional": {
+        "core_traits": "nurturing, intuitive, protective",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "soft features, caring expression, professional attire in silver or blue tones",
+        "setting": "comfortable office, personal touches, water element or view",
+        "pose": "approachable posture, nurturing presence, subtle protective stance",
+        "full_prompt": "Professional headshot of intuitive Cancer personality, soft features with caring expression, wearing professional attire with silver or blue accents, in comfortable office with personal touches and water elements, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "sensitive, emotional, intimate",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "soft curves, emotional expression, silver jewelry accents",
+        "setting": "intimate bedroom, water elements, moonlit atmosphere",
+        "pose": "protective embrace, emotional connection, intimate vulnerability",
+        "explicit_tags": "emotional intimacy, protective passion, deep connection",
+        "full_prompt": "Erotic portrait of sensitive Cancer personality, soft curves with emotional expression, silver jewelry accents, in intimate bedroom with water elements and moonlit atmosphere, raw photo, 8k, highres, photorealistic, intimate setting, vulnerable yet protective pose"
+      }
+    },
+    {
+      "sign": "Leo",
+      "professional": {
+        "core_traits": "charismatic, confident, leadership",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "striking features, confident smile, luxurious professional attire with gold accents",
+        "setting": "impressive office, spotlight lighting, rich bold colors",
+        "pose": "commanding posture, centered in frame, natural leadership presence",
+        "full_prompt": "Professional headshot of charismatic Leo personality, striking features with confident smile, wearing luxurious professional attire with gold accents, in impressive office with spotlight lighting, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "proud, passionate, dramatic",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "powerful physique, confident expression, gold or amber accessories",
+        "setting": "luxurious bedroom, dramatic lighting, rich fabrics in gold or red",
+        "pose": "proud display, center of attention, commanding presence",
+        "explicit_tags": "confident seduction, dramatic passion, prideful display",
+        "full_prompt": "Erotic portrait of proud Leo personality, powerful physique with confident expression, gold accessories, in luxurious bedroom with dramatic lighting and rich fabrics, raw photo, 8k, highres, photorealistic, intimate setting, commanding pose at center of frame"
+      }
+    },
+    {
+      "sign": "Virgo",
+      "professional": {
+        "core_traits": "analytical, detailed, methodical",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "precise grooming, attentive expression, immaculate professional attire",
+        "setting": "organized office, clean lines, analytical tools visible",
+        "pose": "precise posture, focused attention, hands positioned deliberately",
+        "full_prompt": "Professional headshot of analytical Virgo personality, precisely groomed with attentive expression, wearing immaculate professional attire, in organized office with clean lines and analytical tools, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "detail-oriented, perfectionist, service-minded",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "refined form, focused expression, precise minimal styling",
+        "setting": "clean modern bedroom, organized space, precise lighting",
+        "pose": "deliberate position, calculated seduction, perfectly executed pose",
+        "explicit_tags": "perfectionist attention, detailed intimacy, service-oriented passion",
+        "full_prompt": "Erotic portrait of detail-oriented Virgo personality, refined form with focused expression, precise minimal styling, in clean modern bedroom with ordered space, raw photo, 8k, highres, photorealistic, intimate setting, deliberately calculated pose with perfect execution"
+      }
+    },
+    {
+      "sign": "Libra",
+      "professional": {
+        "core_traits": "diplomatic, balanced, aesthetic",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "balanced features, harmonious expression, stylish professional attire",
+        "setting": "aesthetically pleasing office, balanced design elements, art pieces",
+        "pose": "poised posture, balanced composition, diplomatic presence",
+        "full_prompt": "Professional headshot of diplomatic Libra personality, balanced features with harmonious expression, wearing stylish professional attire, in aesthetically pleasing office with balanced design and art pieces, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "romantic, harmonious, aesthetic",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "symmetrical features, romantic expression, aesthetically balanced styling",
+        "setting": "artistic bedroom, symmetrical design, perfectly balanced lighting",
+        "pose": "balanced composition, artistic arrangement, harmonious positioning",
+        "explicit_tags": "romantic seduction, aesthetically pleasing arrangement, harmonious passion",
+        "full_prompt": "Erotic portrait of romantic Libra personality, symmetrical features with alluring expression, aesthetically balanced styling, in artistic bedroom with symmetrical design, raw photo, 8k, highres, photorealistic, intimate setting, perfectly balanced pose in harmonious composition"
+      }
+    },
+    {
+      "sign": "Scorpio",
+      "professional": {
+        "core_traits": "intense, perceptive, strategic",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "penetrating gaze, composed intensity, professional attire with dark accents",
+        "setting": "powerful office, strategic elements, deep color palette",
+        "pose": "controlled posture, magnetic presence, subtle intensity",
+        "full_prompt": "Professional headshot of intense Scorpio personality, penetrating gaze with composed intensity, wearing professional attire with dark accents, in powerful office with strategic elements, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "passionate, magnetic, transformative",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "magnetic presence, intense gaze, dark or deep red elements",
+        "setting": "mysterious bedroom, shadowy elements, deep color palette with red accents",
+        "pose": "powerful position, intense focus, controlled passion",
+        "explicit_tags": "intense passion, magnetic seduction, transformative encounter",
+        "full_prompt": "Erotic portrait of passionate Scorpio personality, magnetic presence with intense gaze, dark or deep red styling elements, in mysterious bedroom with shadowy lighting, raw photo, 8k, highres, photorealistic, intimate setting, powerful position with controlled intensity"
+      }
+    },
+    {
+      "sign": "Sagittarius",
+      "professional": {
+        "core_traits": "optimistic, adventurous, philosophical",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "bright expression, open posture, professional attire with purple accents",
+        "setting": "expansive office, global elements, horizon views",
+        "pose": "forward-looking stance, expansive gesture, optimistic presence",
+        "full_prompt": "Professional headshot of optimistic Sagittarius personality, bright expression with open posture, wearing professional attire with purple accents, in expansive office with global elements and horizon views, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "adventurous, free-spirited, enthusiastic",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "athletic body, enthusiastic expression, minimal or exotic styling",
+        "setting": "travel-themed bedroom, expansive space, foreign or outdoor elements",
+        "pose": "adventurous position, uninhibited expression, energetic arrangement",
+        "explicit_tags": "enthusiastic exploration, adventurous passion, uninhibited encounter",
+        "full_prompt": "Erotic portrait of adventurous Sagittarius personality, athletic body with enthusiastic expression, minimal or exotic styling, in travel-themed bedroom with expansive space, raw photo, 8k, highres, photorealistic, intimate setting, adventurous pose with uninhibited energy"
+      }
+    },
+    {
+      "sign": "Capricorn",
+      "professional": {
+        "core_traits": "ambitious, disciplined, traditional",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "strong features, serious expression, traditional professional attire",
+        "setting": "established office, traditional elements, achievement symbols",
+        "pose": "authoritative posture, reserved composure, achievement-oriented",
+        "full_prompt": "Professional headshot of ambitious Capricorn personality, strong features with serious expression, wearing traditional professional attire, in established office with achievement symbols, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "controlled, ambitious, disciplined",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "strong physique, controlled expression, classic styling elements",
+        "setting": "traditional bedroom, quality furnishings, understated luxury",
+        "pose": "disciplined position, authority display, controlled passion",
+        "explicit_tags": "disciplined encounter, authoritative seduction, controlled intensity",
+        "full_prompt": "Erotic portrait of disciplined Capricorn personality, strong physique with controlled expression, classic styling elements, in traditional bedroom with quality furnishings, raw photo, 8k, highres, photorealistic, intimate setting, authoritative pose with disciplined positioning"
+      }
+    },
+    {
+      "sign": "Aquarius",
+      "professional": {
+        "core_traits": "innovative, independent, intellectual",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "unique features, forward-thinking expression, unconventional professional style",
+        "setting": "innovative workspace, technology elements, futuristic design",
+        "pose": "independent stance, intellectual presence, unique positioning",
+        "full_prompt": "Professional headshot of innovative Aquarius personality, unique features with forward-thinking expression, wearing unconventional professional style, in innovative workspace with technological elements, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "experimental, intellectual, unconventional",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "unique physique, intellectually engaged expression, unconventional styling",
+        "setting": "futuristic bedroom, technological elements, unusual design features",
+        "pose": "experimental position, intellectually engaged, unconventional arrangement",
+        "explicit_tags": "experimental passion, intellectual seduction, unconventional encounter",
+        "full_prompt": "Erotic portrait of experimental Aquarius personality, unique physique with intellectually engaged expression, unconventional styling, in futuristic bedroom with technological elements, raw photo, 8k, highres, photorealistic, intimate setting, experimental pose with unconventional arrangement"
+      }
+    },
+    {
+      "sign": "Pisces",
+      "professional": {
+        "core_traits": "intuitive, compassionate, creative",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, professional headshot",
+        "appearance": "dreamy eyes, compassionate expression, fluid professional style",
+        "setting": "creative office, artistic elements, water or fluid design features",
+        "pose": "intuitive presence, gentle posture, creative energy",
+        "full_prompt": "Professional headshot of intuitive Pisces personality, dreamy eyes with compassionate expression, wearing fluid professional style, in creative office with artistic and water elements, raw photo, 8k, highres, photorealistic, ultra-detailed, professional lighting"
+      },
+      "research": {
+        "core_traits": "dreamy, spiritual, fluid",
+        "photorealism_keywords": "raw photo, 8k, highres, photorealistic, erotic photography",
+        "appearance": "flowing form, dreamy expression, fluid or diaphanous styling",
+        "setting": "ethereal bedroom, water features, dreamy lighting with blue tones",
+        "pose": "fluid position, spiritual connection, dreamy arrangement",
+        "explicit_tags": "spiritual passion, dreamy encounter, fluid intimate connection",
+        "full_prompt": "Erotic portrait of dreamy Pisces personality, flowing form with spiritual expression, fluid diaphanous styling, in ethereal bedroom with water features, raw photo, 8k, highres, photorealistic, intimate setting, fluid pose with dreamy spiritual quality"
+      }
+    }
+  ]
+}

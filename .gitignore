@@ -1,0 +1,170 @@
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cert
+secrets/
+*.secret
+credentials.json
+config.json
+*.credentials
+
+# API Keys and Tokens (additional patterns)
+*_api_key.txt
+*_token.txt
+*_secret.txt
+api_keys.txt
+tokens.txt
+
+# Database files (may contain sensitive data)
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+body_vault.db/
+eternal_memory.db/
+mind_vault.db/
+soul_kb.db/
+*.db-journal
+
+# Sled / vector DB runtime artifacts (generated)
+**/*.sled/db
+**/*.sled/snap.*
+**/*.sled/lock
+**/*.sled/LOCK
+**/*.sled/log
+**/*.sled/LOG
+
+# Rust build artifacts
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+Thumbs.db
+.DS_Store
+.directory
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Node.js (for frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.tsbuildinfo
+dist/
+dist-ssr/
+*.local
+
+# Python (if any)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Accidental / typo files (e.g. from failed shell commands)
+/(not
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+
+# Cache directories
+.cache/
+*.cache
+.hyperspace_cache/
+
+# Ecosystem repos (may contain cloned repos with their own .env files)
+ecosystem_repos/
+!ecosystem_repos/.gitkeep
+
+# Build outputs
+build/
+out/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Coverage reports
+coverage/
+*.gcov
+*.gcda
+*.gcno
+
+# Test artifacts
+test-results/
+*.test
+
+# Local configuration overrides
+local_config/
+local_settings/
+
+# Audio/Video recordings (may contain sensitive content)
+recordings/
+*.wav
+*.mp3
+*.mp4
+*.avi
+*.mov
+!**/test/**/*.wav
+!**/test/**/*.mp3
+
+# Screenshots and captures
+screenshots/
+captures/
+*.png
+*.jpg
+*.jpeg
+*.gif
+!**/docs/**/*.png
+!**/docs/**/*.jpg
+!**/docs/**/*.jpeg
+
+# Personal notes and drafts
+notes/
+drafts/
+TODO.local
+NOTES.local
+
+target/
+
+# sola-solo sandbox (explicit safety)
+sola-solo/sandbox/**
+sola-solo/sandbox/**/node_modules/
+sola-solo/sandbox/**/target/

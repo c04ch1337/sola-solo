@@ -1,0 +1,173 @@
+# SOLA Project Rules for Cursor IDE
+
+## File Organization Rules
+
+### CRITICAL: Root Directory Protection
+- NEVER create documentation files in the root directory
+- ONLY these files are allowed in root:
+  - README.md
+  - SECURITY.md
+  - CONTRIBUTING.md
+  - LICENSE
+  - DOCUMENTATION_INDEX.md
+  - AUTONOMOUS_OPERATION.md
+  - REPOSITORY_STRUCTURE.md
+  - PROJECT_ORGANIZATION.md
+  - CLEANUP_SUMMARY.md
+  - Cargo.toml, Cargo.lock
+  - .env.example
+  - installer.iss
+
+### Documentation Placement Rules
+
+1. **Setup & Configuration** → `docs/setup-guides/`
+   - Installation guides
+   - Environment setup
+   - API configuration
+   - Quick start guides
+   - After adding: Update `docs/setup-guides/README.md`
+
+2. **Build Instructions** → `docs/build-guides/`
+   - Build guides
+   - Compiler setup
+   - Platform-specific builds
+   - After adding: Update `docs/build-guides/README.md`
+
+3. **Testing Documentation** → `docs/testing/`
+   - Test guides
+   - Test results
+   - Development status
+   - After adding: Update `docs/testing/README.md`
+
+4. **Release Documentation** → `docs/releases/`
+   - Release notes
+   - Deployment guides
+   - Version history
+   - After adding: Update `docs/releases/README.md`
+
+5. **Architecture Documentation** → `docs/`
+   - System design
+   - Component architecture
+   - Technical specs
+   - After adding: Update `DOCUMENTATION_INDEX.md`
+
+6. **Phase Completions** → `docs/phases/`
+   - Implementation summaries
+   - Feature completions
+   - Historical records
+   - After adding: Update `docs/phases/README.md`
+
+### Script Placement Rules
+
+1. **Build Scripts** → `scripts/build/`
+   - Build automation
+   - Release scripts
+   - Installer creation
+   - After adding: Update `scripts/README.md`
+
+2. **Setup Scripts** → `scripts/setup/`
+   - Environment setup
+   - Service launchers
+   - Configuration scripts
+   - After adding: Update `scripts/README.md`
+
+3. **Test Scripts** → `tests/scripts/`
+   - Test automation
+   - Integration tests
+   - E2E tests
+   - After adding: Update `tests/README.md`
+
+### Code Placement Rules
+
+1. **Rust Crates** → Appropriate category directory
+   - Add to Cargo.toml workspace
+   - Include README.md in crate
+   - Add tests in crate/tests/
+
+2. **Frontend Code** → `frontend_desktop/src/`
+   - React components
+   - TypeScript utilities
+   - Styles
+
+3. **Tauri Desktop** → `phoenix-desktop-tauri/`
+   - Frontend: src/
+   - Backend: src-tauri/
+
+## Naming Conventions
+
+### Documentation Files
+- Major docs: UPPERCASE_NAME.md (e.g., SETUP.md, BUILD_INSTRUCTIONS.md)
+- Specific guides: lowercase-name.md (e.g., quick-start.md, api-reference.md)
+
+### Script Files
+- Use descriptive names with hyphens
+- Build: build-*.cmd, build-*.sh, build-*.ps1
+- Setup: setup-*.ps1, setup-*.sh
+- Test: test-*.sh, test-*.ps1, test-*.js
+
+## Mandatory Updates
+
+When adding files, ALWAYS update:
+1. Directory README.md (in the directory where file was added)
+2. DOCUMENTATION_INDEX.md (if adding architecture docs)
+3. Related cross-references in other docs
+
+## Before Committing
+
+Check:
+- [ ] File is in correct directory (not root!)
+- [ ] Directory README.md updated
+- [ ] DOCUMENTATION_INDEX.md updated (if applicable)
+- [ ] Naming conventions followed
+- [ ] Links to related docs added
+- [ ] Tests pass
+- [ ] Linter passes
+
+## Quick Decision Tree
+
+```
+Adding documentation?
+├─ Setup/config? → docs/setup-guides/
+├─ Build? → docs/build-guides/
+├─ Testing? → docs/testing/
+├─ Release? → docs/releases/
+├─ Architecture? → docs/
+└─ Phase completion? → docs/phases/
+
+Adding script?
+├─ Build/release? → scripts/build/
+├─ Setup/launch? → scripts/setup/
+└─ Test? → tests/scripts/
+
+Adding code?
+├─ Rust? → [appropriate crate category]/
+├─ Frontend? → frontend_desktop/src/
+└─ Tauri? → phoenix-desktop-tauri/
+```
+
+## References
+
+- Full guidelines: CONTRIBUTING.md
+- Documentation index: DOCUMENTATION_INDEX.md
+- Project organization: PROJECT_ORGANIZATION.md
+- Cleanup summary: CLEANUP_SUMMARY.md
+
+## For AI Agents
+
+When working autonomously:
+1. Check DOCUMENTATION_INDEX.md first
+2. Never create files in root (except listed above)
+3. Always update READMEs when adding files
+4. Follow decision tree for placement
+5. Update master index for architecture docs
+6. Preserve organization - don't move files without reason
+
+## Enforcement
+
+These rules are MANDATORY. Pull requests that violate these rules will be rejected.
+
+If unsure about placement:
+1. Check similar existing files
+2. Review directory README.md
+3. Follow decision tree
+4. Ask before creating in root

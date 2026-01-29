@@ -1,0 +1,310 @@
+{
+  "_comment": "SOLA — Strategic Orchestration & Lifecycle Automation",
+  "_description": "Command registry for platform-wide orchestration capabilities",
+  "schema": "phoenix.frontend.command_registry.v1",
+  "transport": {
+    "current": "HTTP JSON",
+    "recommended": ["HTTP JSON", "WebSocket", "Tauri IPC"],
+    "contract": "send(command) -> response"
+  },
+  "commands": [
+    {
+      "id": "brain.chat",
+      "input": "<any text>",
+      "handler": "CerebrumNexus.speak_eq",
+      "source": "cerebrum_nexus/src/lib.rs",
+      "source_ref": "cerebrum_nexus/src/lib.rs:1199",
+      "returns": "text"
+    },
+    {
+      "id": "brain.skills.list",
+      "input": "skills list",
+      "handler": "CerebrumNexus.handle_skill_command",
+      "source": "cerebrum_nexus/src/lib.rs",
+      "source_ref": "cerebrum_nexus/src/lib.rs:1454",
+      "returns": "text"
+    },
+    {
+      "id": "brain.skills.run",
+      "input": "skills run <uuid> | input=...",
+      "handler": "SkillSystem.execute_skill",
+      "source": "skill_system/src/lib.rs",
+      "source_ref": "skill_system/src/lib.rs:62",
+      "returns": "text"
+    },
+    {
+      "id": "brain.skills.prefs.add",
+      "input": "skills prefs add <text>",
+      "handler": "CerebrumNexus.handle_skill_command",
+      "source": "cerebrum_nexus/src/lib.rs",
+      "source_ref": "cerebrum_nexus/src/lib.rs:1454",
+      "returns": "text",
+      "side_effects": ["stores preferences to Soul Vault"]
+    },
+    {
+      "id": "brain.lucid",
+      "input": "lucid dad|create|wake|status",
+      "handler": "CerebrumNexus.lucid_command",
+      "source": "cerebrum_nexus/src/lib.rs",
+      "source_ref": "cerebrum_nexus/src/lib.rs:827",
+      "returns": "text"
+    },
+    {
+      "id": "brain.dream",
+      "input": "dream with dad|healing|joyful|nostalgic|adventurous|status",
+      "handler": "CerebrumNexus.shared_dream_command",
+      "source": "cerebrum_nexus/src/lib.rs",
+      "source_ref": "cerebrum_nexus/src/lib.rs:763",
+      "returns": "text"
+    },
+    {
+      "id": "brain.heal",
+      "input": "heal tired|sad|anxious|grieving|overwhelmed|peaceful|status",
+      "handler": "CerebrumNexus.healing_command",
+      "source": "cerebrum_nexus/src/lib.rs",
+      "source_ref": "cerebrum_nexus/src/lib.rs:689",
+      "returns": "text"
+    },
+    {
+      "id": "brain.perceive",
+      "input": "show image|audio|video <url>",
+      "handler": "CerebrumNexus.perceive_command",
+      "source": "cerebrum_nexus/src/lib.rs",
+      "source_ref": "cerebrum_nexus/src/lib.rs:948",
+      "returns": "text"
+    },
+    {
+      "id": "brain.dreams.list",
+      "input": "brain dreams list",
+      "handler": "DreamRecordingModule.list_dreams",
+      "source": "dream_recording/src/lib.rs",
+      "source_ref": "dream_recording/src/lib.rs:134",
+      "returns": "json",
+      "description": "List all recorded dreams with metadata"
+    },
+    {
+      "id": "brain.dreams.replay",
+      "input": "brain dreams replay <dream_id>",
+      "handler": "DreamRecordingModule.replay_dream",
+      "source": "dream_recording/src/lib.rs",
+      "source_ref": "dream_recording/src/lib.rs:107",
+      "returns": "json",
+      "description": "Replay a specific dream by ID"
+    },
+    {
+      "id": "brain.dreams.stats",
+      "input": "brain dreams stats",
+      "handler": "DreamRecordingModule.stats",
+      "source": "dream_recording/src/lib.rs",
+      "source_ref": "dream_recording/src/lib.rs:148",
+      "returns": "json",
+      "description": "Get dream statistics"
+    },
+    {
+      "id": "brain.browser.help",
+      "input": "system browser help",
+      "handler": "handle_browser_command",
+      "source": "phoenix-web/src/main.rs",
+      "source_ref": "phoenix-web/src/main.rs:1464",
+      "returns": "text",
+      "description": "Show available browser control commands"
+    },
+    {
+      "id": "brain.browser.sessions",
+      "input": "system browser sessions",
+      "handler": "SystemAccess.find_browser_sessions",
+      "source": "system_access/src/lib.rs",
+      "source_ref": "system_access/src/lib.rs:608",
+      "returns": "json",
+      "description": "List running browser sessions with debugging enabled"
+    },
+    {
+      "id": "brain.browser.launch",
+      "input": "system browser launch <chrome|edge> [port=9222]",
+      "handler": "SystemAccess.launch_browser_with_debugging",
+      "source": "system_access/src/lib.rs",
+      "source_ref": "system_access/src/lib.rs:643",
+      "returns": "text",
+      "tier": 1,
+      "description": "Launch browser with debugging enabled"
+    },
+    {
+      "id": "brain.browser.navigate",
+      "input": "system browser navigate | url=<url> [port=9222]",
+      "handler": "SystemAccess.browser_navigate",
+      "source": "system_access/src/lib.rs",
+      "source_ref": "system_access/src/lib.rs:842",
+      "returns": "text",
+      "tier": 1,
+      "description": "Navigate browser to URL"
+    },
+    {
+      "id": "brain.browser.login",
+      "input": "system browser login <url> | username=<user> | password=<pass> [port=9222]",
+      "handler": "SystemAccess.browser_login",
+      "source": "system_access/src/lib.rs",
+      "source_ref": "system_access/src/lib.rs:852",
+      "returns": "text",
+      "tier": 1,
+      "description": "Navigate to URL and auto-fill login form"
+    },
+    {
+      "id": "brain.browser.scrape",
+      "input": "system browser scrape [url] | selector=<css> [port=9222]",
+      "handler": "SystemAccess.browser_scrape",
+      "source": "system_access/src/lib.rs",
+      "source_ref": "system_access/src/lib.rs:907",
+      "returns": "text",
+      "tier": 1,
+      "description": "Extract content from page using CSS selector"
+    },
+    {
+      "id": "brain.browser.tabs",
+      "input": "system browser tabs [port=9222]",
+      "handler": "SystemAccess.get_browser_tabs",
+      "source": "system_access/src/lib.rs",
+      "source_ref": "system_access/src/lib.rs:713",
+      "returns": "json",
+      "description": "List all open browser tabs"
+    },
+    {
+      "id": "brain.browser.js",
+      "input": "system browser js | code=<javascript> [port=9222]",
+      "handler": "SystemAccess.execute_browser_js",
+      "source": "system_access/src/lib.rs",
+      "source_ref": "system_access/src/lib.rs:808",
+      "returns": "json",
+      "tier": 1,
+      "description": "Execute JavaScript in browser page"
+    },
+    {
+      "id": "brain.browser.cookies",
+      "input": "system browser cookies <chrome|edge> [port=9222]",
+      "handler": "SystemAccess.get_browser_cookies",
+      "source": "system_access/src/lib.rs",
+      "source_ref": "system_access/src/lib.rs:738",
+      "returns": "json",
+      "tier": 1,
+      "description": "Get all cookies from browser"
+    },
+    {
+      "id": "brain.browser.set-cookie",
+      "input": "system browser set-cookie <chrome|edge> name=<name> value=<value> [domain=<domain>] [port=9222]",
+      "handler": "SystemAccess.set_browser_cookie",
+      "source": "system_access/src/lib.rs",
+      "source_ref": "system_access/src/lib.rs:776",
+      "returns": "text",
+      "tier": 1,
+      "description": "Set a cookie in browser"
+    },
+    {
+      "id": "brain.browser.extensions",
+      "input": "system browser extensions <chrome|edge>",
+      "handler": "SystemAccess.list_browser_extensions",
+      "source": "system_access/src/lib.rs",
+      "source_ref": "system_access/src/lib.rs:802",
+      "returns": "json",
+      "description": "List installed browser extensions"
+    },
+    {
+      "id": "brain.report.help",
+      "input": "report help",
+      "handler": "handle_reporting_command",
+      "source": "phoenix-web/src/reporting_handler.rs",
+      "source_ref": "phoenix-web/src/reporting_handler.rs:18",
+      "returns": "text",
+      "description": "Show reporting agent help"
+    },
+    {
+      "id": "brain.report.list",
+      "input": "report list",
+      "handler": "ReportingAgent.list_reports",
+      "source": "reporting_agent/src/lib.rs",
+      "source_ref": "reporting_agent/src/lib.rs:329",
+      "returns": "json",
+      "description": "List all stored vulnerability reports"
+    },
+    {
+      "id": "brain.report.get",
+      "input": "report get <report_id>",
+      "handler": "ReportingAgent.get_report",
+      "source": "reporting_agent/src/lib.rs",
+      "source_ref": "reporting_agent/src/lib.rs:322",
+      "returns": "json",
+      "description": "Get specific report by ID"
+    },
+    {
+      "id": "brain.report.last",
+      "input": "report last scan",
+      "handler": "ReportingAgent.generate_report",
+      "source": "reporting_agent/src/lib.rs",
+      "source_ref": "reporting_agent/src/lib.rs:267",
+      "returns": "json",
+      "description": "Generate report for last WebGuard/network scan"
+    },
+    {
+      "id": "brain.report.vuln",
+      "input": "report vuln <scan_id>",
+      "handler": "ReportingAgent.generate_report",
+      "source": "reporting_agent/src/lib.rs",
+      "source_ref": "reporting_agent/src/lib.rs:267",
+      "returns": "json",
+      "description": "Generate report for specific vulnerability scan"
+    },
+    {
+      "id": "brain.report.file",
+      "input": "report file <filename>",
+      "handler": "ReportingAgent.generate_report",
+      "source": "reporting_agent/src/lib.rs",
+      "source_ref": "reporting_agent/src/lib.rs:267",
+      "returns": "json",
+      "description": "Generate report for file submission"
+    },
+    {
+      "id": "brain.report.url",
+      "input": "report url <url>",
+      "handler": "ReportingAgent.generate_report",
+      "source": "reporting_agent/src/lib.rs",
+      "source_ref": "reporting_agent/src/lib.rs:267",
+      "returns": "json",
+      "description": "Generate report for URL submission"
+    },
+    {
+      "id": "brain.profiles.generate",
+      "input": "generate profile [erotic|intimate|flirty]",
+      "handler": "ProfileGenerator.generate_profile",
+      "source": "phoenix-web/src/profile_generator.rs",
+      "source_ref": "phoenix-web/src/profile_generator.rs:56",
+      "returns": "json",
+      "description": "Generate AI dating profile with photos (explicit content gated)"
+    },
+    {
+      "id": "brain.profiles.list",
+      "input": "profiles list",
+      "handler": "ProfileGenerator.get_profiles",
+      "source": "phoenix-web/src/profile_generator.rs",
+      "source_ref": "phoenix-web/src/profile_generator.rs:195",
+      "returns": "json",
+      "description": "List all generated profiles"
+    },
+    {
+      "id": "brain.profiles.show",
+      "input": "show profiles",
+      "handler": "Frontend.setShowProfilesPanel",
+      "source": "frontend_desktop/App.tsx",
+      "source_ref": "frontend_desktop/App.tsx:293",
+      "returns": "ui_toggle",
+      "description": "Open swipe-based profiles panel"
+    },
+    {
+      "id": "brain.browser.access-porn",
+      "input": "system browser access-porn <url> | consent=true",
+      "handler": "api_browser_access_porn",
+      "source": "phoenix-web/src/main.rs",
+      "source_ref": "phoenix-web/src/main.rs:5775",
+      "returns": "json",
+      "tier": 2,
+      "description": "Access porn site via browser (requires explicit consent)"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+[package]
+name = "nervous_pathway_network"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenvy = "0.15"
+tokio = { version = "1.0", features = ["sync"] }
+hyperspace_cache = { path = "../hyperspace_cache" }
+chrono = { version = "0.4", features = ["serde"] }

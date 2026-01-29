@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Phoenix AGI Desktop",
+  "description": "A high-performance sovereign OS interface for orchestrating AGI tools and system operations.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

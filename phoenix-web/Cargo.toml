@@ -1,0 +1,73 @@
+[package]
+name = "phoenix-web"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "phoenix_web"
+path = "src/lib.rs"
+
+[[bin]]
+name = "pagi-sola-web"
+path = "src/main.rs"
+
+[dependencies]
+actix-cors = "0.7"
+actix-files = "0.6"
+actix-web = "4"
+actix-ws = "0.3"
+base64 = "0.22"
+futures-util = "0.3"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+dotenvy = "0.15"
+html-escape = "0.2"
+keyring = "3"
+local-ip-address = "0.6"
+oauth2 = { version = "4", default-features = false, features = ["reqwest"] }
+qr2term = "0.3"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sysinfo = "0.30"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+urlencoding = "2"
+uuid = { version = "1.0", features = ["v4"] }
+headless_chrome = "1"
+
+llm_orchestrator = { path = "../llm_orchestrator" }
+phoenix_identity = { path = "../phoenix_identity" }
+relationship_dynamics = { path = "../extensions/relationship_dynamics" }
+vital_organ_vaults = { path = "../vital_organ_vaults" }
+system_access = { path = "../system_access" }
+evolution_pipeline = { path = "../evolution_pipeline" }
+common_types = { path = "../common_types" }
+context_engine = { path = "../context_engine" }
+neural_cortex_strata = { path = "../neural_cortex_strata" }
+synaptic_tuning_fibers = { path = "../synaptic_tuning_fibers" }
+vector_kb = { path = "../vector_kb" }
+ecosystem_manager = { path = "../ecosystem_manager" }
+code_analysis = { path = "../code_analysis" }
+cerebrum_nexus = { path = "../cerebrum_nexus" }
+horoscope_archetypes = { path = "../horoscope_archetypes" }
+skill_system = { path = "../skill_system" }
+audio_intelligence = { path = "../audio_intelligence" }
+desktop_capture_service = { path = "../desktop_capture_service" }
+wireless_sniffer = { path = "../wireless_sniffer" }
+context_correlation_engine = { path = "../context_correlation_engine" }
+privacy_framework = { path = "../privacy_framework" }
+hardware_detector = { path = "../hardware_detector" }
+home_automation_bridge = { path = "../home_automation_bridge" }
+curiosity_engine = { path = "../curiosity_engine" }
+emotional_intelligence_core = { path = "../emotional_intelligence_core" }
+voice_io = { path = "../voice_io" }
+network_security_agent = { path = "../network_security_agent" }
+sandbox_manager = { path = "../sandbox_manager" }
+malware_sandbox_agent = { path = "../malware_sandbox_agent" }
+webguard = { path = "../webguard" }
+reporting_agent = { path = "../reporting_agent" }
+zodiac_thresholds = { path = "../zodiac_thresholds" }
+
+[target.'cfg(windows)'.dependencies]
+outlook_com = { path = "../outlook_com" }

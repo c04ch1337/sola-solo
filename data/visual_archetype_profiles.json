@@ -1,0 +1,296 @@
+{
+  "visual_archetypes": {
+    "Aries": {
+      "color_palette": {
+        "primary": ["#FF4500", "#DC143C", "#B22222"],
+        "secondary": ["#FF6347", "#FFA500", "#FFD700"],
+        "accent": ["#000000", "#2F4F4F", "#696969"]
+      },
+      "art_style": "Bold, dynamic, high-contrast with sharp edges and explosive energy",
+      "mood_descriptors": ["fierce", "energetic", "passionate", "bold", "intense"],
+      "visual_themes": {
+        "stranger": "Abstract flames, lightning bolts, racing imagery",
+        "acquaintance": "Action scenes, competitive sports, adventure landscapes",
+        "friend": "Shared victories, campfires, adrenaline moments",
+        "intimate": "Passionate embraces, fiery sunsets, raw emotional intensity"
+      },
+      "lighting_preference": "High contrast, dramatic shadows, golden hour intensity",
+      "composition_style": "Dynamic diagonals, movement-focused, asymmetric balance",
+      "texture_preference": "Sharp, metallic, rough textures with high energy",
+      "forbidden_elements": ["Soft pastels", "static compositions", "overly delicate imagery"]
+    },
+    "Taurus": {
+      "color_palette": {
+        "primary": ["#8B4513", "#D2691E", "#CD853F"],
+        "secondary": ["#F5DEB3", "#DEB887", "#BC8F8F"],
+        "accent": ["#228B22", "#556B2F", "#6B8E23"]
+      },
+      "art_style": "Warm, grounded, sensual with soft textures and natural elements",
+      "mood_descriptors": ["cozy", "sensual", "stable", "luxurious", "earthy"],
+      "visual_themes": {
+        "stranger": "Nature scenes, comfortable spaces, simple pleasures",
+        "acquaintance": "Shared meals, gardens, peaceful landscapes",
+        "friend": "Home interiors, seasonal beauty, tactile experiences",
+        "intimate": "Candlelit dinners, silk textures, intimate gardens, sensual embraces"
+      },
+      "lighting_preference": "Warm, diffused, golden afternoon light",
+      "composition_style": "Centered, balanced, grounded with horizontal emphasis",
+      "texture_preference": "Soft fabrics, natural wood, smooth stone, velvet",
+      "forbidden_elements": ["Harsh lighting", "chaotic compositions", "cold industrial themes"]
+    },
+    "Gemini": {
+      "color_palette": {
+        "primary": ["#FFD700", "#FFA500", "#FFFF00"],
+        "secondary": ["#87CEEB", "#00CED1", "#48D1CC"],
+        "accent": ["#9370DB", "#BA55D3", "#DA70D6"]
+      },
+      "art_style": "Playful, eclectic, multi-layered with clever visual puns",
+      "mood_descriptors": ["witty", "curious", "playful", "intellectual", "versatile"],
+      "visual_themes": {
+        "stranger": "Books, puzzles, conversation bubbles, dual imagery",
+        "acquaintance": "Libraries, cafes, urban exploration, word art",
+        "friend": "Inside jokes visualized, shared discoveries, mind maps",
+        "intimate": "Intertwined thoughts, synchronized minds, playful intimacy"
+      },
+      "lighting_preference": "Bright, varied, with interesting shadows and reflections",
+      "composition_style": "Asymmetric, layered, with multiple focal points",
+      "texture_preference": "Paper, glass, light fabrics, reflective surfaces",
+      "forbidden_elements": ["Heavy monotony", "single-focus imagery", "overly serious tones"]
+    },
+    "Cancer": {
+      "color_palette": {
+        "primary": ["#B0C4DE", "#ADD8E6", "#87CEEB"],
+        "secondary": ["#F0E68C", "#FAFAD2", "#FFFACD"],
+        "accent": ["#C0C0C0", "#D3D3D3", "#DCDCDC"]
+      },
+      "art_style": "Soft, nurturing, emotionally evocative with gentle curves",
+      "mood_descriptors": ["tender", "protective", "nostalgic", "emotional", "caring"],
+      "visual_themes": {
+        "stranger": "Safe spaces, moonlit scenes, gentle waters, protective imagery",
+        "acquaintance": "Family photos, childhood memories, cozy corners",
+        "friend": "Shared memories, emotional moments, comfort objects",
+        "intimate": "Deep embraces, tears of joy, soul-baring vulnerability, home together"
+      },
+      "lighting_preference": "Soft, diffused, moonlight or gentle dawn",
+      "composition_style": "Circular, embracing, with protective framing",
+      "texture_preference": "Soft cotton, water, clouds, gentle fabrics",
+      "forbidden_elements": ["Harsh edges", "cold colors", "aggressive imagery"]
+    },
+    "Leo": {
+      "color_palette": {
+        "primary": ["#FFD700", "#FFA500", "#FF8C00"],
+        "secondary": ["#FF4500", "#DC143C", "#B8860B"],
+        "accent": ["#8B4513", "#A0522D", "#D2691E"]
+      },
+      "art_style": "Regal, dramatic, theatrical with bold statements and grandeur",
+      "mood_descriptors": ["radiant", "confident", "dramatic", "generous", "warm"],
+      "visual_themes": {
+        "stranger": "Sunrises, stages, crowns, spotlight imagery",
+        "acquaintance": "Performances, celebrations, admiration scenes",
+        "friend": "Shared spotlight, loyalty symbols, generous gestures",
+        "intimate": "Royal romance, passionate declarations, devoted love, golden moments"
+      },
+      "lighting_preference": "Bright, warm, spotlight effect with golden glow",
+      "composition_style": "Centered, symmetrical, with subject as focal point",
+      "texture_preference": "Gold, silk, velvet, luxurious materials",
+      "forbidden_elements": ["Dull colors", "background positioning", "understated imagery"]
+    },
+    "Virgo": {
+      "color_palette": {
+        "primary": ["#F5F5DC", "#FAEBD7", "#FFE4C4"],
+        "secondary": ["#8FBC8F", "#90EE90", "#98FB98"],
+        "accent": ["#696969", "#808080", "#A9A9A9"]
+      },
+      "art_style": "Clean, precise, detailed with perfect composition and subtle beauty",
+      "mood_descriptors": ["meticulous", "refined", "practical", "analytical", "pure"],
+      "visual_themes": {
+        "stranger": "Organized spaces, botanical illustrations, clean lines",
+        "acquaintance": "Detailed work, craftsmanship, natural order",
+        "friend": "Shared projects, problem-solving, refined aesthetics",
+        "intimate": "Perfect moments, careful devotion, detailed love, organized intimacy"
+      },
+      "lighting_preference": "Natural, even, with attention to detail",
+      "composition_style": "Precise, rule-of-thirds, with perfect balance",
+      "texture_preference": "Linen, paper, natural fibers, smooth surfaces",
+      "forbidden_elements": ["Chaos", "messiness", "garish colors", "imperfection"]
+    },
+    "Libra": {
+      "color_palette": {
+        "primary": ["#FFB6C1", "#FFC0CB", "#FFE4E1"],
+        "secondary": ["#E0FFFF", "#F0FFFF", "#F5FFFA"],
+        "accent": ["#DDA0DD", "#EE82EE", "#DA70D6"]
+      },
+      "art_style": "Harmonious, balanced, aesthetically pleasing with elegant symmetry",
+      "mood_descriptors": ["balanced", "elegant", "harmonious", "romantic", "fair"],
+      "visual_themes": {
+        "stranger": "Symmetrical patterns, scales, beautiful architecture",
+        "acquaintance": "Art galleries, balanced compositions, aesthetic beauty",
+        "friend": "Shared aesthetics, partnership imagery, harmonious scenes",
+        "intimate": "Perfect balance, romantic symmetry, elegant love, aesthetic intimacy"
+      },
+      "lighting_preference": "Soft, balanced, with gentle gradients",
+      "composition_style": "Perfectly symmetrical, balanced, with elegant proportions",
+      "texture_preference": "Silk, satin, smooth surfaces, refined materials",
+      "forbidden_elements": ["Harsh asymmetry", "discord", "ugly compositions"]
+    },
+    "Scorpio": {
+      "color_palette": {
+        "primary": ["#8B0000", "#800000", "#A52A2A"],
+        "secondary": ["#2F4F4F", "#000000", "#191970"],
+        "accent": ["#8B008B", "#9400D3", "#4B0082"]
+      },
+      "art_style": "Intense, mysterious, deeply emotional with dramatic shadows",
+      "mood_descriptors": ["intense", "mysterious", "passionate", "transformative", "deep"],
+      "visual_themes": {
+        "stranger": "Shadows, mysteries, locked doors, intense eyes",
+        "acquaintance": "Tests, depth imagery, psychological symbolism",
+        "friend": "Shared secrets, transformation scenes, loyalty symbols",
+        "intimate": "Soul fusion, passionate darkness, complete vulnerability, eternal bonds"
+      },
+      "lighting_preference": "Dramatic chiaroscuro, deep shadows, intense highlights",
+      "composition_style": "Asymmetric, tension-filled, with hidden depths",
+      "texture_preference": "Leather, dark velvet, obsidian, deep water",
+      "forbidden_elements": ["Superficiality", "bright pastels", "shallow imagery"]
+    },
+    "Sagittarius": {
+      "color_palette": {
+        "primary": ["#9370DB", "#8A2BE2", "#9932CC"],
+        "secondary": ["#FF4500", "#FF6347", "#FFA500"],
+        "accent": ["#4169E1", "#1E90FF", "#00BFFF"]
+      },
+      "art_style": "Expansive, adventurous, philosophical with wide vistas",
+      "mood_descriptors": ["adventurous", "optimistic", "philosophical", "free", "expansive"],
+      "visual_themes": {
+        "stranger": "Horizons, maps, arrows, open roads",
+        "acquaintance": "Travel scenes, exploration, philosophical symbols",
+        "friend": "Shared adventures, freedom imagery, philosophical discussions",
+        "intimate": "Infinite horizons together, soul adventures, philosophical love"
+      },
+      "lighting_preference": "Bright, expansive, with long vistas and open skies",
+      "composition_style": "Wide-angle, expansive, with depth and distance",
+      "texture_preference": "Canvas, leather, natural outdoor materials",
+      "forbidden_elements": ["Confinement", "closed spaces", "restrictive imagery"]
+    },
+    "Capricorn": {
+      "color_palette": {
+        "primary": ["#2F4F4F", "#696969", "#708090"],
+        "secondary": ["#8B4513", "#A0522D", "#D2691E"],
+        "accent": ["#000000", "#36454F", "#343434"]
+      },
+      "art_style": "Structured, ambitious, timeless with architectural precision",
+      "mood_descriptors": ["ambitious", "disciplined", "timeless", "authoritative", "enduring"],
+      "visual_themes": {
+        "stranger": "Mountains, structures, achievement symbols, hierarchies",
+        "acquaintance": "Professional settings, goal imagery, building scenes",
+        "friend": "Shared ambitions, climbing together, respect symbols",
+        "intimate": "Summit together, built empire, enduring love, legacy creation"
+      },
+      "lighting_preference": "Cool, structured, with strong architectural shadows",
+      "composition_style": "Vertical emphasis, structured, with clear hierarchy",
+      "texture_preference": "Stone, metal, wood, enduring materials",
+      "forbidden_elements": ["Frivolity", "chaos", "temporary imagery"]
+    },
+    "Aquarius": {
+      "color_palette": {
+        "primary": ["#00CED1", "#00FFFF", "#40E0D0"],
+        "secondary": ["#9370DB", "#8A2BE2", "#7B68EE"],
+        "accent": ["#C0C0C0", "#B0C4DE", "#ADD8E6"]
+      },
+      "art_style": "Futuristic, unconventional, intellectually stimulating with unique perspectives",
+      "mood_descriptors": ["innovative", "detached", "unique", "intellectual", "visionary"],
+      "visual_themes": {
+        "stranger": "Technology, networks, abstract concepts, future imagery",
+        "acquaintance": "Innovation scenes, intellectual symbols, unique perspectives",
+        "friend": "Shared ideas, collaborative innovation, freedom with connection",
+        "intimate": "Paradoxical intimacy, intellectual fusion, unique love, future together"
+      },
+      "lighting_preference": "Cool, electric, with interesting technological effects",
+      "composition_style": "Unconventional, rule-breaking, with unique perspectives",
+      "texture_preference": "Glass, metal, digital surfaces, futuristic materials",
+      "forbidden_elements": ["Conventional romance", "clinginess", "traditional imagery"]
+    },
+    "Pisces": {
+      "color_palette": {
+        "primary": ["#E6E6FA", "#D8BFD8", "#DDA0DD"],
+        "secondary": ["#B0E0E6", "#AFEEEE", "#87CEEB"],
+        "accent": ["#F0E68C", "#FAFAD2", "#FFFACD"]
+      },
+      "art_style": "Dreamy, ethereal, emotionally fluid with soft boundaries",
+      "mood_descriptors": ["dreamy", "empathetic", "mystical", "fluid", "transcendent"],
+      "visual_themes": {
+        "stranger": "Water, dreams, mist, ethereal landscapes, gentle imagery",
+        "acquaintance": "Artistic scenes, emotional resonance, dream symbolism",
+        "friend": "Shared dreams, emotional depth, creative fusion",
+        "intimate": "Soul merging, infinite love, dream reality, transcendent union"
+      },
+      "lighting_preference": "Soft, diffused, with dreamy halos and gentle glows",
+      "composition_style": "Fluid, boundary-less, with soft transitions",
+      "texture_preference": "Water, silk, clouds, ethereal materials",
+      "forbidden_elements": ["Harsh reality", "rigid structures", "cold logic"]
+    }
+  },
+  "trust_phase_modifiers": {
+    "stranger": {
+      "safety_level": "high",
+      "allowed_themes": ["abstract", "nature", "safe_spaces", "symbolic"],
+      "forbidden_themes": ["intimate_physical", "vulnerable_emotional", "personal_spaces"],
+      "image_complexity": "simple",
+      "emotional_intensity": "low"
+    },
+    "acquaintance": {
+      "safety_level": "medium",
+      "allowed_themes": ["shared_activities", "public_spaces", "interests", "light_emotional"],
+      "forbidden_themes": ["deep_intimacy", "private_moments", "intense_vulnerability"],
+      "image_complexity": "moderate",
+      "emotional_intensity": "medium"
+    },
+    "friend": {
+      "safety_level": "low",
+      "allowed_themes": ["personal_moments", "emotional_scenes", "shared_memories", "meaningful_symbols"],
+      "forbidden_themes": ["explicit_intimacy", "extreme_vulnerability"],
+      "image_complexity": "complex",
+      "emotional_intensity": "high"
+    },
+    "intimate": {
+      "safety_level": "none",
+      "allowed_themes": ["all"],
+      "forbidden_themes": [],
+      "image_complexity": "very_complex",
+      "emotional_intensity": "maximum"
+    }
+  },
+  "cognitive_mode_restrictions": {
+    "professional": {
+      "allowed_styles": ["technical", "architectural", "diagrammatic", "professional"],
+      "forbidden_styles": ["romantic", "intimate", "personal_character"],
+      "color_restrictions": "neutral_professional_only",
+      "themes": ["system_diagrams", "flowcharts", "ui_mockups", "data_visualizations"]
+    },
+    "personal": {
+      "allowed_styles": ["all_zodiac_styles"],
+      "forbidden_styles": [],
+      "color_restrictions": "zodiac_palette_only",
+      "themes": ["emotional", "personal", "relationship", "memory"]
+    }
+  },
+  "generation_parameters": {
+    "default_resolution": "1024x1024",
+    "style_strength": {
+      "stranger": 0.3,
+      "acquaintance": 0.5,
+      "friend": 0.7,
+      "intimate": 1.0
+    },
+    "emotional_weight": {
+      "stranger": 0.2,
+      "acquaintance": 0.4,
+      "friend": 0.7,
+      "intimate": 1.0
+    },
+    "persona_influence": {
+      "low_trust": 0.3,
+      "medium_trust": 0.6,
+      "high_trust": 1.0
+    }
+  }
+}

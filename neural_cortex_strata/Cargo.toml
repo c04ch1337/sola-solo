@@ -1,0 +1,11 @@
+[package]
+name = "neural_cortex_strata"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sled = "0.34"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+regex = "1.10"
+tracing = "0.1"

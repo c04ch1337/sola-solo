@@ -1,0 +1,20 @@
+[package]
+name = "browser_orch_ext"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+headless_chrome = "1.0.8"
+serde = { version = "1.0.203", features = ["derive"] }
+tokio = { version = "1.38.0", features = ["full"] }
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+serde_json = "1.0.117"
+url = "2.5.0"
+log = "0.4.21"
+env_logger = "0.11.3"
+thiserror = "1.0.61"
+ts-rs = "7.0.0"
+futures = "0.3.30"
+anyhow = "1.0.82"
+tungstenite = { version = "0.21.0", features = ["native-tls"] }
+tokio-tungstenite = { version = "0.21.0", features = ["native-tls"] }

@@ -1,0 +1,11 @@
+[package]
+name = "emotional_intelligence_core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenvy = "0.15"
+serde = { version = "1.0", features = ["derive"] }
+synaptic_tuning_fibers = { path = "../synaptic_tuning_fibers" }
+emotion_detection = { path = "../emotion_detection" }
+

@@ -1,0 +1,31 @@
+[package]
+name = "phoenix-desktop-tauri"
+version = "1.0.1"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0", features = ["tray-icon"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+multi_modal_recording = { path = "../../multi_modal_recording" }
+yt-dlp = "1.4.7"
+
+# Agentic Research Factory (optional; enable with --features research)
+headless_chrome = { version = "1.0", optional = true }
+
+# Soul Vault (local-first encrypted storage)
+aes-gcm = { version = "0.10", features = ["aes"] }
+argon2 = { version = "0.5", features = ["std"] }
+base64 = "0.22"
+rand_core = "0.6"
+fastrand = "2"
+zeroize = { version = "1.7", features = ["zeroize_derive"] }
+
+[features]
+default = []
+research = ["headless_chrome"]

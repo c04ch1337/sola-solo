@@ -1,0 +1,64 @@
+[package]
+name = "network_security_agent"
+version = "0.1.0"
+edition = "2021"
+description = "Offensive Security and Network Intelligence Agent for Phoenix AGI - OSCP/Kali-level capabilities"
+authors = ["Phoenix AGI Team"]
+license = "MIT"
+
+[features]
+default = ["passive"]
+passive = []
+active = []
+exploit = ["active"]
+full = ["passive", "active", "exploit"]
+
+[dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full", "process"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Networking
+pnet = "0.35"
+dns-lookup = "2"
+trust-dns-resolver = "0.23"
+
+# HTTP client for API calls
+reqwest = { version = "0.12", features = ["json", "stream"] }
+
+# UUID for scan IDs
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Regex for pattern matching
+regex = "1"
+
+# Logging
+tracing = "0.1"
+
+# IP address handling
+ipnetwork = "0.20"
+
+# MAC address handling
+mac_address = "1"
+
+# System info
+sysinfo = "0.31"
+
+# Workspace dependencies
+llm_orchestrator = { path = "../llm_orchestrator" }
+skill_system = { path = "../skill_system" }
+
+[dev-dependencies]
+tokio-test = "0.4"
