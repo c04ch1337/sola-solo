@@ -42,7 +42,6 @@ soul_kb.db/
 **/*.sled/LOCK
 **/*.sled/log
 **/*.sled/LOG
-
 # Rust build artifacts
 /target/
 **/*.rs.bk
