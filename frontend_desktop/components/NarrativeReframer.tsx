@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSetAtom } from 'jotai';
 import { getPhoenixApiBase } from '../env';
-import { reframingAvailableAtom } from '../stores/counselorStore';
 
 type ReframeResponse = {
   success: boolean;
@@ -13,7 +11,6 @@ type ReframeResponse = {
 
 export default function NarrativeReframer() {
   const PHOENIX_API_BASE = useMemo(() => getPhoenixApiBase(), []);
-  const setReframingAvailable = useSetAtom(reframingAvailableAtom);
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -29,9 +26,6 @@ export default function NarrativeReframer() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = (await res.json()) as ReframeResponse;
       setData(json);
-
-      // User has now "seen" the available reframe.
-      if (json?.success) setReframingAvailable(false);
     } catch (e: any) {
       setError(e?.message || 'Failed to load reframe');
       setData(null);

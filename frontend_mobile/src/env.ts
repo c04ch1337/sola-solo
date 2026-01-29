@@ -9,4 +9,3 @@ export function getPhoenixApiBase(): string {
   }
   return String(raw).replace(/\/$/, '');
 }
-

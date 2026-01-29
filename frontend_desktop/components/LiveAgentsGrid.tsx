@@ -64,12 +64,12 @@ const LiveAgentsGrid: React.FC<LiveAgentsGridProps> = ({
     // Customize log based on agent type
     let specificActions = [];
     
-    if (agentType === 'KinkResearcher') {
+    if (agentType === 'BrowserAgent') {
       specificActions = [
-        "Exploring relationship dynamics...",
-        "Analyzing preference patterns...",
-        "Cataloging interest compatibility...",
-        "Evaluating trust boundaries..."
+        "Navigating web page...",
+        "Extracting page content...",
+        "Processing DOM elements...",
+        "Capturing screenshots..."
       ];
     } else if (agentType === 'CodeOptimizer') {
       specificActions = [
@@ -108,12 +108,12 @@ const LiveAgentsGrid: React.FC<LiveAgentsGridProps> = ({
     const mockAgents: Agent[] = [
       {
         id: 'agent-1',
-        name: 'KinkResearcher',
+        name: 'BrowserAgent',
         type: 'Research',
         contextUsage: Math.floor(20 + Math.random() * 60),
         status: Math.random() > 0.2 ? 'active' : 'idle',
         lastActivity: new Date(),
-        logs: Array(5).fill(null).map(() => generateRandomLog('KinkResearcher'))
+        logs: Array(5).fill(null).map(() => generateRandomLog('BrowserAgent'))
       },
       {
         id: 'agent-2',

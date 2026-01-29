@@ -75,7 +75,7 @@ members = [
     "sandbox_manager",
     "malware_sandbox_agent",
     "webguard",
-    "reporting_agent",
+    "reporting_agent", "sola-solo/backend",
 ]
 exclude = [
     "phoenix-desktop-tauri/src-tauri",

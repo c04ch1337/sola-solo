@@ -109,10 +109,13 @@ jobs:
         working-directory: phoenix-desktop-tauri
         run: npm run build
         env:
-          # Note: These secrets must be configured in GitHub repository settings
-          # for code signing. If not set, builds will succeed but won't be signed.
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          # Note: These secrets are OPTIONAL for code signing.
+          # - If configured in GitHub repository settings: builds will be code-signed
+          # - If not configured: builds will succeed but won't be signed (unsigned builds)
+          # The linter warnings about "Context access might be invalid" are EXPECTED and harmless
+          # when secrets are not configured - they're just informational warnings.
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY || '' }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD || '' }}
 
       - name: Upload installers
         uses: actions/upload-artifact@v4

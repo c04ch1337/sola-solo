@@ -1,15 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import GriefMap, { L9TherapeuticLog } from './GriefMap';
-import RelationshipRepairScriptEngine from './RelationshipRepairScriptEngine';
-import RelationalGhost from './RelationalGhost';
-import CounselorEcho from './CounselorEcho';
-import CounselorExport from './CounselorExport';
-import L9EntryAdvanced from './L9EntryAdvanced';
 import CorrelationChart from './CorrelationChart';
 import SemanticScratchpad from './SemanticScratchpad';
 import SystemStressOverlay from './SystemStressOverlay';
-import NarrativeReframer from './NarrativeReframer';
-import { fmtCountdown, useRegulatoryBrake } from '../hooks/useRegulatoryBrake';
 import { useAtom } from 'jotai';
 import { coolingStateAtom, setCoolingStateAtom } from '../stores/modeStore';
 import { getPhoenixApiBase } from '../env';
@@ -52,7 +45,6 @@ export default function CounselorDashboard() {
   const [stats, setStats] = useState<GriefStatsResponse | null>(null);
   const [analysisMode, setAnalysisMode] = useState<'map' | 'analysis'>('map');
   const [echoRefreshKey, setEchoRefreshKey] = useState(0);
-  const brake = useRegulatoryBrake();
 
   // Phase 13: Predictive Cooling (Deep Calm)
   const [coolingState] = useAtom(coolingStateAtom);
@@ -154,7 +146,7 @@ export default function CounselorDashboard() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {coolingToast ? (
-        <div className="pointer-events-none fixed top-20 right-4 z-[9999]">
+        <div className="pointer-events-none fixed top-20 right-4 z-9999">
           <div className="pointer-events-auto w-[300px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border-dark bg-black/80 backdrop-blur px-4 py-3 shadow-2xl">
             <div className="flex items-start gap-3">
               <span className="material-symbols-outlined text-[18px] text-slate-200">ac_unit</span>
@@ -179,18 +171,6 @@ export default function CounselorDashboard() {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <div
-            className={`px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-widest ${
-              brake.blocked
-                ? 'bg-rose-500/10 border-rose-500/30 text-rose-200 animate-pulse'
-                : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
-            }`}
-            title={brake.blocked ? 'Regulatory brake active (flooding pause)' : 'Within window of tolerance'}
-          >
-            {brake.blocked ? `Flooded • ${fmtCountdown(brake.secondsLeft)}` : 'Regulated'}
-          </div>
-
-          <CounselorExport />
 
           <button
             onClick={() => setAnalysisMode((m) => (m === 'map' ? 'analysis' : 'map'))}
@@ -235,15 +215,6 @@ export default function CounselorDashboard() {
       <div className="flex-1 overflow-auto p-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4">
           <div className="space-y-4">
-            <CounselorEcho refreshKey={echoRefreshKey} />
-
-            <NarrativeReframer />
-
-            <L9EntryAdvanced
-              onLogged={() => {
-                if (!useMock) refreshStats().catch(() => {});
-              }}
-            />
             <div className="rounded-2xl border border-border-dark bg-panel-dark/50 p-4">
               <div className="text-[10px] text-slate-500 uppercase tracking-widest">
                 Counselor note
@@ -263,11 +234,6 @@ export default function CounselorDashboard() {
               ) : (
                 <GriefMap logs={logs} stats={useMock ? undefined : stats?.aggregates} />
               )}
-
-              <div className="space-y-4">
-                <RelationshipRepairScriptEngine />
-                <RelationalGhost />
-              </div>
             </div>
           </div>
 

@@ -8,20 +8,6 @@
   --font-family: 'Manrope';
 }
 
-/* Prevent white-flash during theme swaps by keeping a stable base background
-   on the root painting surfaces and transitioning the core properties. */
-html,
-body,
-#root,
-#app {
-  background-color: var(--background-dark);
-  transition:
-    background-color 500ms ease-in-out,
-    color 500ms ease-in-out,
-    border-color 500ms ease-in-out,
-    box-shadow 500ms ease-in-out;
-}
-
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
@@ -47,92 +33,7 @@ body {
   font-family: var(--font-family), sans-serif;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Phase 13: Predictive Cooling — “Deep Calm” (Low-Friction Mode)
-   Activated via `document.documentElement.classList`.
-   Design goals:
-   - High contrast → soft monochrome
-   - Reduce motion/animation
-   - Background → very low-light “Midnight Sage”
-   ───────────────────────────────────────────────────────────── */
-
-.mode-deep-calm {
-  /* Midnight Sage palette (subtle green/grey). */
-  --primary: #9aa4a7;
-  --background-dark: #0b1110;
-  --panel-dark: #0f1614;
-  --border-dark: rgba(148, 163, 184, 0.18);
-}
-
-.mode-deep-calm body {
-  background:
-    radial-gradient(900px 520px at 18% 0%, rgba(94, 234, 212, 0.06), transparent 60%),
-    radial-gradient(720px 520px at 88% 26%, rgba(148, 163, 184, 0.05), transparent 55%),
-    var(--background-dark);
-  background-color: var(--background-dark);
-  transition-duration: 500ms !important;
-  transition-timing-function: ease-in-out !important;
-}
-
-/* Reduce motion across the app. */
-.mode-deep-calm *,
-.mode-deep-calm *::before,
-.mode-deep-calm *::after {
-  transition-duration: 80ms !important;
-  transition-timing-function: linear !important;
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  scroll-behavior: auto !important;
-}
-
-/* Keep the core background transition smooth even in low-motion mode. */
-.mode-deep-calm html,
-.mode-deep-calm #root,
-.mode-deep-calm #app {
-  transition-duration: 500ms !important;
-  transition-timing-function: ease-in-out !important;
-}
-
-/* Calm down “attention-grabbing” pulses. */
-.mode-deep-calm .animate-pulse {
-  animation: none !important;
-}
-
-/* Softer scrollbars + text emphasis. */
-.mode-deep-calm ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.20);
-}
-
-.mode-deep-calm .prose strong {
-  color: rgba(226, 232, 240, 0.88);
-}
-
-/* Make inline code less “hot”. */
-.mode-deep-calm .prose code {
-  color: rgba(226, 232, 240, 0.88);
-  background: rgba(148, 163, 184, 0.10);
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Counselor Safe-Space Theme (Lavender & Sage)
-   Activated via `document.documentElement.classList`.
-   ───────────────────────────────────────────────────────────── */
-
-.mode-counselor body {
-  background:
-    radial-gradient(800px 500px at 15% 0%, rgba(167, 139, 250, 0.12), transparent 60%),
-    radial-gradient(700px 480px at 85% 20%, rgba(127, 191, 154, 0.10), transparent 55%),
-    var(--background-dark);
-  background-color: var(--background-dark);
-}
-
-.mode-counselor ::-webkit-scrollbar-thumb {
-  background: rgba(167, 139, 250, 0.22);
-}
-
-.mode-counselor .prose strong {
-  color: rgba(167, 139, 250, 0.95);
-}
+/* (Rollback note) Removed counselor-related theme overrides to keep Core UI baseline styling. */
 
 /* Custom Markdown Styles */
 .prose code {

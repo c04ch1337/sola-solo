@@ -1211,7 +1211,7 @@ async fn handle_message(
         WebSocketMessage::MemoryVectorStore { text, metadata } => {
             let Some(kb) = state.vector_kb.as_ref() else {
                 return Ok(WebSocketResponse::Error {
-                    message: "Vector KB is disabled. Set VECTOR_KB_ENABLED=true.".to_string(),
+                    message: "Vector KB is currently disabled in .env. Please set VECTOR_KB_ENABLED=true and restart.".to_string(),
                     code: Some("vector_kb_disabled".to_string()),
                 });
             };
@@ -1231,7 +1231,7 @@ async fn handle_message(
         WebSocketMessage::MemoryVectorSearch { query, k } => {
             let Some(kb) = state.vector_kb.as_ref() else {
                 return Ok(WebSocketResponse::Error {
-                    message: "Vector KB is disabled. Set VECTOR_KB_ENABLED=true.".to_string(),
+                    message: "Vector KB is currently disabled in .env. Please set VECTOR_KB_ENABLED=true and restart.".to_string(),
                     code: Some("vector_kb_disabled".to_string()),
                 });
             };

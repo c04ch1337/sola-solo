@@ -88,7 +88,7 @@ const TaskOrchestrator: React.FC<TaskOrchestratorProps> = () => {
     const mockAgents: Agent[] = [
       {
         id: 'agent-1',
-        name: 'KinkResearcher',
+        name: 'BrowserAgent',
         capacity: 3,
         assignedTasks: ['task-5']
       },
@@ -125,61 +125,49 @@ const TaskOrchestrator: React.FC<TaskOrchestratorProps> = () => {
       return;
     }
     
-    const isAgentZone = (droppableId: string) => droppableId.startsWith('agent-');
-
-    const reorder = (list: string[], startIndex: number, endIndex: number) => {
-      const result = Array.from(list);
-      const [removed] = result.splice(startIndex, 1);
-      result.splice(endIndex, 0, removed);
-      return result;
-    };
-
-    // Handle task assignment / ordering inside agent zones
-    if (isAgentZone(destination.droppableId)) {
-      const destAgentId = destination.droppableId;
-      const srcZoneId = source.droppableId;
-      const taskId = draggableId as string;
-
-      setAgents((prevAgents) => {
-        // Reorder within the same agent (no duplicates)
-        if (isAgentZone(srcZoneId) && srcZoneId === destAgentId) {
-          return prevAgents.map((agent) => {
-            if (agent.id !== destAgentId) return agent;
+    // Handle task assignment to agent
+    if (destination.droppableId.startsWith('agent-')) {
+      const agentId = destination.droppableId;
+      const taskId = draggableId;
+      
+      // Update agents with new task assignment
+      setAgents(prevAgents => {
+        const updatedAgents = prevAgents.map(agent => {
+          // If this is the destination agent, add task
+          if (agent.id === agentId) {
             return {
               ...agent,
-              assignedTasks: reorder(agent.assignedTasks, source.index, destination.index),
+              assignedTasks: [...agent.assignedTasks, taskId]
             };
-          });
-        }
-
-        // Move across zones: remove from any agent lists, then insert into destination at index.
-        return prevAgents.map((agent) => {
-          if (agent.id === destAgentId) {
-            const without = agent.assignedTasks.filter((id) => id !== taskId);
-            const next = Array.from(without);
-            next.splice(destination.index, 0, taskId);
-            return { ...agent, assignedTasks: next };
           }
-
+          
+          // If task was previously assigned to another agent, remove it
           if (agent.assignedTasks.includes(taskId)) {
-            return { ...agent, assignedTasks: agent.assignedTasks.filter((id) => id !== taskId) };
+            return {
+              ...agent,
+              assignedTasks: agent.assignedTasks.filter(id => id !== taskId)
+            };
           }
-
+          
           return agent;
         });
+        
+        return updatedAgents;
       });
-
-      // Only update the Task record if it actually changed assignment zones.
-      if (source.droppableId !== destAgentId) {
-        setTasks((prevTasks) =>
-          prevTasks.map((task) => {
-            if (task.id !== taskId) return task;
-            return { ...task, assignedTo: destAgentId, status: 'in_progress' };
-          })
-        );
-      }
-
-      return;
+      
+      // Update task with new assignment and status
+      setTasks(prevTasks => {
+        return prevTasks.map(task => {
+          if (task.id === taskId) {
+            return {
+              ...task,
+              assignedTo: agentId,
+              status: 'in_progress'
+            };
+          }
+          return task;
+        });
+      });
     }
     
     // Handle re-ordering within pending tasks
@@ -345,9 +333,8 @@ const TaskOrchestrator: React.FC<TaskOrchestratorProps> = () => {
                             : 'border-primary/30 bg-primary/5'
                         }`}
                       >
-                        {agent.assignedTasks
-                          .map((taskId) => tasks.find((t) => t.id === taskId))
-                          .filter((t): t is Task => Boolean(t))
+                        {tasks
+                          .filter(task => agent.assignedTasks.includes(task.id))
                           .map((task, index) => (
                             <Draggable key={task.id} draggableId={task.id} index={index}>
                               {(provided) => (

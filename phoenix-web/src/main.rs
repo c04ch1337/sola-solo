@@ -86,6 +86,9 @@ mod ghost_engine;
 // Phase 15: Terminal pairing (LAN auto-discovery + QR)
 mod pairing;
 
+// Code Self-Modification System
+mod code_evolution;
+
 fn env_nonempty(key: &str) -> Option<String> {
     std::env::var(key)
         .ok()
@@ -6466,33 +6469,114 @@ async fn main() -> std::io::Result<()> {
 
     // Phase 2: Vector KB
     let vector_kb = {
-        let enabled = std::env::var("VECTOR_KB_ENABLED")
-            .ok()
+        let enabled_env = std::env::var("VECTOR_KB_ENABLED").ok();
+        let enabled = enabled_env
+            .as_ref()
             .map(|s| s.trim().eq_ignore_ascii_case("true"))
             .unwrap_or(false);
+        
+        println!("=== VECTOR KB INITIALIZATION DEBUG ===");
+        println!("  VECTOR_KB_ENABLED env var: {:?}", enabled_env);
+        println!("  VECTOR_KB_ENABLED parsed: {}", enabled);
+        
         if !enabled {
+            println!("  ❌ Vector KB disabled (VECTOR_KB_ENABLED is not 'true')");
+            println!("=====================================");
             None
         } else {
-            let path =
-                std::env::var("VECTOR_DB_PATH").unwrap_or_else(|_| "./data/vector_db".to_string());
-            match vector_kb::VectorKB::new(&path) {
-                Ok(kb) => {
-                    info!("Vector KB enabled (path: {})", kb.path().display());
-                    Some(Arc::new(kb))
+            let path_env = std::env::var("VECTOR_DB_PATH").ok();
+            println!("  VECTOR_DB_PATH env var: {:?}", path_env);
+            let path = path_env.unwrap_or_else(|| "./data/vector_db".to_string());
+            
+            println!("  Using path: {}", path);
+            
+            // Resolve to absolute path for clarity
+            let abs_path = match std::fs::canonicalize(&path) {
+                Ok(p) => {
+                    println!("  Resolved absolute path: {}", p.display());
+                    p
                 }
-                Err(e) => {
-                    warn!("Vector KB failed to initialize (disabled): {e}");
-                    None
+                Err(_) => {
+                    // Path doesn't exist yet, use current dir + relative path
+                    let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+                    let resolved = cwd.join(&path);
+                    println!("  Path doesn't exist yet, will create at: {}", resolved.display());
+                    resolved
+                }
+            };
+            
+            // Auto-create directory if it doesn't exist (VectorKB::new also does this, but explicit check for clarity)
+            println!("  Creating directory if needed: {}", abs_path.display());
+            if let Err(e) = std::fs::create_dir_all(&abs_path) {
+                eprintln!("  ❌ FATAL: Failed to create Vector KB directory {}: {e}", abs_path.display());
+                println!("=====================================");
+                None
+            } else {
+                println!("  ✅ Directory ready: {}", abs_path.display());
+                let path_str = abs_path.to_string_lossy().to_string();
+                println!("  Attempting VectorKB::new with path: {}", path_str);
+                match vector_kb::VectorKB::new(&path_str) {
+                    Ok(kb) => {
+                        let kb_path = kb.path();
+                        info!("✅ Vector KB initialized (path: {})", kb_path.display());
+                        println!("  ✅ Vector KB successfully initialized at: {}", kb_path.display());
+                        println!("=====================================");
+                        Some(Arc::new(kb))
+                    }
+                    Err(e) => {
+                        eprintln!("  ❌ Vector KB initialization failed: {e}");
+                        eprintln!("  This may be due to:");
+                        eprintln!("    - Insufficient permissions");
+                        eprintln!("    - Disk space issues");
+                        eprintln!("    - Corrupted database files");
+                        eprintln!("    - Path resolution issues");
+                        warn!("⚠️ Vector KB failed to initialize (disabled): {e}");
+                        println!("=====================================");
+                        None
+                    }
                 }
             }
         }
     };
 
+    // Debug: Print all environment variables before LLM initialization
+    println!("=== ENVIRONMENT VARIABLES DEBUG (before LLMOrchestrator::awaken()) ===");
+    let env_vars: Vec<(String, String)> = std::env::vars().collect();
+    for (key, value) in &env_vars {
+        // Mask sensitive keys (show first 4 chars only)
+        if key.contains("API_KEY") || key.contains("SECRET") || key.contains("TOKEN") || key.contains("PASSWORD") {
+            let masked = if value.len() > 4 {
+                format!("{}...", &value[..4])
+            } else {
+                "***".to_string()
+            };
+            println!("  {}={}", key, masked);
+        } else {
+            println!("  {}={}", key, value);
+        }
+    }
+    println!("=== Total env vars: {} ===", env_vars.len());
+    
+    // Check critical LLM env vars explicitly
+    println!("=== CRITICAL LLM ENV VARS CHECK ===");
+    println!("  LLM_PROVIDER={:?}", std::env::var("LLM_PROVIDER"));
+    println!("  OPENROUTER_API_KEY present: {}", std::env::var("OPENROUTER_API_KEY").is_ok());
+    if let Ok(key) = std::env::var("OPENROUTER_API_KEY") {
+        println!("  OPENROUTER_API_KEY length: {} (first 4: {})", key.len(), if key.len() >= 4 { &key[..4] } else { "***" });
+    }
+    println!("  DEFAULT_LLM_MODEL={:?}", std::env::var("DEFAULT_LLM_MODEL"));
+    println!("  FALLBACK_LLM_MODEL={:?}", std::env::var("FALLBACK_LLM_MODEL"));
+    println!("=====================================");
+
     let llm = Arc::new(Mutex::new(match LLMOrchestrator::awaken() {
-        Ok(llm) => Some(Arc::new(llm)),
+        Ok(llm) => {
+            info!("✅ LLM Orchestrator awakened");
+            Some(Arc::new(llm))
+        }
         Err(e) => {
-            warn!("LLM disabled: {e}");
-            None
+            eprintln!("❌ FATAL: LLM Orchestrator failed to awaken: {e}");
+            eprintln!("The system cannot function without the LLM. Please check your .env configuration.");
+            std::process::exit(1);
         }
     }));
 
@@ -7252,6 +7336,26 @@ async fn main() -> std::io::Result<()> {
                             .service(
                                 web::resource("/check-consent")
                                     .route(web::post().to(api_browser_check_consent)),
+                            ),
+                    )
+                    // Code Self-Modification System
+                    .service(
+                        web::scope("/agent")
+                            .service(
+                                web::resource("/evolve")
+                                    .route(web::post().to(code_evolution::api_agent_evolve)),
+                            )
+                            .service(
+                                web::resource("/permissions")
+                                    .route(web::get().to(code_evolution::api_agent_permissions)),
+                            )
+                            .service(
+                                web::resource("/evolution-stats")
+                                    .route(web::get().to(code_evolution::api_agent_evolution_stats)),
+                            )
+                            .service(
+                                web::resource("/reset-counter")
+                                    .route(web::post().to(code_evolution::api_agent_reset_counter)),
                             ),
                     )
                     .configure(trust_api::configure_routes)

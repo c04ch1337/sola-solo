@@ -186,4 +186,3 @@ export function startBackgroundSync(intervalMs = 4000) {
     void tick();
   }, Math.max(1000, Math.floor(intervalMs)));
 }
-

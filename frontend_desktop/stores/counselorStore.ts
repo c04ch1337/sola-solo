@@ -1,10 +1,7 @@
-import { atom } from 'jotai';
+import { atom } from 'jotai/vanilla';
 
 /**
- * Phase 19: Cognitive Reframing notification flag.
- *
- * Set to true when a new high-score Lesson Learned is persisted (via /api/memory/reconstruct).
- * Cleared when the user views the Narrative Reframer panel.
+ * Used to signal the UI that a new “reframe” is available to review.
+ * Components can set this when they write a new lesson / reconstruction.
  */
 export const reframingAvailableAtom = atom<boolean>(false);
-

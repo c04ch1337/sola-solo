@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useAtom } from 'jotai';
 import { modeAtom } from '../stores/modeStore';
-import { reframingAvailableAtom } from '../stores/counselorStore';
 import { Project, ChatHistoryItem } from '../types';
 
 interface SidebarProps {
@@ -10,8 +9,8 @@ interface SidebarProps {
   onLogoClick: () => void;
   onAddProjectClick: () => void;
   onNewOrchestration: () => void;
-  onViewChange: (view: 'chat' | 'scheduler' | 'professional' | 'counselor' | 'missions') => void;
-  currentView: 'chat' | 'scheduler' | 'professional' | 'counselor' | 'missions';
+  onViewChange: (view: 'chat' | 'scheduler' | 'professional') => void;
+  currentView: 'chat' | 'scheduler' | 'professional';
   projects: Project[];
   activeProjectId: string | null;
   activeChatId: string | null;
@@ -45,7 +44,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [tempTitle, setTempTitle] = useState('');
   const [mode] = useAtom(modeAtom);
-  const [reframingAvailable] = useAtom(reframingAvailableAtom);
 
   const filteredHistory = chatHistory.filter(h => h.projectId === activeProjectId);
 
@@ -75,7 +73,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="w-72 border-r border-border-dark flex flex-col bg-background-dark hidden md:flex h-full shrink-0">
+    <aside className="w-72 border-r border-border-dark hidden md:flex flex-col bg-background-dark h-full shrink-0">
       <div 
         onClick={onLogoClick}
         onKeyDown={handleLogoKeyDown}
@@ -122,13 +120,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <span className="text-xs font-bold uppercase tracking-wider">Tasks</span>
                 </button>
                 <button 
-                  onClick={() => onViewChange('missions')}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${currentView === 'missions' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:text-slate-200 hover:bg-panel-dark'}`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">science</span>
-                  <span className="text-xs font-bold uppercase tracking-wider">Mission Control</span>
-                </button>
-                <button 
                   onClick={() => onViewChange('scheduler')}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${currentView === 'scheduler' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:text-slate-200 hover:bg-panel-dark'}`}
                 >
@@ -142,19 +133,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <span className="material-symbols-outlined text-[18px]">monitoring</span>
                   <span className="text-xs font-bold uppercase tracking-wider">Professional Dashboard</span>
                 </button>
-
-                <button
-                  onClick={() => onViewChange('counselor')}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${currentView === 'counselor' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:text-slate-200 hover:bg-panel-dark'}`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">spa</span>
-                  <span className="text-xs font-bold uppercase tracking-wider">Counselor Dashboard</span>
-                  {reframingAvailable ? (
-                    <span className="ml-auto text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-rose-500/30 bg-rose-500/10 text-rose-200">
-                      Reframing Available
-                    </span>
-                  ) : null}
-                </button>
               </>
             ) : (
               <>
@@ -164,13 +142,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <span className="material-symbols-outlined text-[18px]">vault</span>
                   <span className="text-xs font-bold uppercase tracking-wider">The Vault</span>
-                </button>
-                <button 
-                  onClick={() => onViewChange('missions')}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${currentView === 'missions' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:text-slate-200 hover:bg-panel-dark'}`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">science</span>
-                  <span className="text-xs font-bold uppercase tracking-wider">Mission Control</span>
                 </button>
                 <button 
                   onClick={() => onViewChange('scheduler')}
@@ -185,19 +156,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <span className="material-symbols-outlined text-[18px]">monitoring</span>
                   <span className="text-xs font-bold uppercase tracking-wider">Professional Dashboard</span>
-                </button>
-
-                <button
-                  onClick={() => onViewChange('counselor')}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${currentView === 'counselor' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:text-slate-200 hover:bg-panel-dark'}`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">spa</span>
-                  <span className="text-xs font-bold uppercase tracking-wider">Counselor Dashboard</span>
-                  {reframingAvailable ? (
-                    <span className="ml-auto text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-rose-500/30 bg-rose-500/10 text-rose-200">
-                      Reframing Available
-                    </span>
-                  ) : null}
                 </button>
               </>
             )}

@@ -1,4 +1,4 @@
-//! KinkResearcher Browser Agent for Sola AGI System
+//! Browser Agent for Sola AGI System
 //! 
 //! This module provides headless browser capabilities for research scenarios,
 //! with explicit content safety controls and memory layer isolation.

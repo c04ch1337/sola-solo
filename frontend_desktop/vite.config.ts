@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
     return {
       server: {
         // Desktop UI dev server port (align with project standard)
-        port: 5173,
+        port: 3000,
         strictPort: true,
         host: '0.0.0.0',
         proxy: {

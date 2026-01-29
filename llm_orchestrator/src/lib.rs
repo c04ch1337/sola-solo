@@ -68,8 +68,18 @@ fn load_dotenv_best_effort() -> (Option<PathBuf>, Option<String>) {
         if path.is_file() {
             // Override any already-set environment variables (including empty ones).
             match try_load_dotenv_override(&path) {
-                Ok(_) => return (Some(path), None),
-                Err(e) => return (Some(path), Some(e)),
+                Ok(_) => {
+                    if let Ok(abs_path) = path.canonicalize() {
+                        println!("✅ Loaded .env from: {}", abs_path.display());
+                    } else {
+                        println!("✅ Loaded .env from: {}", path.display());
+                    }
+                    return (Some(path), None);
+                }
+                Err(e) => {
+                    println!("⚠️ Found .env at {} but failed to load: {}", path.display(), e);
+                    return (Some(path), Some(e));
+                }
             }
         }
     }
@@ -90,8 +100,18 @@ fn load_dotenv_best_effort() -> (Option<PathBuf>, Option<String>) {
             if candidate.is_file() {
                 // Override any already-set environment variables (including empty ones).
                 match try_load_dotenv_override(&candidate) {
-                    Ok(_) => return (Some(candidate), None),
-                    Err(e) => return (Some(candidate), Some(e)),
+                    Ok(_) => {
+                        if let Ok(abs_path) = candidate.canonicalize() {
+                            println!("✅ Loaded .env from: {}", abs_path.display());
+                        } else {
+                            println!("✅ Loaded .env from: {}", candidate.display());
+                        }
+                        return (Some(candidate), None);
+                    }
+                    Err(e) => {
+                        println!("⚠️ Found .env at {} but failed to load: {}", candidate.display(), e);
+                        return (Some(candidate), Some(e));
+                    }
                 }
             }
         }
@@ -100,6 +120,9 @@ fn load_dotenv_best_effort() -> (Option<PathBuf>, Option<String>) {
     // Fallback to dotenvy's default behavior.
     // Override any already-set environment variables (including empty ones).
     let res = dotenvy::dotenv_override();
+    if res.is_err() {
+        println!("❌ CRITICAL: No .env file detected in CWD or parent directories.");
+    }
     (None, res.err().map(|e| format!("{e}")))
 }
 
