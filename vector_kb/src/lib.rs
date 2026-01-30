@@ -3,10 +3,34 @@
 //! This crate provides a persistent vector store with an embedding layer and
 //! semantic search over stored memories.
 //!
-//! Notes:
-//! - Default build uses a lightweight deterministic embedder (`stub-embeddings`)
-//!   so Phoenix can compile/run offline without ML model downloads.
-//! - You can enable real embeddings later behind the `real-embeddings` feature.
+//! ## Backends
+//!
+//! - **Sled (default)**: Lightweight embedded database for offline/development use
+//! - **Qdrant**: High-performance vector database for production RAG workloads
+//!
+//! ## Features
+//!
+//! - `stub-embeddings` (default): Lightweight deterministic embedder for offline use
+//! - `real-embeddings`: Use fastembed for real transformer embeddings
+//! - `qdrant-backend`: Enable Qdrant vector database backend
+//!
+//! ## Usage
+//!
+//! ```rust,ignore
+//! // Default sled backend
+//! let kb = VectorKB::new("./data/vector_db")?;
+//!
+//! // Qdrant backend (requires qdrant-backend feature)
+//! let config = QdrantConfig {
+//!     url: "http://localhost:6333".to_string(),
+//!     ..Default::default()
+//! };
+//! let qdrant_kb = QdrantVectorKB::new(config).await?;
+//! ```
+
+// Export Qdrant backend module
+pub mod qdrant_backend;
+pub use qdrant_backend::{QdrantVectorKB, QdrantConfig, CollectionStats, check_qdrant_health};
 
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};

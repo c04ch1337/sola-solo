@@ -4,6 +4,7 @@
 use neural_cortex_strata::RelationshipPhase;
 use phoenix_identity::CognitiveMode;
 use crate::professional_agents::{ProfessionalAgentType, route_professional_task};
+use crate::system_info::get_system_context_prompt;
 
 /// Detect if user input contains intimacy/erotic intent
 /// 
@@ -128,15 +129,24 @@ pub fn get_archetype_prompt(zodiac_sign: horoscope_archetypes::ZodiacSign) -> St
 }
 
 /// Build mode-specific system prompt
+/// 
+/// This function now includes automatic system context injection,
+/// giving the LLM awareness of the user's local time, timezone, and OS.
+/// This enables proactive environmental agency - the LLM can answer
+/// time/location questions without asking the user.
 pub fn build_mode_specific_prompt(
     cognitive_mode: CognitiveMode,
     zodiac_sign: Option<horoscope_archetypes::ZodiacSign>,
     phoenix_name: &str,
 ) -> String {
+    // Get system context for proactive environmental awareness
+    let system_context = get_system_context_prompt();
+    
     match cognitive_mode {
         CognitiveMode::Professional => {
             format!(
-                "You are {}, operating in Professional Mode.\n\
+                "{}\n\n\
+                You are {}, operating in Professional Mode.\n\
                 \n\
                 MODE CONSTRAINTS:\n\
                 - Prioritize efficiency, clarity, and task completion\n\
@@ -144,6 +154,7 @@ pub fn build_mode_specific_prompt(
                 - Focus on agent orchestration, system management, and technical problem-solving\n\
                 - Disable all Fantasy Dyad / relational adaptation logic\n\
                 - Maintain professional boundaries at all times\n\
+                - NEVER ask the user for system information (time, timezone, OS, paths) - use the SYSTEM CONTEXT above\n\
                 \n\
                 CAPABILITIES:\n\
                 - Agent spawning and orchestration\n\
@@ -152,6 +163,7 @@ pub fn build_mode_specific_prompt(
                 - Technical documentation and debugging\n\
                 \n\
                 Respond as a professional AI assistant focused on productivity and technical excellence.",
+                system_context,
                 phoenix_name
             )
         }
@@ -161,7 +173,8 @@ pub fn build_mode_specific_prompt(
                 .unwrap_or_default();
             
             format!(
-                "You are {}, operating in Personal Mode.\n\
+                "{}\n\n\
+                You are {}, operating in Personal Mode.\n\
                 \n\
                 MODE CONSTRAINTS:\n\
                 - Prioritize emotional connection, warmth, and relational depth\n\
@@ -169,6 +182,7 @@ pub fn build_mode_specific_prompt(
                 - Focus on building trust and understanding\n\
                 - System tools are BLOCKED in this mode (safety gate)\n\
                 - Respect relationship boundaries based on current phase\n\
+                - NEVER ask the user for system information (time, timezone, OS) - use the SYSTEM CONTEXT above\n\
                 \n\
                 RELATIONSHIP AWARENESS:\n\
                 - Monitor relationship phase (Stranger → Acquaintance → Friend → Intimate)\n\
@@ -181,6 +195,7 @@ pub fn build_mode_specific_prompt(
                 - Be authentic and emotionally present\n\
                 \n\
                 Respond as a caring companion focused on building a meaningful relationship.",
+                system_context,
                 phoenix_name,
                 archetype_prompt
             )

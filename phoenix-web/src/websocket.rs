@@ -493,15 +493,7 @@ async fn handle_speak_streaming(
         .to_string();
         let _ = session.text(payload).await;
         
-        // Legacy response
-        let legacy = WebSocketResponse::SpeakResponse {
-            message: response_text,
-            memory_commit: Some(memory_commit),
-        };
-        let legacy_json = serde_json::to_string(&legacy).unwrap_or_else(|_| {
-            json!({"type": "error", "message": "Serialization failed"}).to_string()
-        });
-        let _ = session.text(legacy_json).await;
+        // NOTE: Legacy speak_response removed to prevent duplicate messages
         
         return Ok(());
     }
@@ -518,15 +510,7 @@ async fn handle_speak_streaming(
         .to_string();
         let _ = session.text(payload).await;
         
-        // Legacy response
-        let legacy = WebSocketResponse::SpeakResponse {
-            message: response_text,
-            memory_commit: Some(memory_commit),
-        };
-        let legacy_json = serde_json::to_string(&legacy).unwrap_or_else(|_| {
-            json!({"type": "error", "message": "Serialization failed"}).to_string()
-        });
-        let _ = session.text(legacy_json).await;
+        // NOTE: Legacy speak_response removed to prevent duplicate messages
         
         return Ok(());
     }
@@ -611,15 +595,7 @@ async fn handle_speak_streaming(
             .to_string();
             let _ = session.text(payload).await;
             
-            // Legacy response
-            let legacy = WebSocketResponse::SpeakResponse {
-                message: refusal,
-                memory_commit: Some(memory_commit),
-            };
-            let legacy_json = serde_json::to_string(&legacy).unwrap_or_else(|_| {
-                json!({"type": "error", "message": "Serialization failed"}).to_string()
-            });
-            let _ = session.text(legacy_json).await;
+            // NOTE: Legacy speak_response removed to prevent duplicate messages
             
             return Ok(());
         }
@@ -668,15 +644,7 @@ async fn handle_speak_streaming(
                 .to_string();
                 let _ = session.text(payload).await;
                 
-                // Legacy response
-                let legacy = WebSocketResponse::SpeakResponse {
-                    message: swarm_result.clone(),
-                    memory_commit: Some(memory_commit),
-                };
-                let legacy_json = serde_json::to_string(&legacy).unwrap_or_else(|_| {
-                    json!({"type": "error", "message": "Serialization failed"}).to_string()
-                });
-                let _ = session.text(legacy_json).await;
+                // NOTE: Legacy speak_response removed to prevent duplicate messages
                 
                 return Ok(());
             }
@@ -760,16 +728,17 @@ async fn handle_speak_streaming(
     .to_string();
     let _ = session.text(payload).await;
 
-    // Compatibility fallback: emit the legacy full response message.
-    // Frontend can ignore this if it already consumed the stream.
-    let legacy = WebSocketResponse::SpeakResponse {
-        message: full_response,
-        memory_commit: Some(memory_commit),
-    };
-    let legacy_json = serde_json::to_string(&legacy).unwrap_or_else(|_| {
-        json!({"type": "error", "message": "Serialization failed"}).to_string()
-    });
-    let _ = session.text(legacy_json).await;
+    // NOTE: Legacy speak_response emission removed to prevent duplicate messages.
+    // The frontend now fully supports streaming via speak_response_chunk.
+    // If backward compatibility with older clients is needed, re-enable this block.
+    // let legacy = WebSocketResponse::SpeakResponse {
+    //     message: full_response,
+    //     memory_commit: Some(memory_commit),
+    // };
+    // let legacy_json = serde_json::to_string(&legacy).unwrap_or_else(|_| {
+    //     json!({"type": "error", "message": "Serialization failed"}).to_string()
+    // });
+    // let _ = session.text(legacy_json).await;
 
     Ok(())
 }

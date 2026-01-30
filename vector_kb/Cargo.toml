@@ -12,6 +12,8 @@ stub-embeddings = []
 real-embeddings = ["dep:fastembed"]
 # Reserved: enable Lance-backed persistence (not enabled by default).
 lance-backend = ["dep:lance"]
+# Enable Qdrant vector database backend for production RAG
+qdrant-backend = ["dep:qdrant-client"]
 
 [dependencies]
 # Optional heavy deps (kept for forward-compatibility).
@@ -19,7 +21,11 @@ lance-backend = ["dep:lance"]
 # Keep it optional/off by default.
 lance = { version = "0.15", optional = true }
 fastembed = { version = "5.4.0", optional = true }
+# Pinned because `qdrant_backend.rs` targets the 1.13 API surface.
+# Newer 1.16+ releases include breaking protobuf/type changes.
+qdrant-client = { version = "=1.13.0", optional = true }
 tokio = { version = "1", features = ["full"] }
+anyhow = "1.0"
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -28,4 +34,5 @@ uuid = { version = "1", features = ["v4", "serde"] }
 sled = "0.34"
 bincode = "1"
 parking_lot = "0.12"
-
+chrono = { version = "0.4", features = ["serde"] }
+tracing = "0.1"

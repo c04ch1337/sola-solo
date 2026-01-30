@@ -19,6 +19,7 @@ This document provides a comprehensive index of all documentation in the SOLA pr
 - [`README.md`](README.md) - Main project overview and quick start
 - [`AUTONOMOUS_OPERATION.md`](AUTONOMOUS_OPERATION.md) - Autonomous digital twin operation guide
 - [`SECURITY.md`](SECURITY.md) - Security policies and best practices
+- [`docs/sola_instructions.md`](docs/sola_instructions.md) - Sola autonomy directives and operating rules
 
 ### Setup Guides
 Located in [`docs/setup-guides/`](docs/setup-guides/):
@@ -54,6 +55,7 @@ Located in [`docs/`](docs/):
 - `TOOLS_AGENTS_ARCHITECTURE.md` - Tools and agents system
 - `EMOTIONAL_INTELLIGENCE_CORE.md` - EQ-first AI design
 - `GIRLFRIEND_FRAMEWORK_ARCHITECTURE.md` - Relationship dynamics
+- `SECURITY_HARDENING.md` - Zero-trust hardening architecture and identity-gated controls
 
 ### Integration Guides
 Located in [`docs/integration/`](docs/integration/):

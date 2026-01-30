@@ -2,6 +2,11 @@
 
 This repository includes a professional-grade relationship engine implemented as the workspace crate [`relationship_dynamics`](../extensions/relationship_dynamics/src/lib.rs:1).
 
+## Project Docs (recent additions)
+
+- [`SECURITY_HARDENING.md`](SECURITY_HARDENING.md) - Security hardening architecture and identity-gated controls
+- [`sola_instructions.md`](sola_instructions.md) - Sola autonomy directives and operating rules
+
 ## Quickstart
 
 ### 1) Configure `.env`

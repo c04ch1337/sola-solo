@@ -1,13 +1,28 @@
 use actix_cors::Cors;
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{delete, get, post, web, App, HttpResponse, HttpServer, Responder};
 use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 mod run_cmd;
+mod agent_tools_api;
+mod scheduler;
+mod sensory;
+mod security;
+
 use run_cmd::run_cmd;
+use scheduler::{ScheduledTask, Scheduler};
+use cron::Schedule;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
+use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
+use uuid::Uuid;
+
+#[derive(Clone)]
+struct AppState {
+    scheduler: Scheduler,
+}
 
 #[derive(Deserialize)]
 struct ChatRequest {
@@ -825,6 +840,72 @@ async fn health() -> impl Responder {
     HttpResponse::Ok().json(json!({ "ok": true }))
 }
 
+#[derive(Debug, Deserialize)]
+struct ScheduleAddRequest {
+    name: String,
+    /// Cron expression (seconds granularity; e.g. "0 0 3 * * *").
+    cron: String,
+    /// Opaque JSON payload describing what to do when the task fires.
+    payload: serde_json::Value,
+    /// If true, execute immediately on startup if a misfire is detected.
+    #[serde(default)]
+    critical: bool,
+}
+
+#[post("/api/agent/schedule/add")]
+async fn schedule_add(state: web::Data<AppState>, req: web::Json<ScheduleAddRequest>) -> impl Responder {
+    if req.name.trim().is_empty() {
+        return HttpResponse::BadRequest().json(json!({"error": "name must be non-empty"}));
+    }
+    if req.cron.trim().is_empty() {
+        return HttpResponse::BadRequest().json(json!({"error": "cron must be non-empty"}));
+    }
+
+    let now = chrono::Utc::now();
+    let next_run_at = Schedule::from_str(req.cron.trim())
+        .ok()
+        .and_then(|s| s.upcoming(chrono::Utc).next())
+        .unwrap_or(now);
+
+    let task = ScheduledTask {
+        id: Uuid::new_v4(),
+        name: req.name.trim().to_string(),
+        cron: req.cron.trim().to_string(),
+        payload: req.payload.clone(),
+        created_at: now,
+        next_run_at,
+        last_run_at: None,
+        enabled: true,
+        critical: req.critical,
+    };
+
+    match state.scheduler.add_task(task) {
+        Ok(t) => HttpResponse::Ok().json(t),
+        Err(e) => HttpResponse::BadRequest().json(json!({"error": e.to_string()})),
+    }
+}
+
+#[get("/api/agent/schedule/list")]
+async fn schedule_list(state: web::Data<AppState>) -> impl Responder {
+    match state.scheduler.list_tasks() {
+        Ok(tasks) => HttpResponse::Ok().json(tasks),
+        Err(e) => HttpResponse::InternalServerError().json(json!({"error": e.to_string()})),
+    }
+}
+
+#[delete("/api/agent/schedule/{id}")]
+async fn schedule_cancel(state: web::Data<AppState>, path: web::Path<String>) -> impl Responder {
+    let id = match Uuid::parse_str(path.as_str()) {
+        Ok(id) => id,
+        Err(_) => return HttpResponse::BadRequest().json(json!({"error": "invalid uuid"})),
+    };
+
+    match state.scheduler.cancel_task(id) {
+        Ok(existed) => HttpResponse::Ok().json(json!({"ok": true, "existed": existed})),
+        Err(e) => HttpResponse::InternalServerError().json(json!({"error": e.to_string()})),
+    }
+}
+
 fn sse_data_json(value: serde_json::Value) -> actix_web::web::Bytes {
     // SSE format: each event is separated by a blank line.
     let line = format!("data: {}\n\n", value.to_string());
@@ -983,20 +1064,134 @@ async fn chat(req: web::Json<ChatRequest>) -> impl Responder {
 async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().ok();
 
+    // Persistent scheduler DB (Sled).
+    let _ = std::fs::create_dir_all("data");
+    let scheduler_db = sled::open("data/scheduler_db")
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+    let scheduler = Scheduler::new(Arc::new(scheduler_db));
+
+    // Ensure default schedules exist.
+    if let Ok(tasks) = scheduler.list_tasks() {
+        let now = chrono::Utc::now();
+
+        // Daily KB pruning @ 03:00:00
+        let kb_prune_name = "Daily KB Pruning";
+        let kb_prune_cron = "0 0 3 * * *";
+        if !tasks.iter().any(|t| t.name == kb_prune_name && t.cron == kb_prune_cron) {
+            let next_run_at = Schedule::from_str(kb_prune_cron)
+                .ok()
+                .and_then(|s| s.upcoming(chrono::Utc).next())
+                .unwrap_or(now);
+            let _ = scheduler.add_task(ScheduledTask {
+                id: Uuid::new_v4(),
+                name: kb_prune_name.to_string(),
+                cron: kb_prune_cron.to_string(),
+                payload: json!({"type": "kb_prune"}),
+                created_at: now,
+                next_run_at,
+                last_run_at: None,
+                enabled: true,
+                critical: false,
+            });
+        }
+
+        // Weekly Failure Analysis @ Sunday 00:00:00 (critical)
+        let failure_analysis_name = "Weekly Failure Analysis";
+        let failure_analysis_cron = "0 0 0 * * SUN";
+        if !tasks.iter().any(|t| t.name == failure_analysis_name && t.cron == failure_analysis_cron) {
+            let next_run_at = Schedule::from_str(failure_analysis_cron)
+                .ok()
+                .and_then(|s| s.upcoming(chrono::Utc).next())
+                .unwrap_or(now);
+            let _ = scheduler.add_task(ScheduledTask {
+                id: Uuid::new_v4(),
+                name: failure_analysis_name.to_string(),
+                cron: failure_analysis_cron.to_string(),
+                payload: json!({"type": "failure_analysis", "scope": "weekly"}),
+                created_at: now,
+                next_run_at,
+                last_run_at: None,
+                enabled: true,
+                critical: true, // Misfire recovery enabled
+            });
+        }
+
+        // Hourly Presence Scan (identity recognition)
+        let presence_scan_name = "Hourly Presence Scan";
+        let presence_scan_cron = "0 0 * * * *"; // Every hour at :00
+        if !tasks.iter().any(|t| t.name == presence_scan_name && t.cron == presence_scan_cron) {
+            let next_run_at = Schedule::from_str(presence_scan_cron)
+                .ok()
+                .and_then(|s| s.upcoming(chrono::Utc).next())
+                .unwrap_or(now);
+            let _ = scheduler.add_task(ScheduledTask {
+                id: Uuid::new_v4(),
+                name: presence_scan_name.to_string(),
+                cron: presence_scan_cron.to_string(),
+                payload: json!({
+                    "type": "presence_scan",
+                    "action": "identify_presence",
+                    "confidence_threshold": 0.8
+                }),
+                created_at: now,
+                next_run_at,
+                last_run_at: None,
+                enabled: true,
+                critical: false,
+            });
+        }
+    }
+
+    // Start tick loop; for now we just log fired/misfire events.
+    let (mut sched_rx, _sched_handle) = scheduler
+        .clone()
+        .start(chrono::Duration::seconds(30))
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+    tokio::spawn(async move {
+        while let Some(ev) = sched_rx.recv().await {
+            eprintln!("[scheduler] event: {:?}", ev);
+        }
+    });
+
+    // Initialize sensory hub (shared across all requests).
+    let sensory_hub = Arc::new(sensory::SensoryHub::new());
+
+    // Conditionally start sensory subsystems when the feature is enabled.
+    #[cfg(feature = "sensory")]
+    {
+        let sensory_clone = sensory_hub.clone();
+        tokio::spawn(async move {
+            sensory_clone.start_all().await;
+        });
+    }
+
+    // Create agent tools state with sensory hub reference.
+    let agent_tools_state = web::Data::new(agent_tools_api::AgentToolsState::new(
+        sensory_hub.clone(),
+    ));
+
     // Vite dev origin (pinned)
     let cors_origin = "http://127.0.0.1:3000";
 
     HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin(cors_origin)
-            .allowed_methods(vec!["GET", "POST", "OPTIONS"])
+            .allowed_methods(vec!["GET", "POST", "DELETE", "OPTIONS"])
             .allowed_headers(vec!["Content-Type"]) // keep minimal
             .supports_credentials();
 
         App::new()
+            .app_data(web::Data::new(AppState {
+                scheduler: scheduler.clone(),
+            }))
+            .app_data(agent_tools_state.clone())
             .wrap(cors)
             .service(health)
             .service(chat)
+            .configure(agent_tools_api::configure)
+            .service(schedule_add)
+            .service(schedule_list)
+            .service(schedule_cancel)
             .service(evolve_handler)
             .service(repair_handler)
             .service(rollback_handler)

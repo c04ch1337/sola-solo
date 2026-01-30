@@ -21,7 +21,7 @@ use std::{
     sync::Arc,
 };
 use tokio::sync::Mutex;
-use tracing::{info, warn};
+use tracing::{error, info, warn};
 
 use context_engine::{ContextEngine, ContextLayer, ContextMemory, ContextRequest};
 use ecosystem_manager::EcosystemManager;
@@ -88,6 +88,11 @@ mod pairing;
 
 // Code Self-Modification System
 mod code_evolution;
+
+// Autonomous Tools (Level 5 Autonomy)
+mod tools;
+mod agent_tools_api;
+mod mission_control;
 
 fn env_nonempty(key: &str) -> Option<String> {
     std::env::var(key)
@@ -170,6 +175,7 @@ mod proactive;
 mod professional_agents;
 mod reporting_handler;
 mod swarm_delegation;
+mod system_info;
 mod trust_api;
 mod counselor_api;
 mod export;
@@ -181,6 +187,7 @@ mod websocket;
 mod narrative_auditor;
 use google::{GoogleInitError, GoogleManager};
 use handlers::{build_mode_specific_prompt, detect_intimacy_intent, generate_soft_refusal};
+use system_info::get_system_context_prompt;
 use internal_bus::{create_swarm_system, InternalSwarmBus, SolaSwarmInterface};
 
 #[derive(Debug, Clone)]
@@ -262,6 +269,8 @@ struct AppState {
     profile_generator: Arc<ProfileGenerator>,
     // Browser consent for porn site access (gated)
     browser_consent: Arc<Mutex<HashMap<String, bool>>>,
+    // Mission Control - Observability for Level 5 Autonomy
+    mission_control: Arc<mission_control::MissionControlState>,
     version: String,
     dotenv_path: Option<String>,
     dotenv_error: Option<String>,
@@ -1455,6 +1464,77 @@ async fn api_memory_vector_all(state: web::Data<AppState>) -> Result<HttpRespons
         .collect::<Vec<_>>();
     let count = entries.len();
     Ok(HttpResponse::Ok().json(VectorMemoryAllResponse { entries, count }))
+}
+
+/// Wrapper handler for KB semantic recall that passes the shared VectorKB from AppState
+async fn api_kb_recall_with_state(
+    state: web::Data<AppState>,
+    body: web::Json<code_evolution::SemanticRecallRequest>,
+) -> impl Responder {
+    let query = body.query.trim();
+    if query.is_empty() {
+        return HttpResponse::BadRequest().json(serde_json::json!({
+            "error": "Query is required and cannot be empty"
+        }));
+    }
+    
+    let top_k = body.top_k.unwrap_or(5);
+    
+    // Get the VectorKB from AppState (if available)
+    let kb_ref = state.vector_kb.as_ref().map(|arc| arc.as_ref());
+    
+    // Perform semantic recall with the shared KB instance
+    let context = code_evolution::semantic_recall(query, top_k, kb_ref).await;
+    
+    // Format the memory context for prompt injection
+    let prompt_block = code_evolution::format_memory_context_for_prompt(&context);
+    
+    // Check for regression conflicts
+    let regression_warning = if !context.known_regressions.is_empty() {
+        Some(format!(
+            "⚠️ Found {} known regression(s) similar to this task. Review the context before proceeding.",
+            context.known_regressions.len()
+        ))
+    } else {
+        None
+    };
+    
+    HttpResponse::Ok().json(code_evolution::SemanticRecallResponse {
+        success: true,
+        context,
+        prompt_block,
+        regression_warning,
+    })
+}
+
+/// Wrapper handler for KB search that passes the shared VectorKB from AppState
+async fn api_kb_search_with_state(
+    state: web::Data<AppState>,
+    q: web::Query<code_evolution::KbSearchQuery>,
+) -> impl Responder {
+    let query = q.q.trim();
+    if query.is_empty() {
+        return HttpResponse::BadRequest().json(serde_json::json!({
+            "error": "Query parameter 'q' is required"
+        }));
+    }
+    
+    // Get the VectorKB from AppState (if available)
+    let kb_ref = state.vector_kb.as_ref().map(|arc| arc.as_ref());
+    
+    match code_evolution::search_evolution_history(query, q.limit, kb_ref).await {
+        Ok(results) => HttpResponse::Ok().json(serde_json::json!({
+            "success": true,
+            "results": results,
+            "count": results.len()
+        })),
+        Err(e) => HttpResponse::Ok().json(serde_json::json!({
+            "success": false,
+            "error": e,
+            "results": [],
+            "count": 0
+        }))
+    }
 }
 
 async fn api_google_auth_start(state: web::Data<AppState>) -> impl Responder {
@@ -6475,63 +6555,62 @@ async fn main() -> std::io::Result<()> {
             .map(|s| s.trim().eq_ignore_ascii_case("true"))
             .unwrap_or(false);
         
-        println!("=== VECTOR KB INITIALIZATION DEBUG ===");
-        println!("  VECTOR_KB_ENABLED env var: {:?}", enabled_env);
-        println!("  VECTOR_KB_ENABLED parsed: {}", enabled);
+        info!("=== VECTOR KB INITIALIZATION DEBUG ===");
+        info!("  VECTOR_KB_ENABLED env var: {:?}", enabled_env);
+        info!("  VECTOR_KB_ENABLED parsed: {}", enabled);
         
         if !enabled {
-            println!("  ❌ Vector KB disabled (VECTOR_KB_ENABLED is not 'true')");
-            println!("=====================================");
+            warn!("  ❌ Vector KB disabled (VECTOR_KB_ENABLED is not 'true')");
+            info!("=====================================");
             None
         } else {
             let path_env = std::env::var("VECTOR_DB_PATH").ok();
-            println!("  VECTOR_DB_PATH env var: {:?}", path_env);
+            info!("  VECTOR_DB_PATH env var: {:?}", path_env);
             let path = path_env.unwrap_or_else(|| "./data/vector_db".to_string());
             
-            println!("  Using path: {}", path);
+            info!("  Using path: {}", path);
             
             // Resolve to absolute path for clarity
             let abs_path = match std::fs::canonicalize(&path) {
                 Ok(p) => {
-                    println!("  Resolved absolute path: {}", p.display());
+                    info!("  Resolved absolute path: {}", p.display());
                     p
                 }
                 Err(_) => {
                     // Path doesn't exist yet, use current dir + relative path
                     let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
                     let resolved = cwd.join(&path);
-                    println!("  Path doesn't exist yet, will create at: {}", resolved.display());
+                    info!("  Path doesn't exist yet, will create at: {}", resolved.display());
                     resolved
                 }
             };
             
             // Auto-create directory if it doesn't exist (VectorKB::new also does this, but explicit check for clarity)
-            println!("  Creating directory if needed: {}", abs_path.display());
+            info!("  Creating directory if needed: {}", abs_path.display());
             if let Err(e) = std::fs::create_dir_all(&abs_path) {
-                eprintln!("  ❌ FATAL: Failed to create Vector KB directory {}: {e}", abs_path.display());
-                println!("=====================================");
+                error!("  ❌ FATAL: Failed to create Vector KB directory {}: {e}", abs_path.display());
+                info!("=====================================");
                 None
             } else {
-                println!("  ✅ Directory ready: {}", abs_path.display());
+                info!("  ✅ Directory ready: {}", abs_path.display());
                 let path_str = abs_path.to_string_lossy().to_string();
-                println!("  Attempting VectorKB::new with path: {}", path_str);
+                info!("  Attempting VectorKB::new with path: {}", path_str);
                 match vector_kb::VectorKB::new(&path_str) {
                     Ok(kb) => {
                         let kb_path = kb.path();
                         info!("✅ Vector KB initialized (path: {})", kb_path.display());
-                        println!("  ✅ Vector KB successfully initialized at: {}", kb_path.display());
-                        println!("=====================================");
+                        info!("=====================================");
                         Some(Arc::new(kb))
                     }
                     Err(e) => {
-                        eprintln!("  ❌ Vector KB initialization failed: {e}");
-                        eprintln!("  This may be due to:");
-                        eprintln!("    - Insufficient permissions");
-                        eprintln!("    - Disk space issues");
-                        eprintln!("    - Corrupted database files");
-                        eprintln!("    - Path resolution issues");
+                        error!("  ❌ Vector KB initialization failed: {e}");
+                        error!("  This may be due to:");
+                        error!("    - Insufficient permissions");
+                        error!("    - Disk space issues");
+                        error!("    - Corrupted database files");
+                        error!("    - Path resolution issues");
                         warn!("⚠️ Vector KB failed to initialize (disabled): {e}");
-                        println!("=====================================");
+                        info!("=====================================");
                         None
                     }
                 }
@@ -6877,6 +6956,7 @@ async fn main() -> std::io::Result<()> {
         swarm_interface,
         profile_generator: Arc::new(ProfileGenerator::new()),
         browser_consent: Arc::new(Mutex::new(HashMap::new())),
+        mission_control: Arc::new(mission_control::MissionControlState::new()),
         version: env!("CARGO_PKG_VERSION").to_string(),
         dotenv_path: dotenv_path.map(|p| p.display().to_string()),
         dotenv_error,
@@ -7338,12 +7418,17 @@ async fn main() -> std::io::Result<()> {
                                     .route(web::post().to(api_browser_check_consent)),
                             ),
                     )
-                    // Code Self-Modification System
+                    // Code Self-Modification System & Autonomous Tools (Level 5 Autonomy)
                     .service(
                         web::scope("/agent")
+                            // Evolution endpoints
                             .service(
                                 web::resource("/evolve")
                                     .route(web::post().to(code_evolution::api_agent_evolve)),
+                            )
+                            .service(
+                                web::resource("/evolve-with-recall")
+                                    .route(web::post().to(code_evolution::api_agent_evolve_with_recall)),
                             )
                             .service(
                                 web::resource("/permissions")
@@ -7356,6 +7441,66 @@ async fn main() -> std::io::Result<()> {
                             .service(
                                 web::resource("/reset-counter")
                                     .route(web::post().to(code_evolution::api_agent_reset_counter)),
+                            )
+                            // Level 5 Autonomy Tools
+                            .service(
+                                web::resource("/search")
+                                    .route(web::get().to(agent_tools_api::api_agent_search))
+                                    .route(web::post().to(agent_tools_api::api_agent_search_post)),
+                            )
+                            .service(
+                                web::resource("/context")
+                                    .route(web::get().to(agent_tools_api::api_agent_context)),
+                            )
+                            .service(
+                                web::resource("/tools")
+                                    .route(web::get().to(agent_tools_api::api_agent_tools_list)),
+                            )
+                            .service(
+                                web::scope("/filesystem")
+                                    .service(
+                                        web::resource("/search")
+                                            .route(web::get().to(agent_tools_api::api_agent_filesystem_search))
+                                            .route(web::post().to(agent_tools_api::api_agent_filesystem_search_post)),
+                                    )
+                                    .service(
+                                        web::resource("/find")
+                                            .route(web::get().to(agent_tools_api::api_agent_filesystem_find)),
+                                    )
+                                    .service(
+                                        web::resource("/crawl")
+                                            .route(web::get().to(agent_tools_api::api_agent_filesystem_crawl)),
+                                    ),
+                            )
+                            // Mission Control - Observability for Level 5 Autonomy
+                            .service(
+                                web::resource("/events")
+                                    .route(web::get().to(mission_control::api_agent_events)),
+                            )
+                            .service(
+                                web::resource("/autonomy")
+                                    .route(web::post().to(mission_control::api_agent_autonomy_control))
+                                    .route(web::get().to(mission_control::api_agent_autonomy_status)),
+                            )
+                            .service(
+                                web::resource("/emit")
+                                    .route(web::post().to(mission_control::api_agent_emit_event)),
+                            ),
+                    )
+                    // Vector Knowledge Base (Long-Term Memory) API
+                    .service(
+                        web::scope("/kb")
+                            .service(
+                                web::resource("/search")
+                                    .route(web::get().to(api_kb_search_with_state)),
+                            )
+                            .service(
+                                web::resource("/status")
+                                    .route(web::get().to(code_evolution::api_kb_status)),
+                            )
+                            .service(
+                                web::resource("/recall")
+                                    .route(web::post().to(api_kb_recall_with_state)),
                             ),
                     )
                     .configure(trust_api::configure_routes)

@@ -6,10 +6,48 @@ edition = "2024"
 [dependencies]
 actix-cors = "0.7"
 actix-web = "4"
+anyhow = "1"
 async-stream = "0.3"
+chrono = { version = "0.4", features = ["serde"] }
+cron = "0.12"
 dotenvy = "0.15"
 futures-util = "0.3"
 reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+sled = "0.34"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+uuid = { version = "1", features = ["serde", "v4"] }
+vector_kb = { path = "../../vector_kb", features = ["qdrant-backend"] }
+
+# Hardware dependencies are intentionally optional for now.
+# NOTE: Building with `sensory` feature requires:
+#   - LLVM/Clang in PATH
+#   - OPENCV_DIR environment variable set to OpenCV installation
+cpal = { version = "0.15", optional = true }
+opencv = { version = "0.92", optional = true, features = ["videoio", "imgproc"] }
+# Silero VAD for local voice activity detection
+voice_activity_detector = { version = "0.2", optional = true }
+# Image encoding for camera snapshots
+image = { version = "0.25", optional = true }
+# FFT for Mel-spectrogram generation (voice identity)
+rustfft = { version = "6.2", optional = true }
+
+# Telegram bot for remote security alerts
+teloxide = { version = "0.13", features = ["macros"], optional = true }
+
+# Windows notifications for security alerts
+[target.'cfg(windows)'.dependencies]
+winrt-notification = { version = "0.5", optional = true }
+# Windows API for system lock
+windows = { version = "0.58", features = ["Win32_System_Shutdown"], optional = true }
+
+[features]
+# Keep defaults lean: scheduler + HTTP APIs compile without native deps.
+default = []
+sensory = ["cpal", "opencv", "voice_activity_detector", "image", "rustfft"]
+notifications = ["winrt-notification"]
+telegram = ["teloxide"]
+system-lock = ["windows"]
+# Full security suite
+security-full = ["sensory", "notifications", "telegram", "system-lock"]

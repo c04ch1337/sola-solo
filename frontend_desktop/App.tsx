@@ -12,6 +12,8 @@ import { WebSocketService, sendSpeak, sendCommand, sendSystem } from './services
 import { MemoryService } from './services/memoryService';
 import { MemoryBrowser } from './components/MemoryBrowser';
 import DreamsPanel from './components/DreamsPanel';
+import KBStatusPanel from './components/KBStatusPanel';
+import MissionControl from './components/MissionControl';
 import OnboardingMessage from './components/OnboardingMessage';
 import WebGuardReportPanel, { WebGuardReportData } from './components/WebGuardReportPanel';
 import ReportsPanel, { VulnerabilityReport } from './components/ReportsPanel';
@@ -248,8 +250,15 @@ const App: React.FC = () => {
   const [swarmModeVisible, setSwarmModeVisible] = useState(false);
   const [swarmStatus, setSwarmStatus] = useState<any>(null);
 
+  // KB Status panel state (Phase I: Cognitive Bridge)
+  const [showKBPanel, setShowKBPanel] = useState(false);
+
   // Profiles panel state (hidden by default, toggle via "show profiles")
   const [showProfilesPanel, setShowProfilesPanel] = useState(false);
+
+  // Mission Control panel state (Phase J: Level 5 Autonomy Observability)
+  const [showMissionControl, setShowMissionControl] = useState(false);
+  const [missionControlCollapsed, setMissionControlCollapsed] = useState(false);
 
   type ChatCommandResult =
     | {
@@ -302,6 +311,27 @@ const App: React.FC = () => {
     if (lower === 'hide profiles' || lower === 'close profiles') {
       setShowProfilesPanel(false);
       return { kind: 'handled', localAssistantMessage: 'Profiles panel hidden.' };
+    }
+
+    // KB Status panel commands (Phase I: Cognitive Bridge)
+    if (lower === 'show kb' || lower === 'kb status' || lower === 'open kb' || lower === 'show memory kb' || lower === 'vector kb') {
+      setShowKBPanel(true);
+      return { kind: 'handled', localAssistantMessage: '🧠 Vector KB panel opened. View my long-term memory status here.' };
+    }
+    if (lower === 'hide kb' || lower === 'close kb') {
+      setShowKBPanel(false);
+      return { kind: 'handled', localAssistantMessage: 'Vector KB panel hidden.' };
+    }
+
+    // Mission Control panel commands (Phase J: Level 5 Autonomy Observability)
+    if (lower === 'show mission control' || lower === 'mission control' || lower === 'open mission control' || lower === 'show autonomy' || lower === 'autonomy panel') {
+      setShowMissionControl(true);
+      setMissionControlCollapsed(false);
+      return { kind: 'handled', localAssistantMessage: '🎛️ Mission Control opened. Watch my autonomous operations in real-time!' };
+    }
+    if (lower === 'hide mission control' || lower === 'close mission control' || lower === 'hide autonomy') {
+      setShowMissionControl(false);
+      return { kind: 'handled', localAssistantMessage: 'Mission Control hidden.' };
     }
 
     // Help command system
@@ -3341,7 +3371,12 @@ SUB_AGENT_MAX_PLAYBOOK_UPDATES=100
         setIsTyping(false);
         setStreamingMessageId(null);
         streamingMessageIdRef.current = null;
-        streamingHasReceivedChunkRef.current = false;
+        // Delay resetting hasChunks flag to allow the legacy speak_response to be properly ignored.
+        // The backend sends both streaming chunks AND a legacy speak_response for backward compatibility.
+        // Without this delay, the speak_response handler may create a duplicate message.
+        setTimeout(() => {
+          streamingHasReceivedChunkRef.current = false;
+        }, 500);
       }
     });
 
@@ -4106,6 +4141,18 @@ SUB_AGENT_MAX_PLAYBOOK_UPDATES=100
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Memory</span>
             </button>
             <button
+              onClick={() => setShowKBPanel(!showKBPanel)}
+              className={`flex items-center gap-2 px-3 py-1 border rounded-full transition-colors ${
+                showKBPanel
+                  ? 'bg-primary/20 border-primary text-primary'
+                  : 'bg-black/40 border-border-dark hover:bg-panel-dark text-slate-400'
+              }`}
+              title="Vector KB Status (Long-Term Memory)"
+            >
+              <span className="material-symbols-outlined text-sm">psychology</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest">KB</span>
+            </button>
+            <button
               onClick={() => {
                 const newState = !voiceOutputEnabled;
                 setVoiceOutputEnabled(newState);
@@ -4489,6 +4536,27 @@ SUB_AGENT_MAX_PLAYBOOK_UPDATES=100
           onClose={() => setShowProfilesPanel(false)}
           backendUrl={BACKEND_URL}
         />
+      )}
+
+      {/* KB Status Panel - Phase I: Cognitive Bridge */}
+      {showKBPanel && (
+        <div className="fixed bottom-4 right-4 z-50 w-96 max-h-[80vh] overflow-auto">
+          <KBStatusPanel
+            backendUrl={BACKEND_URL}
+            onClose={() => setShowKBPanel(false)}
+          />
+        </div>
+      )}
+
+      {/* Mission Control Panel - Phase J: Level 5 Autonomy Observability */}
+      {showMissionControl && (
+        <div className={`fixed ${missionControlCollapsed ? 'bottom-4 left-4 w-64' : 'bottom-4 left-4 w-[500px] max-h-[80vh]'} z-50 transition-all duration-300`}>
+          <MissionControl
+            apiUrl={BACKEND_URL}
+            collapsed={missionControlCollapsed}
+            onToggleCollapse={() => setMissionControlCollapsed(!missionControlCollapsed)}
+          />
+        </div>
       )}
     </div>
   );
